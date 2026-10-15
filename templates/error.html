@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="error-page"><p class="eyebrow">访问提示</p><h1>{{ title }}</h1><p class="muted" role="alert">{{ message }}</p><a class="button" href="{{ url_for('index') }}">返回首页 <span aria-hidden="true">→</span></a></section>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "auth/layout.html" %}
+{% block intro_title %}欢迎回来，<br>继续你的发现。{% endblock %}
+{% block form_content %}
+<p class="eyebrow form-eyebrow">很高兴再次见到你</p>
+<h2 id="form-title">登录问卷小站</h2>
+<p class="form-subtitle">还没有账号？<a href="{{ url_for('auth.register') }}">创建一个 <span aria-hidden="true">↗</span></a></p>
+{% if error %}<p class="notice error" role="alert">{{ error }}</p>{% endif %}
+<form method="post" action="{{ url_for('auth.login') }}" class="account-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field"><label for="username">用户名</label><input id="username" name="username" type="text" value="{{ username }}" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="username-help" required><p class="field-help" id="username-help">使用注册时的用户名，英文字母不区分大小写。</p></div>
+    <div class="field"><label for="password">密码</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+    <button class="button full-width" type="submit">登录 <span aria-hidden="true">→</span></button>
+</form>
+<p class="form-footnote">登录后可查看你的账号信息。</p>
+{% endblock %}

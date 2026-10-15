@@ -3,6 +3,7 @@
 import os
 
 import click
+from flask import current_app, g
 from pymongo import MongoClient
 from pymongo.errors import CollectionInvalid, PyMongoError
 
@@ -42,6 +43,19 @@ def create_client(uri=None):
 
 def get_database(client, name=None):
     return client[name or os.environ.get("MONGODB_DB_NAME", "survey_system")]
+
+
+def get_request_database():
+    """同一网页请求复用连接，请求结束后关闭。"""
+    if "mongo_client" not in g:
+        g.mongo_client = create_client(current_app.config["MONGODB_URI"])
+    return get_database(g.mongo_client, current_app.config["MONGODB_DB_NAME"])
+
+
+def close_request_client(error=None):
+    client = g.pop("mongo_client", None)
+    if client is not None:
+        client.close()
 
 
 def initialize_database(database):

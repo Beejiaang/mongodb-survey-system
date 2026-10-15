@@ -1,11 +1,18 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <title>问卷系统</title>
-</head>
-<body>
-    <h1>{{ title }}</h1>
-    <p>欢迎使用问卷系统。</p>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+<section class="welcome-grid">
+    <div class="welcome-copy">
+        <p class="eyebrow">从一个问题开始</p>
+        <h1>{{ title }}</h1>
+        <p class="lead">欢迎使用问卷系统。</p>
+        <p class="muted intro">把好奇变成问题，让回答带来发现。创建自己的账号，开启你的问卷之旅。</p>
+        <div class="actions"><a class="button" href="{{ url_for('auth.register') }}">创建我的账号 <span aria-hidden="true">→</span></a><a class="text-link" href="{{ url_for('auth.login') }}">已有账号，去登录</a></div>
+        <div class="welcome-note"><span class="status-dot" aria-hidden="true"></span>账号功能已开放，问卷功能正在准备中。</div>
+    </div>
+    <div class="illustration" aria-hidden="true">
+        <div class="paper-tag">每一个想法，都值得被听见</div>
+        <div class="survey-paper"><span class="paper-label">一份小小的好奇</span><div class="paper-title">今天，你有什么新发现？</div><div class="paper-line long"></div><div class="paper-line"></div><div class="sample-option"><span class="sample-circle"></span> 一个有趣的想法</div><div class="sample-option selected"><span class="sample-circle"></span> 一个不同的答案 <span class="check">✓</span></div><div class="sample-option"><span class="sample-circle"></span> 一次新的开始</div><div class="paper-footer">认真提问 · 用心倾听 <span>↗</span></div></div>
+        <div class="paper-caption">好的问题，是发现的开始。</div>
+    </div>
+</section>
+{% endblock %}

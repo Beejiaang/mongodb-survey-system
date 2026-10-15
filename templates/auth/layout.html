@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-grid">
+    <aside class="auth-intro">
+        <p class="eyebrow">问卷小站 · 欢迎你</p>
+        <h1>{% block intro_title %}{% endblock %}</h1>
+        <p class="muted">每一次认真提问，<br>都是一次认识世界的机会。</p>
+        <div class="intro-art" aria-hidden="true"><span>?</span><i></i><b>↗</b></div>
+        <p class="intro-foot">从这里，收集新的可能。</p>
+    </aside>
+    <section class="auth-panel" aria-labelledby="form-title">
+        {% block form_content %}{% endblock %}
+    </section>
+</div>
+{% endblock %}

@@ -4,7 +4,7 @@
 
 ## 当前进度
 
-已实现 Flask 首页、MongoDB 集合初始化和用户数据处理。数据库包含 `users`、`surveys`、`responses`；用户层已支持用户名规范化、密码哈希、保存和查询。注册登录网页、会话管理、问卷和统计功能将在后续步骤实现。
+已实现首页、注册、登录、退出和个人账号页面，以及 MongoDB 集合初始化和用户数据处理。注册写入 `users`，登录使用相同的用户名规则和密码哈希验证。`surveys`、`responses` 已建好，等待后续问卷功能接入。
 
 项目分为两个阶段：先完成初始需求，再在现有代码上实现需求变更。第二阶段需要保留第一阶段的核心结构，并记录数据与功能的兼容性处理。
 
@@ -48,21 +48,31 @@ $env:MONGODB_DB_NAME = "survey_system"
 .\.venv\Scripts\python.exe -m flask --app app:app run
 ```
 
-浏览器访问 <http://127.0.0.1:5000>，应显示“问卷系统首页”和“欢迎使用问卷系统。”。在终端按 `Ctrl+C` 停止服务。此命令启动本地开发服务器。
+浏览器访问 <http://127.0.0.1:5000>，可以进入注册或登录页面。注册成功后跳转登录；登录后进入个人账号页，显示用户名和北京时间的注册时间；右上角可退出。在终端按 `Ctrl+C` 停止服务。此命令启动本地开发服务器。
 
-首页仅展示欢迎文字；初始化命令及用户数据操作需要 MongoDB 正常运行。结构与处理规则见 [数据库设计](docs/数据库设计.md)。
+账号操作需要 MongoDB 正常运行。密码仍按原规则要求非空，注册时还需确认密码。用户名去首尾空白并统一小写，密码保留原始大小写和空格。字段设计见 [数据库设计](docs/数据库设计.md)，网页接口见 [账号功能说明](docs/账号功能说明.md)。
+
+登录状态由 Flask 签名会话保存，客户端会话包含用户编号、表单令牌及临时提示，不保存密码或密码哈希。开发环境自动在被 Git 忽略的 `instance/session-key` 中生成并保留随机密钥，也可通过 `FLASK_SECRET_KEY` 环境变量提供稳定密钥。HTTPS 环境可在应用配置中启用 `SESSION_COOKIE_SECURE`，本地 HTTP 开发使用默认关闭值。
 
 ## 目录结构
 
 ```text
 .
-├── app.py                 # Flask 应用与首页路由
+├── app.py                 # 应用工厂、首页和个人账号页
+├── auth.py                # 注册、登录、退出、会话和表单保护
 ├── database.py            # MongoDB 连接、集合校验和初始化命令
 ├── users.py               # 用户名、密码哈希及用户保存与查询
 ├── templates/
-│   └── index.html         # 首页模板
+│   ├── base.html          # 共用导航和页面布局
+│   ├── index.html         # 首页
+│   ├── account.html       # 个人账号页
+│   ├── error.html         # 访问错误提示
+│   └── auth/              # 注册和登录模板
+├── static/
+│   └── style.css          # 桌面和手机样式
 ├── tests/
 │   ├── test_app.py        # 首页自动测试
+│   ├── test_auth.py       # 网页账号流程和会话集成测试
 │   ├── test_users.py      # 用户名和密码处理测试
 │   └── test_database.py   # 真实 MongoDB 集成测试
 ├── docs/
@@ -101,7 +111,7 @@ $env:MONGODB_DB_NAME = "survey_system"
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
-全部测试包括首页、用户名边界及规范化、密码哈希和验证，以及真实 MongoDB 的集合、字段校验、唯一索引和重复初始化。数据库测试会创建名字为 `survey_system_test_<随机编号>` 的临时数据库，并在每项测试后清理，不向业务数据库写测试用户。MongoDB 连接失败会让测试报错。
+全部测试包括首页、用户名、密码哈希、真实 MongoDB 校验与索引，以及网页注册、重复用户名、密码确认、登录状态、退出、访问限制和表单保护。测试创建名字为 `survey_system_test_<随机编号>` 的临时数据库，并在每项测试后清理，不向业务数据库写测试用户。MongoDB 连接失败会让测试报错。
 
 数据库测试默认连接本机 27017 端口，可以通过 `MONGODB_TEST_URI` 指定另一个测试实例。只运行无需数据库的用户规则测试时，执行 `python -m unittest discover -s tests -p test_users.py -v`。提交前仍需运行完整测试。
 

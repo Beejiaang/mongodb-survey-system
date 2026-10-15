@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#23554b">
+    <title>{{ title }} · 问卷小站</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <a class="skip-link" href="#main">跳到正文</a>
+    <header class="site-header">
+        <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark" aria-hidden="true">问</span>问卷小站</a>
+        <nav aria-label="主导航">
+            {% if g.user %}
+            <a class="nav-account" href="{{ url_for('account') }}">{{ g.user.username }}</a>
+            <form method="post" action="{{ url_for('auth.logout') }}" class="nav-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="nav-button" type="submit">退出登录</button>
+            </form>
+            {% else %}
+            <a href="{{ url_for('auth.login') }}" {% if request.endpoint == 'auth.login' %}aria-current="page"{% endif %}>登录</a>
+            <a class="nav-button" href="{{ url_for('auth.register') }}" {% if request.endpoint == 'auth.register' %}aria-current="page"{% endif %}>创建账号 <span aria-hidden="true">↗</span></a>
+            {% endif %}
+        </nav>
+    </header>
+    <main id="main" class="main-shell">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}<p class="notice {{ category }}" role="status">{{ message }}</p>{% endfor %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer"><span>问卷小站</span><span>让每一份回答，都有意义。</span></footer>
+</body>
+</html>
