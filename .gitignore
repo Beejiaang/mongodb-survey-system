@@ -1,0 +1,32 @@
+# Python 环境和缓存
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# 本地配置；示例配置文件可以提交
+.env
+.env.*
+!.env.example
+instance/
+
+# 本地运行数据与日志
+data/
+logs/
+*.log
+
+# 编辑器、操作系统和 Office 临时文件
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+~$*
+
+# 课程原始题目留在本地；项目说明见 README.md
+/大作业一.docx
