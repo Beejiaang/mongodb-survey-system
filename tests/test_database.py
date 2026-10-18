@@ -11,6 +11,7 @@ from pymongo.errors import DuplicateKeyError, OperationFailure
 from app import app
 from database import COLLECTION_NAMES, create_client, initialize_database
 from users import build_user_document, create_user, find_user_by_username, verify_user_password
+from questions import build_question, validate_answer, validate_questions
 
 
 class DatabaseTests(unittest.TestCase):
@@ -38,6 +39,25 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(set(self.database.list_collection_names()), set(COLLECTION_NAMES))
         for name in COLLECTION_NAMES:
             self.assertEqual(self.database[name].count_documents({}), 0)
+
+    def test_embedded_questions_round_trip_through_mongodb(self):
+        # 仅验证嵌入结构的真实存储，不代表问卷创建接口已经实现。
+        options = [{"id": "a", "text": "苹果"}, {"id": "b", "text": "香蕉"}]
+        questions = [
+            build_question("single_choice", "单选", options=options),
+            build_question("multiple_choice", "多选", options=options,
+                           validation={"min_choices": 2, "max_choices": 2}),
+            build_question("fill_blank", "文本", input_type="text"),
+            build_question("fill_blank", "数字", input_type="number",
+                           validation={"integer_only": True, "max_value": 2**63 - 1}),
+        ]
+        survey_id = self.database.surveys.insert_one({"questions": questions}).inserted_id
+        loaded = self.database.surveys.find_one({"_id": survey_id})["questions"]
+        self.assertEqual(validate_questions(loaded), questions)
+        for question, answer in zip(loaded, ["a", ["a", "b"], "填写内容", 13800138000]):
+            self.assertEqual(validate_answer(question, answer), answer)
+        self.assertEqual(self.database.users.count_documents({}), 0)
+        self.assertEqual(self.database.responses.count_documents({}), 0)
 
     def test_initialization_preserves_existing_records(self):
         user_id = create_user(self.database, "  Alice_01  ", " Secret Case ")
