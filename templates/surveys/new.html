@@ -9,7 +9,7 @@
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 <div class="field"><label for="title">问卷标题 <span class="required-mark">必填</span></label><input id="title" name="title" value="{{ values.get('title', '') }}" required aria-describedby="title-help"><p class="field-help" id="title-help">最多 200 个字符。</p></div>
 <div class="field"><label for="description">问卷说明</label><textarea id="description" name="description" rows="5" aria-describedby="description-help">{{ values.get('description', '') }}</textarea><p class="field-help" id="description-help">介绍问卷的目的或填写说明，最多 5000 个字符。</p></div>
-<fieldset class="survey-settings"><legend>填写设置</legend><label class="check-field"><input type="checkbox" name="is_anonymous" {% if values.get('is_anonymous') == 'on' %}checked{% endif %}>匿名收集回答</label><label class="check-field"><input type="checkbox" name="allow_repeat" {% if values.get('allow_repeat') == 'on' %}checked{% endif %}>允许同一用户重复填写</label><p class="field-help">这些设置随草稿保存，将在后续发布与填写功能中生效。</p></fieldset>
+<fieldset class="survey-settings"><legend>填写设置</legend><label class="check-field"><input type="checkbox" name="is_anonymous" {% if values.get('is_anonymous') == 'on' %}checked{% endif %}>匿名收集回答</label><label class="check-field"><input type="checkbox" name="allow_repeat" {% if values.get('allow_repeat') == 'on' %}checked{% endif %}>允许同一用户重复填写</label><p class="field-help">匿名回答不保存用户编号；关闭重复填写时，同一账号只能提交一次。</p></fieldset>
 <div class="form-actions"><button type="submit" class="button">保存草稿并添加题目 →</button><a href="{{ url_for('surveys.index') }}">取消</a></div>
 </form>
 </section></div>

@@ -12,12 +12,15 @@ from werkzeug.exceptions import HTTPException
 from auth import auth, csrf_token, load_user, login_required, validate_csrf
 from database import close_request_client, init_db_command
 from survey_views import surveys, shared_surveys
+from response_views import filling
+from responses import ResponseError
 
 
 def create_app(config=None):
     application = Flask(__name__)
     application.config.from_mapping(
         SECRET_KEY=os.environ.get("FLASK_SECRET_KEY"),
+        RESPONSE_IDENTITY_KEY=os.environ.get("RESPONSE_IDENTITY_KEY"),
         MONGODB_URI=os.environ.get("MONGODB_URI", "mongodb://127.0.0.1:27017"),
         MONGODB_DB_NAME=os.environ.get("MONGODB_DB_NAME", "survey_system"),
         SESSION_COOKIE_HTTPONLY=True,
@@ -37,10 +40,21 @@ def create_app(config=None):
             pass
         application.config["SECRET_KEY"] = key_path.read_text(encoding="ascii").strip()
 
+    if not application.config["RESPONSE_IDENTITY_KEY"]:
+        key_path = Path(application.instance_path) / "response-identity-key"
+        key_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            with key_path.open("x", encoding="ascii") as key_file:
+                key_file.write(secrets.token_hex(32))
+        except FileExistsError:
+            pass
+        application.config["RESPONSE_IDENTITY_KEY"] = key_path.read_text(encoding="ascii").strip()
+
     application.cli.add_command(init_db_command)
     application.register_blueprint(auth)
     application.register_blueprint(surveys)
     application.register_blueprint(shared_surveys)
+    application.register_blueprint(filling)
     application.before_request(validate_csrf)
     application.before_request(load_user)
     application.teardown_appcontext(close_request_client)
@@ -60,6 +74,10 @@ def create_app(config=None):
     @login_required
     def account():
         return render_template("account.html", title="我的账号")
+
+    @application.errorhandler(ResponseError)
+    def response_error(error):
+        return render_template("error.html", title="填写提示", message=str(error)), error.status
 
     @application.errorhandler(PyMongoError)
     def database_unavailable(error):

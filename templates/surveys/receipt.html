@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="survey-empty"><p class="eyebrow">感谢你的参与</p><h1>提交成功</h1><p role="status">你的回答已保存，无需重复提交。</p><p class="muted">提交时间：{{ record.submitted_at|beijing_time }}（北京时间）</p><p class="field-help">回执编号：{{ record._id }}</p>
+<a class="text-link" href="{{ url_for('shared_surveys.entry', survey_id=record.survey_id) }}">{{ '返回问卷，可再次填写' if record.allow_repeat else '返回问卷' }}</a></section>
+{% endblock %}

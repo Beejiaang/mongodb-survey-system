@@ -189,7 +189,7 @@ class PublishingTests(unittest.TestCase):
         self.assertIn("你的建议", html)
         self.assertNotIn(str(self.owner), html)
         self.assertNotIn("发布问卷", html)
-        self.assertIn("答题与提交将在下一步开放", html)
+        self.assertIn("开始或继续填写", html)
 
     def test_registration_preserves_share_destination(self):
         browser = self.app.test_client()

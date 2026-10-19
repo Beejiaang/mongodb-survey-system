@@ -8,6 +8,7 @@ from pymongo import MongoClient
 from pymongo.errors import CollectionInvalid, PyMongoError
 
 from survey_schema import SURVEY_VALIDATOR, PRE_JUMP_SURVEY_VALIDATOR
+from response_schema import RESPONSE_VALIDATOR
 
 
 COLLECTION_NAMES = ("users", "surveys", "responses")
@@ -64,7 +65,7 @@ def initialize_database(database):
     """创建集合和索引；只为无规则的空问卷集合补上校验，不覆盖旧数据。"""
     for name in COLLECTION_NAMES:
         options = {}
-        validator = {"users": USER_VALIDATOR, "surveys": SURVEY_VALIDATOR}.get(name)
+        validator = {"users": USER_VALIDATOR, "surveys": SURVEY_VALIDATOR, "responses": RESPONSE_VALIDATOR}.get(name)
         if validator is not None:
             options = {
                 "validator": validator,
@@ -82,7 +83,7 @@ def initialize_database(database):
                     database.command("collMod", name, **options)
                     continue
                 # 上一步只建立空 surveys 集合，可安全补上本步骤的结构。
-                if (name == "surveys" and not existing.get("validator")
+                if (name in ("surveys", "responses") and not existing.get("validator")
                         and database[name].find_one({}, {"_id": 1}) is None):
                     database.command("collMod", name, **options)
                     continue
@@ -96,6 +97,19 @@ def initialize_database(database):
     database["surveys"].create_index(
         [("owner_id", 1), ("created_at", -1), ("_id", -1)],
         name="owner_created_at",
+    )
+
+    database.responses.create_index(
+        [("survey_id", 1), ("respondent_key", 1)], unique=True,
+        partialFilterExpression={"state": "submitted", "allow_repeat": False},
+        name="one_submission_per_user",
+    )
+    database.responses.create_index(
+        [("survey_id", 1), ("respondent_key", 1), ("state", 1), ("created_at", -1)],
+        name="respondent_progress",
+    )
+    database.responses.create_index(
+        [("survey_id", 1), ("state", 1), ("submitted_at", -1)], name="survey_submissions",
     )
 
 
