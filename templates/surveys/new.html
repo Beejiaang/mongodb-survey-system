@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="editor-shell">
+<a class="text-link" href="{{ url_for('surveys.index') }}">← 我的问卷</a>
+<section class="account-heading"><p class="eyebrow">第一步 / 基本信息</p><h1>创建一份问卷</h1><p class="muted">先保存基本信息，接着逐题添加内容。</p></section>
+<section class="editor-panel">
+{% if error %}<p class="notice error" role="alert">{{ error }}</p>{% endif %}
+<form method="post" class="account-form">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="field"><label for="title">问卷标题 <span class="required-mark">必填</span></label><input id="title" name="title" value="{{ values.get('title', '') }}" required aria-describedby="title-help"><p class="field-help" id="title-help">最多 200 个字符。</p></div>
+<div class="field"><label for="description">问卷说明</label><textarea id="description" name="description" rows="5" aria-describedby="description-help">{{ values.get('description', '') }}</textarea><p class="field-help" id="description-help">介绍问卷的目的或填写说明，最多 5000 个字符。</p></div>
+<fieldset class="survey-settings"><legend>填写设置</legend><label class="check-field"><input type="checkbox" name="is_anonymous" {% if values.get('is_anonymous') == 'on' %}checked{% endif %}>匿名收集回答</label><label class="check-field"><input type="checkbox" name="allow_repeat" {% if values.get('allow_repeat') == 'on' %}checked{% endif %}>允许同一用户重复填写</label><p class="field-help">这些设置随草稿保存，将在后续发布与填写功能中生效。</p></fieldset>
+<div class="form-actions"><button type="submit" class="button">保存草稿并添加题目 →</button><a href="{{ url_for('surveys.index') }}">取消</a></div>
+</form>
+</section></div>
+{% endblock %}

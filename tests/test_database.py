@@ -6,12 +6,15 @@ from datetime import datetime, timezone
 from uuid import uuid4
 from unittest.mock import patch
 
+from bson import ObjectId
 from pymongo.errors import DuplicateKeyError, OperationFailure
 
 from app import app
 from database import COLLECTION_NAMES, create_client, initialize_database
 from users import build_user_document, create_user, find_user_by_username, verify_user_password
 from questions import build_question, validate_answer, validate_questions
+from survey_schema import SURVEY_VALIDATOR
+from surveys import build_survey_document
 
 
 class DatabaseTests(unittest.TestCase):
@@ -41,7 +44,6 @@ class DatabaseTests(unittest.TestCase):
             self.assertEqual(self.database[name].count_documents({}), 0)
 
     def test_embedded_questions_round_trip_through_mongodb(self):
-        # 仅验证嵌入结构的真实存储，不代表问卷创建接口已经实现。
         options = [{"id": "a", "text": "苹果"}, {"id": "b", "text": "香蕉"}]
         questions = [
             build_question("single_choice", "单选", options=options),
@@ -51,7 +53,9 @@ class DatabaseTests(unittest.TestCase):
             build_question("fill_blank", "数字", input_type="number",
                            validation={"integer_only": True, "max_value": 2**63 - 1}),
         ]
-        survey_id = self.database.surveys.insert_one({"questions": questions}).inserted_id
+        document = build_survey_document(ObjectId(), "四种题目存储测试")
+        document["questions"] = questions
+        survey_id = self.database.surveys.insert_one(document).inserted_id
         loaded = self.database.surveys.find_one({"_id": survey_id})["questions"]
         self.assertEqual(validate_questions(loaded), questions)
         for question, answer in zip(loaded, ["a", ["a", "b"], "填写内容", 13800138000]):
@@ -61,12 +65,89 @@ class DatabaseTests(unittest.TestCase):
 
     def test_initialization_preserves_existing_records(self):
         user_id = create_user(self.database, "  Alice_01  ", " Secret Case ")
+        survey = build_survey_document(user_id, "已有问卷")
+        self.database.surveys.insert_one(survey)
+        saved_survey = self.database.surveys.find_one({"_id": survey["_id"]})
         initialize_database(self.database)
         stored = find_user_by_username(self.database, " ALICE_01 ")
         self.assertEqual(stored["_id"], user_id)
         self.assertTrue(verify_user_password(stored, " Secret Case "))
         self.assertFalse(verify_user_password(stored, "Secret Case"))
         self.assertEqual(self.database.users.count_documents({}), 1)
+        self.assertEqual(self.database.surveys.find_one({"_id": survey["_id"]}), saved_survey)
+
+    def test_empty_legacy_surveys_collection_gets_validator_and_index(self):
+        self.database.command("collMod", "surveys", validator={})
+        initialize_database(self.database)
+        self.assertEqual(self.database.surveys.options()["validator"], SURVEY_VALIDATOR)
+        index = self.database.surveys.index_information()["owner_created_at"]
+        self.assertEqual(index["key"], [("owner_id", 1), ("created_at", -1), ("_id", -1)])
+        self.assertEqual(self.database.surveys.count_documents({}), 0)
+
+    def test_nonempty_legacy_surveys_collection_requires_migration(self):
+        self.database.command("collMod", "surveys", validator={})
+        legacy = {"_id": ObjectId(), "legacy_title": "必须保留"}
+        self.database.surveys.insert_one(legacy)
+        with self.assertRaisesRegex(ValueError, "surveys"):
+            initialize_database(self.database)
+        self.assertEqual(self.database.surveys.find_one({"_id": legacy["_id"]}), legacy)
+        self.assertEqual(self.database.surveys.options().get("validator", {}), {})
+
+    def test_different_surveys_validator_is_not_overwritten(self):
+        legacy_validator = {"title": {"$type": "string"}}
+        self.database.command("collMod", "surveys", validator=legacy_validator)
+        with self.assertRaisesRegex(ValueError, "surveys"):
+            initialize_database(self.database)
+        self.assertEqual(self.database.surveys.options()["validator"], legacy_validator)
+
+    def test_surveys_validator_rejects_missing_fields_and_wrong_values(self):
+        valid = build_survey_document(ObjectId(), "问卷")
+        invalid_documents = []
+        for field in set(valid) - {"_id"}:
+            document = dict(valid)
+            del document[field]
+            invalid_documents.append(document)
+        for field, value in (
+            ("_id", "bad"), ("owner_id", "bad"), ("title", "  "),
+            ("title", "题" * 201), ("description", "文" * 5001),
+            ("status", "unknown"), ("is_anonymous", 1), ("allow_repeat", "false"),
+            ("questions", {}), ("created_at", None), ("updated_at", "today"),
+            ("published_at", 1), ("deadline", "tomorrow"), ("unexpected", True),
+        ):
+            invalid_documents.append(dict(valid, **{field: value}))
+        for document in invalid_documents:
+            with self.subTest(document=document):
+                with self.assertRaises(OperationFailure) as error:
+                    self.database.surveys.insert_one(document)
+                self.assertEqual(error.exception.code, 121)
+        self.assertEqual(self.database.surveys.count_documents({}), 0)
+
+    def test_surveys_validator_rejects_mismatched_question_structure(self):
+        from copy import deepcopy
+
+        valid_question = build_question("fill_blank", "文本", input_type="text")
+        invalid_questions = [{"title": "缺少配置"}]
+        for field, value in (
+            ("type", "single_choice"), ("required", "false"),
+            ("input_type", "number"), ("validation", {"min_length": -1, "max_length": None}),
+            ("validation", {"min_length": 1.5, "max_length": None}),
+            ("validation", {"min_length": None, "max_length": None, "unknown": 1}),
+            ("jump_rules", [{"target": "q2"}]), ("unknown", True),
+        ):
+            invalid_questions.append(dict(deepcopy(valid_question), **{field: value}))
+        choices = build_question("single_choice", "单选", options=[
+            {"id": "a", "text": "A"}, {"id": "b", "text": "B"},
+        ])
+        choices["options"].pop()
+        invalid_questions.append(choices)
+        for question in invalid_questions:
+            with self.subTest(question=question):
+                document = build_survey_document(ObjectId(), "非法题目")
+                document["questions"] = [question]
+                with self.assertRaises(OperationFailure) as error:
+                    self.database.surveys.insert_one(document)
+                self.assertEqual(error.exception.code, 121)
+        self.assertEqual(self.database.surveys.count_documents({}), 0)
 
     def test_normalized_username_is_unique(self):
         create_user(self.database, " Alice ", "first password")

@@ -7,6 +7,8 @@ from flask import current_app, g
 from pymongo import MongoClient
 from pymongo.errors import CollectionInvalid, PyMongoError
 
+from survey_schema import SURVEY_VALIDATOR
+
 
 COLLECTION_NAMES = ("users", "surveys", "responses")
 USER_VALIDATOR = {
@@ -59,33 +61,42 @@ def close_request_client(error=None):
 
 
 def initialize_database(database):
-    """创建集合和唯一索引；可重复执行，不删除已有文档。"""
+    """创建集合和索引；只为无规则的空问卷集合补上校验，不覆盖旧数据。"""
     for name in COLLECTION_NAMES:
         options = {}
-        if name == "users":
+        validator = {"users": USER_VALIDATOR, "surveys": SURVEY_VALIDATOR}.get(name)
+        if validator is not None:
             options = {
-                "validator": USER_VALIDATOR,
+                "validator": validator,
                 "validationLevel": "strict",
                 "validationAction": "error",
             }
         try:
             database.create_collection(name, **options)
         except CollectionInvalid:
-            # 已有用户集合必须符合当前结构，避免静默覆盖旧版规则。
-            if name == "users":
+            if validator is not None:
                 existing = database[name].options()
+                # 上一步只建立空 surveys 集合，可安全补上本步骤的结构。
+                if (name == "surveys" and not existing.get("validator")
+                        and database[name].find_one({}, {"_id": 1}) is None):
+                    database.command("collMod", name, **options)
+                    continue
                 if (
-                    existing.get("validator") != USER_VALIDATOR
+                    existing.get("validator") != validator
                     or existing.get("validationLevel", "strict") != "strict"
                     or existing.get("validationAction", "error") != "error"
                 ):
-                    raise ValueError("已有 users 集合的校验规则不同，需要先确认数据迁移方案。")
+                    raise ValueError(f"已有 {name} 集合的校验规则不同，需要先确认数据迁移方案。")
     database["users"].create_index("username", unique=True, name="username_unique")
+    database["surveys"].create_index(
+        [("owner_id", 1), ("created_at", -1), ("_id", -1)],
+        name="owner_created_at",
+    )
 
 
 @click.command("init-db")
 def init_db_command():
-    """创建问卷数据库的三个集合和用户约束。"""
+    """创建问卷数据库的三个集合、数据约束和查询索引。"""
     try:
         with create_client() as client:
             client.admin.command("ping")

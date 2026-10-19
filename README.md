@@ -4,9 +4,9 @@
 
 ## 当前进度
 
-已实现首页、注册、登录、退出和个人账号页面，以及 MongoDB 集合初始化和用户数据处理。注册写入 `users`，登录使用相同的用户名规则和密码哈希验证。`surveys`、`responses` 已建好，等待后续问卷功能接入。
+已实现首页、注册、登录、退出和个人账号页面，以及 MongoDB 集合初始化和用户数据处理。注册写入 `users`，登录使用相同的用户名规则和密码哈希验证。问卷草稿、题目保存到 `surveys`，`responses` 等待填写提交功能接入。
 
-已实现单选、多选、文本填空和数字填空的题目配置与单题答案校验，详见 [题型与校验说明](docs/题型与校验说明.md)。目前是可复用的数据处理层，问卷创建页面、保存接口及跳转执行尚未接入。
+已实现问卷创建、自己的问卷列表与详情、逐题添加和保存。支持单选、多选、文本填空和数字填空，复用 [题型与校验说明](docs/题型与校验说明.md) 中的配置校验。页面与接口见 [问卷创建与保存说明](docs/问卷创建与保存说明.md)。发布、跳转执行和整卷提交尚未开放。
 
 项目分为两个阶段：先完成初始需求，再在现有代码上实现需求变更。第二阶段需要保留第一阶段的核心结构，并记录数据与功能的兼容性处理。
 
@@ -38,7 +38,7 @@ $env:MONGODB_URI = "mongodb://127.0.0.1:27017"
 $env:MONGODB_DB_NAME = "survey_system"
 ```
 
-创建集合及用户约束（可重复执行，保留已有数据）：
+创建集合、用户与问卷约束和索引（可重复执行，保留已有数据；从旧版本更新后也执行一次）：
 
 ```powershell
 .\.venv\Scripts\python.exe -m flask --app app:app init-db
@@ -51,6 +51,8 @@ $env:MONGODB_DB_NAME = "survey_system"
 ```
 
 浏览器访问 <http://127.0.0.1:5000>，可以进入注册或登录页面。注册成功后跳转登录；登录后进入个人账号页，显示用户名和北京时间的注册时间；右上角可退出。在终端按 `Ctrl+C` 停止服务。此命令启动本地开发服务器。
+
+登录后点击“创建问卷”，保存标题、说明及填写设置，再添加题目；“我的问卷”可以重新打开已保存的草稿。页面只显示当前账号自己的问卷。更新代码后需重启已运行的开发服务。
 
 账号操作需要 MongoDB 正常运行。密码仍按原规则要求非空，注册时还需确认密码。用户名去首尾空白并统一小写，密码保留原始大小写和空格。字段设计见 [数据库设计](docs/数据库设计.md)，网页接口见 [账号功能说明](docs/账号功能说明.md)。
 
@@ -65,12 +67,16 @@ $env:MONGODB_DB_NAME = "survey_system"
 ├── database.py            # MongoDB 连接、集合校验和初始化命令
 ├── users.py               # 用户名、密码哈希及用户保存与查询
 ├── questions.py           # 题目配置和单题答案校验
+├── surveys.py             # 问卷草稿保存、所有权查询和原子追加题目
+├── survey_schema.py       # 问卷及嵌入题目的 MongoDB 校验
+├── survey_views.py        # 我的问卷、创建、详情及添加题目路由
 ├── templates/
 │   ├── base.html          # 共用导航和页面布局
 │   ├── index.html         # 首页
 │   ├── account.html       # 个人账号页
 │   ├── error.html         # 访问错误提示
-│   └── auth/              # 注册和登录模板
+│   ├── auth/              # 注册和登录模板
+│   └── surveys/           # 问卷列表、创建、详情及题目表单
 ├── static/
 │   └── style.css          # 桌面和手机样式
 ├── tests/
@@ -78,6 +84,8 @@ $env:MONGODB_DB_NAME = "survey_system"
 │   ├── test_auth.py       # 网页账号流程和会话集成测试
 │   ├── test_users.py      # 用户名和密码处理测试
 │   ├── test_questions.py  # 题型配置、答案和边界测试
+│   ├── test_surveys.py    # 问卷数据层、归属和并发测试
+│   ├── test_survey_routes.py # 问卷页面与真实数据库集成测试
 │   └── test_database.py   # 真实 MongoDB 集成测试
 ├── docs/
 │   ├── 开发计划.md         # 功能范围与开发顺序
@@ -119,7 +127,7 @@ $env:MONGODB_DB_NAME = "survey_system"
 
 数据库测试默认连接本机 27017 端口，可以通过 `MONGODB_TEST_URI` 指定另一个测试实例。只运行无需数据库的用户规则测试时，执行 `python -m unittest discover -s tests -p test_users.py -v`。提交前仍需运行完整测试。
 
-题型配置、单题答案校验及题目结构在真实 MongoDB 中的保存读取已有测试。单独运行题型单元测试可执行 `.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_questions.py -v`。创建问卷接口、添加题目页面、跳转、整卷提交和统计测试将在对应功能完成后添加。当前测试步骤和用例见 [测试说明](docs/测试说明.md)。
+题型配置、单题答案校验、问卷创建页面、题目保存、所有权隔离及并发追加已有测试。单独运行题型单元测试可执行 `.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_questions.py -v`。跳转、整卷提交和统计测试将在对应功能完成后添加。当前完整套件110项，测试步骤和结果见 [测试说明](docs/测试说明.md)。
 
 ## Git 与 GitHub
 

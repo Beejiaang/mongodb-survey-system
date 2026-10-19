@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% macro bound(name, label, integer=false) %}<div class="field"><label for="{{ name }}">{{ label }}</label><input type="number" step="{{ '1' if integer else 'any' }}" {% if integer %}min="0"{% endif %} id="{{ name }}" name="{{ name }}" value="{{ values.get(name, '') }}" placeholder="不限制"></div>{% endmacro %}
+{% block content %}
+<div class="editor-shell"><a class="text-link" href="{{ url_for('surveys.detail', survey_id=survey._id) }}">← 返回问卷</a>
+<section class="account-heading"><p class="eyebrow">{{ survey.title }} / 添加题目</p><h1>下一个好问题</h1><p class="muted">先选择题型，再填写内容与规则。</p></section>
+<nav class="question-types" aria-label="选择题型">{% for value, label in kinds.items() %}<a href="{{ url_for('surveys.new_question', survey_id=survey._id, kind=value) }}" {% if kind == value %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}</nav>
+<p class="field-help">切换题型会清空尚未保存的本题输入。</p>
+<section class="editor-panel">
+{% if error %}<p class="notice error" role="alert">{{ error }}</p>{% endif %}
+<form method="post" class="account-form">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="kind" value="{{ kind }}">
+<div class="field"><label for="title">题目内容 <span class="required-mark">必填</span></label><input id="title" name="title" value="{{ values.get('title', '') }}" required></div>
+<label class="check-field"><input name="required" type="checkbox" {% if values.get('required') == 'on' %}checked{% endif %}>设为必答题</label>
+{% if kind in ['single_choice', 'multiple_choice'] %}<div class="field"><label for="options_text">选项</label><textarea id="options_text" name="options_text" rows="5" required aria-describedby="options-help">{{ values.get('options_text', '') }}</textarea><p id="options-help" class="field-help">每行一个选项，至少填写两个；空白行将忽略。</p></div>{% endif %}
+{% if kind == 'multiple_choice' %}<div class="field-pair">{{ bound('min_choices', '最少选择数', true) }}{{ bound('max_choices', '最多选择数', true) }}</div><p class="field-help">要求恰好选择两个时，将上下限都设为 2。</p>
+{% elif kind == 'text' %}<div class="field-pair">{{ bound('min_length', '最短长度', true) }}{{ bound('max_length', '最长长度', true) }}</div>
+{% elif kind == 'number' %}<div class="field-pair">{{ bound('min_value', '最小值') }}{{ bound('max_value', '最大值') }}</div><label class="check-field"><input name="integer_only" type="checkbox" {% if values.get('integer_only') == 'on' %}checked{% endif %}>只能填写整数</label>{% endif %}
+{% if kind != 'single_choice' %}<p class="field-help">留空表示不限制，上下限包含边界。选答题允许不填写；填写后仍须满足限制。</p>{% endif %}
+<div class="form-actions"><button class="button" type="submit">保存题目 →</button><a href="{{ url_for('surveys.detail', survey_id=survey._id) }}">取消</a></div>
+</form></section></div>
+{% endblock %}

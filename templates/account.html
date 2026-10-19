@@ -3,6 +3,6 @@
 <section class="account-heading"><p class="eyebrow">我的空间</p><h1>你好，{{ g.user.username }}<span class="greeting-dot">。</span></h1><p class="muted">欢迎来到问卷小站，你的账号已准备就绪。</p></section>
 <div class="account-grid">
     <section class="profile-card" aria-labelledby="profile-title"><div class="profile-heading"><span class="avatar" aria-hidden="true">{{ g.user.username[0]|upper }}</span><div><h2 id="profile-title">我的账号</h2><span class="small-status"><span class="status-dot" aria-hidden="true"></span>已登录</span></div></div><dl><div><dt>用户名</dt><dd>{{ g.user.username }}</dd></div><div><dt>注册时间</dt><dd>{{ g.user.created_at|beijing_time }}<span class="timezone-note">北京时间</span></dd></div></dl></section>
-    <section class="coming-soon" aria-labelledby="survey-title"><span class="coming-icon" aria-hidden="true">▤</span><span class="label-tag">即将开放</span><h2 id="survey-title">你的第一份问卷</h2><p class="muted">创建问卷、收集回答、发现结果。<br>这些功能将在后续逐步开放。</p><p class="coming-note">现在，你可以通过右上角安全退出账号。</p></section>
+    <section class="coming-soon" aria-labelledby="survey-title"><span class="coming-icon" aria-hidden="true">▤</span><h2 id="survey-title">从一个问题开始</h2><p class="muted">为你的想法创建一份问卷，逐题添加内容，保存为自己的草稿。</p><div class="actions"><a class="button" href="{{ url_for('surveys.new') }}">创建问卷 <span aria-hidden="true">＋</span></a><a class="text-link" href="{{ url_for('surveys.index') }}">我的问卷</a></div></section>
 </div>
 {% endblock %}
