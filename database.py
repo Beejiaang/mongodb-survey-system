@@ -7,7 +7,7 @@ from flask import current_app, g
 from pymongo import MongoClient
 from pymongo.errors import CollectionInvalid, PyMongoError
 
-from survey_schema import SURVEY_VALIDATOR
+from survey_schema import SURVEY_VALIDATOR, PRE_JUMP_SURVEY_VALIDATOR
 
 
 COLLECTION_NAMES = ("users", "surveys", "responses")
@@ -76,6 +76,11 @@ def initialize_database(database):
         except CollectionInvalid:
             if validator is not None:
                 existing = database[name].options()
+                if (name == "surveys" and existing.get("validator") == PRE_JUMP_SURVEY_VALIDATOR
+                        and existing.get("validationLevel", "strict") == "strict"
+                        and existing.get("validationAction", "error") == "error"):
+                    database.command("collMod", name, **options)
+                    continue
                 # 上一步只建立空 surveys 集合，可安全补上本步骤的结构。
                 if (name == "surveys" and not existing.get("validator")
                         and database[name].find_one({}, {"_id": 1}) is None):

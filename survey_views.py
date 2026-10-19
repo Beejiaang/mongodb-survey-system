@@ -8,9 +8,10 @@ from flask import Blueprint, abort, flash, g, redirect, render_template, request
 from auth import login_required
 from database import get_request_database
 from questions import build_question
+from jumps import OPERATORS, allowed_operators, next_question_id, question_revision
 from surveys import (add_question, create_survey, get_owned_survey, list_owned_surveys,
                      availability, publish_survey, set_survey_deadline, close_survey,
-                     get_shared_survey)
+                     get_shared_survey, save_jump_rules)
 
 
 surveys = Blueprint("surveys", __name__, url_prefix="/surveys")
@@ -207,3 +208,97 @@ def new_question(survey_id):
             return redirect(url_for("surveys.detail", survey_id=survey_id), code=303)
     return render_template("surveys/question_new.html", title="添加题目", survey=survey,
                            kind=kind, kinds=KINDS, error=error, values=request.form), status
+
+
+@surveys.route("/<survey_id>/questions/<question_id>/jumps", methods=("GET", "POST"))
+@login_required
+def edit_jumps(survey_id, question_id):
+    from copy import deepcopy
+
+    survey = _owned(survey_id)
+    question = next((q for q in survey["questions"] if q["id"] == question_id), None)
+    if question is None:
+        abort(404)
+    if survey["status"] != "draft":
+        return render_template("error.html", title="问卷不可修改", message="只有草稿问卷可以配置跳转。"), 409
+    labels = {q["id"]: f"第{i + 1}题：{q['title']}" for i, q in enumerate(survey["questions"])}
+    position = next(i for i, q in enumerate(survey["questions"]) if q["id"] == question_id)
+    revision = question_revision(survey["questions"])
+    error, result, status = None, None, 200
+    if request.method == "POST":
+        if request.form.get("revision") != revision:
+            error, status = "题目或规则已变化，请刷新页面后重新操作。", 409
+        else:
+            try:
+                action = request.form.get("action")
+                rules = deepcopy(question["jump_rules"])
+                if action == "test":
+                    if question["type"] == "single_choice":
+                        answer = request.form.get("test_answer") or None
+                    elif question["type"] == "multiple_choice":
+                        answer = request.form.getlist("test_answer")
+                    elif question.get("input_type") == "number":
+                        answer = _bound("test_number", "试算答案")
+                    else:
+                        answer = request.form.get("test_text", "")
+                    target = next_question_id(survey["questions"], question_id, answer)
+                    result = "下一步：" + (labels[target] if target else "提交确认页")
+                else:
+                    if action == "add":
+                        op = request.form.get("operator", "")
+                        if op not in allowed_operators(question):
+                            raise ValueError("请选择适合当前题型的条件。")
+                        if question["type"] == "single_choice":
+                            value = request.form.get("value", "")
+                        elif question["type"] == "multiple_choice":
+                            value = request.form.getlist("value")
+                        else:
+                            value = _bound("number", "条件数值")
+                            if op == "between":
+                                value = [value, _bound("upper", "区间上限")]
+                        rules.append({"condition": {"operator": op, "value": value},
+                                      "target_question_id": request.form.get("target", "")})
+                    elif action in ("delete", "up", "down"):
+                        try:
+                            index = int(request.form.get("index", ""))
+                        except ValueError as invalid:
+                            raise ValueError("规则编号无效。") from invalid
+                        if not 0 <= index < len(rules):
+                            raise ValueError("规则不存在。")
+                        if action == "delete":
+                            rules.pop(index)
+                        else:
+                            other = index + (-1 if action == "up" else 1)
+                            if not 0 <= other < len(rules):
+                                raise ValueError("规则已在边界，无法继续移动。")
+                            rules[index], rules[other] = rules[other], rules[index]
+                    else:
+                        raise ValueError("不支持的操作。")
+                    if not save_jump_rules(get_request_database(), survey["_id"], g.user["_id"],
+                                           question_id, rules, revision):
+                        error, status = "问卷已变化或发布，请刷新后重试。", 409
+                    else:
+                        flash("跳转规则已保存。", "success")
+                        return redirect(url_for("surveys.edit_jumps", survey_id=survey_id,
+                                                question_id=question_id), code=303)
+            except ValueError as invalid:
+                error, status = str(invalid), 400
+    option_labels = {o["id"]: o["text"] for o in question.get("options", [])}
+    descriptions = []
+    for rule in question["jump_rules"]:
+        condition = rule["condition"]
+        value = condition["value"]
+        if question["type"] == "single_choice":
+            text = option_labels[value]
+        elif question["type"] == "multiple_choice":
+            text = "、".join(option_labels[item] for item in value)
+        elif isinstance(value, list):
+            text = f"{value[0]} ～ {value[1]}"
+        else:
+            text = str(value)
+        descriptions.append(f"{OPERATORS[condition['operator']]}：{text} → {labels[rule['target_question_id']]}")
+    return render_template("surveys/jumps.html", title="配置跳转", survey=survey,
+                           question=question, targets=survey["questions"][position + 1:],
+                           labels=labels, operators=allowed_operators(question), operator_labels=OPERATORS,
+                           descriptions=descriptions, revision=revision, values=request.form,
+                           error=error, result=result), status

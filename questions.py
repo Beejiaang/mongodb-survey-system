@@ -1,4 +1,4 @@
-"""题目配置及单题答案校验；不连接数据库，不执行跳转。"""
+"""题目配置及单题答案校验；跳转计算由 jumps 模块提供。"""
 
 from copy import deepcopy
 from math import ceil, floor, isfinite
@@ -90,8 +90,6 @@ def validate_question(question):
     q["title"] = _text(q["title"], "题目标题")
     if type(q["required"]) is not bool:
         raise ValueError("是否必答必须是布尔值。")
-    if not isinstance(q["jump_rules"], list) or q["jump_rules"]:
-        raise ValueError("当前步骤尚未实现跳转规则，jump_rules 必须为空数组。")
     rules = q["validation"]
     if not isinstance(rules, dict):
         raise ValueError("校验规则必须是对象。")
@@ -138,6 +136,8 @@ def validate_question(question):
             low, high = rules["min_value"], rules["max_value"]
             if low is not None and high is not None and ceil(low) > floor(high):
                 raise ValueError("数字范围内没有可填写的整数。")
+    from jumps import validate_jump_rules
+    validate_jump_rules(q)
     return q
 
 
@@ -148,6 +148,8 @@ def validate_questions(questions):
     result = [validate_question(question) for question in questions]
     if len({q["id"] for q in result}) != len(result):
         raise ValueError("同一问卷内的题目编号不能重复。")
+    from jumps import validate_targets
+    validate_targets(result)
     return result
 
 

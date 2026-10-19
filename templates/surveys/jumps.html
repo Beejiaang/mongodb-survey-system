@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% macro token() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="revision" value="{{ revision }}">{% endmacro %}
+{% block content %}
+<div class="editor-shell"><a class="text-link" href="{{ url_for('surveys.detail', survey_id=survey._id) }}">← 返回问卷</a>
+<section class="account-heading"><p class="eyebrow">{{ survey.title }} / 跳转规则</p><h1>{{ labels[question.id] }}</h1><p class="muted">按列表从上到下判断，第一条命中的规则生效。未命中或选答题留空时，顺序进入下一题。</p></section>
+{% if error %}<p class="notice error" role="alert">{{ error }}</p>{% endif %}
+{% if result %}<p class="notice success" role="status">{{ result }}</p>{% endif %}
+<section class="editor-panel"><h2>已保存的规则</h2>
+{% for description in descriptions %}<div class="jump-rule"><p>{{ loop.index }}. {{ description }}</p><form method="post" class="form-actions">{{ token() }}<input type="hidden" name="index" value="{{ loop.index0 }}"><button class="nav-button" name="action" value="up" {% if loop.first %}disabled{% endif %}>上移</button><button class="nav-button" name="action" value="down" {% if loop.last %}disabled{% endif %}>下移</button><button class="nav-button" name="action" value="delete">删除规则</button></form></div>{% else %}<p class="muted">暂无规则，将按题目顺序继续。</p>{% endfor %}
+</section>
+{% if operators and targets %}
+<section class="editor-panel"><h2>添加一条规则</h2>
+{% if question.type == 'multiple_choice' %}<p class="field-help">指定 A、B 时：“至少包含”允许选择 A+B+C；“恰好选择”只允许 A+B。选项顺序不影响判断。两种条件同时命中时，位置靠前的规则优先。</p>{% endif %}
+<form method="post" class="account-form">{{ token() }}<input type="hidden" name="action" value="add">
+<div class="field"><label for="operator">触发条件</label><select id="operator" name="operator">{% for op in operators %}<option value="{{ op }}" {% if values.get('operator') == op %}selected{% endif %}>{{ operator_labels[op] }}</option>{% endfor %}</select></div>
+{% if question.type == 'single_choice' %}<div class="field"><label for="value">指定选项</label><select name="value" id="value">{% for option in question.options %}<option value="{{ option.id }}" {% if values.get('value') == option.id %}selected{% endif %}>{{ option.text }}</option>{% endfor %}</select></div>
+{% elif question.type == 'multiple_choice' %}<fieldset class="survey-settings"><legend>指定选项（至少一项）</legend>{% for option in question.options %}<label class="check-field"><input type="checkbox" name="value" value="{{ option.id }}" {% if option.id in values.getlist('value') %}checked{% endif %}>{{ option.text }}</label>{% endfor %}</fieldset>
+{% else %}<div class="field-pair"><div class="field"><label for="number">比较值或区间下限</label><input type="number" step="any" id="number" name="number" value="{{ values.get('number', '') }}" required></div><div class="field"><label for="upper">区间上限（仅区间条件使用）</label><input type="number" step="any" id="upper" name="upper" value="{{ values.get('upper', '') }}"></div></div>{% endif %}
+<div class="field"><label for="target">跳到题目</label><select name="target" id="target">{% for target in targets %}<option value="{{ target.id }}" {% if values.get('target') == target.id %}selected{% endif %}>{{ labels[target.id] }}</option>{% endfor %}</select></div>
+<button class="button" type="submit">保存规则</button></form></section>
+{% else %}<p class="notice">{{ '请先在问卷后面添加题目，再配置跳转。' if operators else '文本填空不配置跳转，按题目顺序继续。' }}</p>{% endif %}
+<section class="editor-panel"><h2>试算当前题的跳转</h2><p class="field-help">使用已保存的规则计算，不保存答案。先校验答案，再判断跳转；必答题不能留空。</p>
+<form method="post" class="account-form">{{ token() }}<input type="hidden" name="action" value="test">
+{% if question.type == 'single_choice' %}<div class="field"><label for="test-answer">模拟选择</label><select id="test-answer" name="test_answer"><option value="">不选择</option>{% for option in question.options %}<option value="{{ option.id }}" {% if values.get('test_answer') == option.id %}selected{% endif %}>{{ option.text }}</option>{% endfor %}</select></div>
+{% elif question.type == 'multiple_choice' %}<fieldset class="survey-settings"><legend>模拟选择</legend>{% for option in question.options %}<label class="check-field"><input type="checkbox" name="test_answer" value="{{ option.id }}" {% if option.id in values.getlist('test_answer') %}checked{% endif %}>{{ option.text }}</label>{% endfor %}</fieldset>
+{% elif question.input_type == 'number' %}<div class="field"><label for="test-number">模拟数字</label><input type="number" step="any" name="test_number" id="test-number" value="{{ values.get('test_number', '') }}"></div>
+{% else %}<div class="field"><label for="test-text">模拟文本</label><input name="test_text" id="test-text" value="{{ values.get('test_text', '') }}"></div>{% endif %}
+<button class="button" type="submit">试算下一题</button></form></section></div>
+{% endblock %}

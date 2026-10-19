@@ -84,6 +84,8 @@ def list_owned_surveys(database, owner_id):
 def add_question(database, survey_id, owner_id, question):
     """单条更新同时检查所有权、草稿状态和编号唯一性，防止并发覆盖。"""
     question = validate_question(question)
+    if question["jump_rules"]:
+        raise ValueError("新题位于问卷末尾，请添加后续题目后再配置跳转。")
     survey_id, owner_id = _object_id(survey_id), _object_id(owner_id)
     if survey_id is None or owner_id is None:
         return False
@@ -106,6 +108,29 @@ def utcnow():
     """与 BSON 日期一致，按毫秒比较截止边界。"""
     now = datetime.now(timezone.utc)
     return now.replace(microsecond=now.microsecond // 1000 * 1000)
+
+
+def save_jump_rules(database, survey_id, owner_id, question_id, rules, revision):
+    from copy import deepcopy
+    from jumps import question_revision
+
+    survey = get_owned_survey(database, survey_id, owner_id)
+    if survey is None or survey["status"] != "draft":
+        return False
+    if revision != question_revision(survey["questions"]):
+        return False
+    questions = deepcopy(survey["questions"])
+    question = next((q for q in questions if q["id"] == question_id), None)
+    if question is None:
+        return False
+    question["jump_rules"] = deepcopy(rules)
+    questions = validate_questions(questions)
+    result = database.surveys.update_one(
+        {"_id": survey["_id"], "owner_id": survey["owner_id"], "status": "draft",
+         "questions": survey["questions"]},
+        {"$set": {"questions": questions, "updated_at": utcnow()}},
+    )
+    return result.matched_count == 1
 
 
 def availability(survey, now=None):

@@ -82,3 +82,34 @@ SURVEY_VALIDATOR = {
         "properties": _SURVEY_PROPERTIES,
     },
 }
+
+# 唯一允许自动升级的上一版：所有 jump_rules 都被要求为空。
+# 新版接受上一版全部合法文档，升级只放宽并细化该字段，不修改数据。
+PRE_JUMP_SURVEY_VALIDATOR = deepcopy(SURVEY_VALIDATOR)
+
+
+def _condition(operators, value_schema):
+    return {"bsonType": "object", "required": ["operator", "value"],
+            "additionalProperties": False,
+            "properties": {"operator": {"enum": operators}, "value": value_schema}}
+
+
+_FINITE_TYPE = {"bsonType": ["int", "long", "double"]}
+_CONDITIONS = [
+    _condition(["equals"], _TEXT),
+    _condition(["contains_all", "equals_set"],
+               {"bsonType": "array", "minItems": 1, "uniqueItems": True, "items": _TEXT}),
+    None,  # 文本填空仍不支持跳转。
+    {"oneOf": [_condition(["eq", "lt", "lte", "gt", "gte"], _FINITE_TYPE),
+               _condition(["between"], {"bsonType": "array", "minItems": 2,
+                                         "maxItems": 2, "items": _FINITE_TYPE})]},
+]
+for _variant, _rule_condition in zip(QUESTION_SCHEMA["oneOf"], _CONDITIONS):
+    if _rule_condition is not None:
+        _variant["properties"]["jump_rules"] = {
+            "bsonType": "array", "items": {
+                "bsonType": "object", "required": ["condition", "target_question_id"],
+                "additionalProperties": False,
+                "properties": {"condition": _rule_condition, "target_question_id": _TEXT},
+            },
+        }

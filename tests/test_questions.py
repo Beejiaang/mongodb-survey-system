@@ -109,7 +109,7 @@ class QuestionTests(unittest.TestCase):
             with self.subTest(kind=kind, kwargs=kwargs), self.assertRaises(ValueError):
                 build_question(kind, "题目", **kwargs)
 
-    def test_pending_jump_rules_are_explicitly_rejected(self):
+    def test_malformed_jump_rules_are_explicitly_rejected(self):
         for rules in (None, {}, [{"target": "q2"}]):
             with self.subTest(rules=rules), self.assertRaises(ValueError):
                 validate_question(dict(choice(), jump_rules=rules))
