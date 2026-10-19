@@ -4,7 +4,7 @@
 {% if surveys %}
 <div class="survey-list">
 {% for survey in surveys %}
-<article class="survey-card"><div class="survey-card-top"><span class="status-badge">{{ status_labels[survey.status] }}</span><span class="muted">{{ survey.questions|length }} 道题目</span></div><h2><a href="{{ url_for('surveys.detail', survey_id=survey._id) }}">{{ survey.title }}</a></h2><p class="survey-description">{{ survey.description or '暂无问卷说明' }}</p><div class="survey-card-bottom"><time class="muted">{{ survey.created_at|beijing_time }} 创建</time><a class="text-link" href="{{ url_for('surveys.detail', survey_id=survey._id) }}">查看问卷 →</a></div></article>
+<article class="survey-card"><div class="survey-card-top"><span class="status-badge">{{ status_labels[availability(survey)] }}</span><span class="muted">{{ survey.questions|length }} 道题目</span></div><h2><a href="{{ url_for('surveys.detail', survey_id=survey._id) }}">{{ survey.title }}</a></h2><p class="survey-description">{{ survey.description or '暂无问卷说明' }}</p><div class="survey-card-bottom"><time class="muted">{{ survey.created_at|beijing_time }} 创建</time><a class="text-link" href="{{ url_for('surveys.detail', survey_id=survey._id) }}">查看问卷 →</a></div></article>
 {% endfor %}
 </div>
 {% else %}

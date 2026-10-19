@@ -2,6 +2,7 @@
 
 from functools import wraps
 import secrets
+import re
 
 from bson import ObjectId
 from flask import Blueprint, abort, flash, g, redirect, render_template, request, session, url_for
@@ -14,6 +15,12 @@ from users import create_user, find_user_by_username, verify_user_password
 
 auth = Blueprint("auth", __name__)
 _DUMMY_USER = {"password_hash": generate_password_hash(secrets.token_urlsafe(32), method="scrypt")}
+
+
+def login_destination():
+    """仅允许本站固定格式的问卷地址，防止登录后跳转到外部网站。"""
+    target = request.args.get("next", "")
+    return target if re.fullmatch(r"/survey/[0-9a-fA-F]{24}", target) else url_for("account")
 
 
 def csrf_token():
@@ -80,7 +87,8 @@ def register():
                 error, status = "这个用户名已被使用，请换一个。", 409
             else:
                 flash("注册成功，请使用新账号登录。", "success")
-                return redirect(url_for("auth.login"), code=303)
+                target = login_destination()
+                return redirect(url_for("auth.login", **({"next": target} if target != url_for("account") else {})), code=303)
     return render_template(
         "auth/register.html", title="创建账号", username=username, error=error
     ), status
@@ -89,7 +97,7 @@ def register():
 @auth.route("/login", methods=("GET", "POST"))
 def login():
     if g.user:
-        return redirect(url_for("account"))
+        return redirect(login_destination())
     username = ""
     error = None
     status = 200
@@ -108,7 +116,7 @@ def login():
                 session.clear()
                 session["user_id"] = str(user["_id"])
                 csrf_token()
-                return redirect(url_for("account"), code=303)
+                return redirect(login_destination(), code=303)
     return render_template("auth/login.html", title="登录", username=username, error=error), status
 
 

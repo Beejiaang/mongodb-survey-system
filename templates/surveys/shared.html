@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+{% if state == 'closed' or state == 'expired' %}
+<section class="survey-empty"><h1>{{ '问卷已关闭' if state == 'closed' else '问卷已截止' }}</h1><p class="muted">这份问卷当前不开放，请联系问卷创建者。</p><a class="text-link" href="{{ url_for('account') }}">返回我的账号</a></section>
+{% else %}
+<section class="account-heading"><p class="eyebrow">分享问卷</p><h1>{{ survey.title }}</h1><p class="survey-description">{{ survey.description }}</p></section>
+<div class="survey-meta"><span>{{ survey.questions|length }} 道题目</span><span>截止时间：{{ survey.deadline|beijing_time if survey.deadline else '不限制' }}（北京时间）</span></div>
+<p class="notice success">问卷已发布。当前可查看题目，答题与提交将在下一步开放。</p>
+{% include 'surveys/_questions.html' %}
+{% endif %}
+{% endblock %}

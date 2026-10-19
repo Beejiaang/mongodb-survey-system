@@ -1,16 +1,31 @@
 {% extends "base.html" %}
 {% block content %}
 <a class="text-link" href="{{ url_for('surveys.index') }}">← 我的问卷</a>
-<section class="survey-heading"><div><p class="eyebrow">问卷详情 <span class="status-badge">{{ status_labels[survey.status] }}</span></p><h1>{{ survey.title }}</h1><p class="survey-description">{{ survey.description or '暂无问卷说明' }}</p></div>{% if survey.status == 'draft' %}<a class="button" href="{{ url_for('surveys.new_question', survey_id=survey._id) }}">添加题目 ＋</a>{% endif %}</section>
+<section class="survey-heading"><div><p class="eyebrow">问卷详情 <span class="status-badge">{{ status_labels[state] }}</span></p><h1>{{ survey.title }}</h1><p class="survey-description">{{ survey.description or '暂无问卷说明' }}</p></div>{% if survey.status == 'draft' %}<a class="button" href="{{ url_for('surveys.new_question', survey_id=survey._id) }}">添加题目 ＋</a>{% endif %}</section>
 <div class="survey-meta"><span>{{ survey.questions|length }} 道题目</span><span>{{ '匿名收集' if survey.is_anonymous else '实名收集' }}</span><span>{{ '允许重复填写' if survey.allow_repeat else '每人填写一次' }}</span><span>最后保存：{{ survey.updated_at|beijing_time }}（北京时间）</span></div>
-{% if survey.status == 'draft' %}<p class="field-help draft-note">草稿仅自己可见。发布、收集回答和编辑已保存题目的功能将在后续开放。</p>{% endif %}
-{% for question in survey.questions %}
-<article class="question-card"><div class="survey-card-top"><span class="eyebrow">第 {{ loop.index }} 题 · {{ kinds[question.input_type if question.type == 'fill_blank' else question.type] }}</span><span class="status-badge">{{ '必答' if question.required else '选答' }}</span></div><h2>{{ question.title }}</h2>
-{% if question.type in ['single_choice', 'multiple_choice'] %}<ul class="question-options">{% for option in question.options %}<li><span class="preview-option {{ 'square' if question.type == 'multiple_choice' else '' }}" aria-hidden="true"></span>{{ option.text }}</li>{% endfor %}</ul>{% endif %}
-<div class="question-rules">
-{% if question.type == 'multiple_choice' %}<span>最少选择：{{ question.validation.min_choices if question.validation.min_choices is not none else '不限' }}</span><span>最多选择：{{ question.validation.max_choices if question.validation.max_choices is not none else '不限' }}</span>
-{% elif question.type == 'fill_blank' and question.input_type == 'text' %}<span>最短长度：{{ question.validation.min_length if question.validation.min_length is not none else '不限' }}</span><span>最长长度：{{ question.validation.max_length if question.validation.max_length is not none else '不限' }}</span>
-{% elif question.type == 'fill_blank' %}<span>最小值：{{ question.validation.min_value if question.validation.min_value is not none else '不限' }}</span><span>最大值：{{ question.validation.max_value if question.validation.max_value is not none else '不限' }}</span><span>{{ '仅限整数' if question.validation.integer_only else '允许小数' }}</span>{% endif %}
-</div></article>
-{% else %}<section class="survey-empty"><h2>给问卷添加第一个问题</h2><p class="muted">支持单选、多选、文本填空和数字填空。</p>{% if survey.status == 'draft' %}<a class="text-link" href="{{ url_for('surveys.new_question', survey_id=survey._id) }}">选择题型并添加 →</a>{% endif %}</section>{% endfor %}
+{% if survey.status == 'draft' %}<p class="field-help draft-note">草稿仅自己可见。发布后题目将锁定；答题提交和编辑已保存题目的功能将在后续开放。</p>{% endif %}
+<section class="editor-panel" aria-labelledby="publishing-title">
+<h2 id="publishing-title">发布与分享</h2>
+{% if error %}<p class="notice error" role="alert">{{ error }}</p>{% endif %}
+<p class="muted">发布时间：{{ survey.published_at|beijing_time if survey.published_at else '尚未发布' }}<br>截止时间：{{ survey.deadline|beijing_time if survey.deadline else '不限制' }}（北京时间）</p>
+{% if survey.status != 'closed' %}
+<form method="post" action="{{ url_for('surveys.deadline', survey_id=survey._id) }}" class="account-form">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="field"><label for="deadline">设置截止时间（北京时间）</label><input id="deadline" name="deadline" type="datetime-local" value="{{ deadline_value }}" step="60" aria-describedby="deadline-help"><p id="deadline-help" class="field-help">留空并保存可取消限制。到达截止时间立即停止开放；延长或取消已截止问卷的限制会重新开放入口。</p></div>
+<button class="button" type="submit">保存截止时间</button>
+</form>
+{% endif %}
+<div class="form-actions">
+{% if survey.status == 'draft' %}
+<form method="post" action="{{ url_for('surveys.publish', survey_id=survey._id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button" type="submit">发布问卷</button></form><span class="field-help">至少添加一道有效题目后才能发布。</span>
+{% elif survey.status == 'published' %}
+<form method="post" action="{{ url_for('surveys.close', survey_id=survey._id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button close-button" type="submit">关闭问卷</button></form><span class="field-help">关闭后不再开放，本阶段不支持重新发布。</span>
+{% else %}<p class="field-help">问卷已关闭，原有题目和数据保留，分享入口已停止开放。</p>{% endif %}
+</div>
+{% if survey.published_at %}
+<div class="field share-field"><label for="share-url">分享链接</label><input id="share-url" readonly value="{{ share_url }}"><div class="form-actions"><button class="nav-button" id="copy-share" type="button">复制链接</button><a class="text-link" href="{{ url_for('shared_surveys.entry', survey_id=survey._id) }}">查看分享入口 →</a></div><p id="copy-status" class="field-help" role="status">接收者需登录后访问。当前本机地址只适用于本机；跨设备分享需部署到可访问的地址。</p></div>
+<script src="{{ url_for('static', filename='share.js') }}" defer></script>
+{% endif %}
+</section>
+{% include 'surveys/_questions.html' %}
 {% endblock %}

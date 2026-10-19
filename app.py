@@ -11,7 +11,7 @@ from werkzeug.exceptions import HTTPException
 
 from auth import auth, csrf_token, load_user, login_required, validate_csrf
 from database import close_request_client, init_db_command
-from survey_views import surveys
+from survey_views import surveys, shared_surveys
 
 
 def create_app(config=None):
@@ -40,6 +40,7 @@ def create_app(config=None):
     application.cli.add_command(init_db_command)
     application.register_blueprint(auth)
     application.register_blueprint(surveys)
+    application.register_blueprint(shared_surveys)
     application.before_request(validate_csrf)
     application.before_request(load_user)
     application.teardown_appcontext(close_request_client)
