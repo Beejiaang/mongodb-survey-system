@@ -4,6 +4,8 @@
 
 ## 当前进度
 
+原始需求已整理为 [逐项验收清单](docs/需求验收清单.md)。2026年10月20日本轮51项业务验收点均通过，完整190项自动测试通过；过程与证据见 [第一阶段验收报告](docs/第一阶段验收报告.md)。数据库设计理由、最终项目报告和AI个人贡献总结仍待补齐，功能通过不等于提交材料全部齐备。
+
 已实现首页、注册、登录、退出和个人账号页面，以及 MongoDB 集合初始化和用户数据处理。注册写入 `users`，登录使用相同的用户名规则和密码哈希验证。问卷草稿、题目保存到 `surveys`，填写进度和正式回答保存到 `responses`。
 
 已实现问卷创建、自己的问卷列表与详情、逐题添加和保存。支持单选、多选、文本填空和数字填空，复用 [题型与校验说明](docs/题型与校验说明.md) 中的配置校验。页面与接口见 [问卷创建与保存说明](docs/问卷创建与保存说明.md)。发布、截止时间、关闭与分享入口已实现；单题跳转规则配置、优先级调整和试算已实现，详见 [跳转规则说明](docs/跳转规则说明.md)。逐题填写、返回修改、自动跳转、确认提交及答案保存已实现，见 [填写与答案保存说明](docs/填写与答案保存说明.md)。
@@ -137,7 +139,7 @@ $env:MONGODB_DB_NAME = "survey_system"
 
 数据库测试默认连接本机 27017 端口，可以通过 `MONGODB_TEST_URI` 指定另一个测试实例。只运行无需数据库的用户规则测试时，执行 `python -m unittest discover -s tests -p test_users.py -v`。提交前仍需运行完整测试。
 
-题型配置、单题答案校验、问卷创建页面、题目保存、所有权隔离及并发追加已有测试。`tests/test_publishing.py` 另覆盖发布、截止边界、关闭、分享与登录回跳。单独运行题型单元测试可执行 `.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_questions.py -v`。`tests/test_jumps.py` 覆盖跳转语义、路径、配置页面和旧结构升级；`tests/test_responses.py` 覆盖填写、提交、匿名及并发防重复；`tests/test_results.py` 覆盖统计口径、精度、分页和结果权限。当前完整套件189项，测试步骤和结果见 [测试说明](docs/测试说明.md)。
+题型配置、单题答案校验、问卷创建页面、题目保存、所有权隔离及并发追加已有测试。`tests/test_publishing.py` 另覆盖发布、截止边界、关闭、分享与登录回跳。单独运行题型单元测试可执行 `.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_questions.py -v`。`tests/test_jumps.py` 覆盖跳转语义、路径、配置页面和旧结构升级；`tests/test_responses.py` 覆盖填写、提交、匿名及并发防重复；`tests/test_results.py` 覆盖统计口径、精度、分页和结果权限。`tests/test_acceptance.py` 补充注册、配置、填写与统计的完整链路验收。当前完整套件190项，测试步骤和结果见 [测试说明](docs/测试说明.md)。
 
 ## Git 与 GitHub
 

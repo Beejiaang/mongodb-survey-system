@@ -1,0 +1,800 @@
+{
+  "started_at": "2026-10-20T13:06:54+08:00",
+  "baseline_commit": "5339af6519f7a5775aed89ad4736fd0ce14880b7",
+  "working_tree_note": "在基线之上新增整条网页验收、强化双账号并发测试并整理验收文档；业务代码未修改。",
+  "requirement_source": {
+    "file": "大作业一.docx",
+    "sha256": "88af590b01a4265c31b5da1f2d44f0bb833f4d8fa8c0852478963420b9d685ec"
+  },
+  "environment": {
+    "python": "3.12.10",
+    "mongodb": "8.0.22",
+    "timezone": "Asia/Shanghai"
+  },
+  "tests_run": 190,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "elapsed_seconds": 65.202,
+  "passed": true,
+  "business_documents_unchanged": true,
+  "new_database_names_remaining_after_tests": [],
+  "modules": {
+    "test_acceptance": 1,
+    "test_app": 1,
+    "test_auth": 16,
+    "test_database": 15,
+    "test_jumps": 24,
+    "test_publishing": 17,
+    "test_questions": 25,
+    "test_responses": 24,
+    "test_results": 14,
+    "test_survey_routes": 17,
+    "test_surveys": 17,
+    "test_users": 19
+  },
+  "cases": [
+    {
+      "id": "test_acceptance.FirstStageAcceptanceTests.test_first_stage_web_lifecycle_and_three_configured_jump_types",
+      "status": "passed"
+    },
+    {
+      "id": "test_app.HomepageTests.test_homepage_renders_html_template",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_csrf_missing_wrong_and_unicode_tokens_are_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_csrf_token_cannot_be_shared_between_browsers",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_database_failure_has_friendly_response",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_duplicate_normalized_username_is_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_get_logout_does_not_end_session",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_guest_and_other_browser_cannot_access_account",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_invalid_and_deleted_users_lose_access",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_invalid_login_username_is_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_login_rotates_session_and_old_form_cannot_log_out",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_login_uses_same_username_rules_and_preserves_password_spaces",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_password_confirmation_and_empty_password_are_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_public_pages_and_stylesheet_are_accessible",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_register_login_account_and_logout_end_to_end",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_registration_enforces_username_rules_and_escapes_input",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_username_boundaries_are_measured_after_trimming",
+      "status": "passed"
+    },
+    {
+      "id": "test_auth.AccountFlowTests.test_wrong_password_and_unknown_account_have_the_same_message",
+      "status": "passed"
+    },
+    {
+      "id": "test_database.DatabaseTests.test_cli_initializes_the_configured_database",
+      "status": "passed"
+    },
+    {
+      "id": "test_database.DatabaseTests.test_creates_three_empty_collections",
+      "status": "passed"
+    },
+    {
+      "id": "test_database.DatabaseTests.test_different_surveys_validator_is_not_overwritten",
+      "status": "passed"
+    },
+    {
+      "id": "test_database.DatabaseTests.test_embedded_questions_round_trip_through_mongodb",
+      "status": "passed"
+    },
+    {
+      "id": "test_database.DatabaseTests.test_empty_legacy_surveys_collection_gets_validator_and_index",
+      "status": "passed"
+    },
+    {
+      "id": "test_database.DatabaseTests.test_existing_different_validator_is_not_overwritten",
+      "status": "passed"
+    },
+    {
+      "id": "test_database.DatabaseTests.test_initialization_preserves_existing_records",
+      "status": "passed"
+    },
+    {
+      "id": "test_database.DatabaseTests.test_invalid_document_values_are_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "test_database.DatabaseTests.test_missing_fields_are_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "test_database.DatabaseTests.test_nonempty_legacy_surveys_collection_requires_migration",
+      "status": "passed"
+    },
+    {
+      "id": "test_database.DatabaseTests.test_normalized_username_is_unique",
+      "status": "passed"
+    },
+    {
+      "id": "test_database.DatabaseTests.test_plaintext_password_field_is_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "test_database.DatabaseTests.test_saved_user_has_bson_date_and_no_plaintext",
+      "status": "passed"
+    },
+    {
+      "id": "test_database.DatabaseTests.test_surveys_validator_rejects_mismatched_question_structure",
+      "status": "passed"
+    },
+    {
+      "id": "test_database.DatabaseTests.test_surveys_validator_rejects_missing_fields_and_wrong_values",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpIntegrationTests.test_data_service_rejects_stale_snapshot_and_invalid_full_graph",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpIntegrationTests.test_database_rejects_wrong_operator_type_and_extra_condition_keys",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpIntegrationTests.test_invalid_conditions_targets_indices_and_unknown_actions_never_write",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpIntegrationTests.test_numeric_and_single_choice_routes",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpIntegrationTests.test_ownership_csrf_and_published_lock",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpIntegrationTests.test_reorder_and_delete_persist_priority",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpIntegrationTests.test_stale_form_does_not_delete_a_different_rule",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpIntegrationTests.test_text_and_last_question_offer_no_rule_form",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpIntegrationTests.test_two_multichoice_modes_save_and_preview_differ",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpIntegrationTests.test_upgrade_known_old_schema_preserves_existing_documents_and_is_repeatable",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpLogicTests.test_config_validation_and_path_results_do_not_mutate_input",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpLogicTests.test_contains_all_allows_extras_but_requires_every_specified_option",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpLogicTests.test_equals_set_rejects_both_missing_and_extra_options_and_ignores_order",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpLogicTests.test_first_matching_rule_wins_and_reordering_changes_result",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpLogicTests.test_impossible_multi_choice_conditions_are_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpLogicTests.test_invalid_numeric_rule_values",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpLogicTests.test_last_question_ends_and_unknown_answers_are_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpLogicTests.test_numeric_operators_including_zero_negative_and_inclusive_boundaries",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpLogicTests.test_partial_path_stops_at_first_missing_and_rechecks_newly_required_questions",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpLogicTests.test_path_skips_required_questions_and_discards_their_stale_answers",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpLogicTests.test_reject_bad_conditions_wrong_type_unknown_options_and_combinations",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpLogicTests.test_single_choice_and_optional_blank_default_to_next",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpLogicTests.test_target_must_exist_in_same_survey_and_be_forward",
+      "status": "passed"
+    },
+    {
+      "id": "test_jumps.JumpLogicTests.test_validate_answer_before_evaluating_condition",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_bad_past_or_equal_deadlines_do_not_change_document",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_beijing_deadline_converts_to_utc_and_can_be_removed",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_changed_questions_during_publish_require_retry",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_close_blocks_entry_preserves_data_and_cannot_reopen",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_concurrent_publish_only_records_one_first_publication",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_deadline_exact_boundary_blocks_shared_content_without_state_write",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_draft_and_unknown_share_links_are_hidden",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_draft_with_elapsed_deadline_cannot_publish",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_empty_or_invalid_question_cannot_publish",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_extending_expired_published_survey_reopens_entry",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_external_and_malformed_login_destinations_are_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_invalid_ids_and_foreign_owner_cannot_change_lifecycle",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_mutations_require_post_and_csrf",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_only_owner_can_manage_even_if_other_reader_has_share_link",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_publish_sets_dates_locks_questions_and_keeps_share_url_stable",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_registration_preserves_share_destination",
+      "status": "passed"
+    },
+    {
+      "id": "test_publishing.PublishingTests.test_share_login_returns_to_same_questionnaire",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_all_types_have_defaults_and_independent_stable_ids",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_answer_ids_survive_reordering_and_option_label_editing",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_answer_result_does_not_share_input_list",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_bson_int64_limits_and_answers_remain_valid_after_loading",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_bson_round_trip_preserves_question_configuration",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_choice_limits_cannot_exceed_options",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_decimal_limits_and_answers",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_exact_choice_count",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_invalid_count_and_length_limits",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_invalid_numeric_rules_and_impossible_integer_interval",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_invalid_question_fields_types_and_missing_fields",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_malformed_jump_rules_are_explicitly_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_multiple_choice_inclusive_limits_and_wrong_shapes",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_normalization_does_not_mutate_inputs",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_numbers_reject_nonfinite_bool_strings_and_bson_overflow",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_numeric_range_is_inclusive_and_zero_is_a_valid_answer",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_optional_omission_bypasses_minimum_but_supplied_answer_does_not",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_options_require_unique_ids_and_nonempty_labels",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_question_list_preserves_order_and_detects_duplicate_ids",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_required_and_optional_absence_for_every_type",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_required_multiple_choice_requires_selection_even_when_minimum_is_zero",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_single_choice_valid_id_and_wrong_shapes",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_text_length_counts_unicode_codepoints_and_preserves_content",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_unlimited_text_and_numbers",
+      "status": "passed"
+    },
+    {
+      "id": "test_questions.QuestionTests.test_wrong_subtype_or_cross_type_configuration_is_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_anonymous_stores_no_user_id_and_scopes_hash_by_survey",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_close_between_validation_and_atomic_admission_rejects",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_closed_expired_draft_and_unknown_surveys_reject_without_submission",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_concurrent_completion_after_initial_read_returns_same_receipt",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_csrf_login_ownership_and_method_protection",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_duplicate_scalar_values_rejected_and_zero_and_int64_preserved",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_duplicate_submit_is_idempotent_even_after_close",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_expiry_between_validation_and_atomic_admission_rejects",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_four_types_roundtrip_and_drafts_excluded_from_submitted",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_invalid_answers_never_advance_or_write",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_jump_skips_required_and_previous_answer_change_removes_old_tail",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_multichoice_exact_and_contains_follow_configured_priority",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_multiple_users_submit_independently",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_mutated_survey_and_incomplete_tampered_progress_are_rejected",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_nonempty_unknown_legacy_responses_preserved",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_nonrepeat_concurrent_distinct_drafts_only_one_submits",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_optional_blank_has_explicit_null_and_sequential_path",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_ownership_unknown_ids_and_forged_identity",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_progress_survives_new_app_and_never_uses_cookie_for_answers",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_repeat_enabled_creates_new_attempt_after_submission",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_response_schema_and_empty_legacy_upgrade",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_stale_page_cannot_overwrite_or_submit",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_web_back_and_bad_numeric_inputs_retain_progress",
+      "status": "passed"
+    },
+    {
+      "id": "test_responses.ResponseTests.test_web_full_flow_errors_review_receipt_and_no_skipped_answer",
+      "status": "passed"
+    },
+    {
+      "id": "test_results.ResultTests.test_anonymous_and_real_results_never_expose_response_identity",
+      "status": "passed"
+    },
+    {
+      "id": "test_results.ResultTests.test_decimal_negative_zero_and_large_int64_average_are_precise",
+      "status": "passed"
+    },
+    {
+      "id": "test_results.ResultTests.test_detail_entry_and_database_failure",
+      "status": "passed"
+    },
+    {
+      "id": "test_results.ResultTests.test_draft_closed_and_expired_statistics_remain_available",
+      "status": "passed"
+    },
+    {
+      "id": "test_results.ResultTests.test_empty_and_only_draft_progress_never_count",
+      "status": "passed"
+    },
+    {
+      "id": "test_results.ResultTests.test_exact_counts_skip_blank_multichoice_denominator_and_average",
+      "status": "passed"
+    },
+    {
+      "id": "test_results.ResultTests.test_html_escaping_for_title_option_and_text_answer",
+      "status": "passed"
+    },
+    {
+      "id": "test_results.ResultTests.test_invalid_page_parameters_methods_and_no_writes",
+      "status": "passed"
+    },
+    {
+      "id": "test_results.ResultTests.test_large_finite_float_average_does_not_overflow",
+      "status": "passed"
+    },
+    {
+      "id": "test_results.ResultTests.test_other_survey_and_other_users_are_handled_independently",
+      "status": "passed"
+    },
+    {
+      "id": "test_results.ResultTests.test_owner_only_including_individual_question_and_invalid_ids",
+      "status": "passed"
+    },
+    {
+      "id": "test_results.ResultTests.test_pagination_stable_order_no_duplicates_and_excludes_blank_and_skipped",
+      "status": "passed"
+    },
+    {
+      "id": "test_results.ResultTests.test_repeat_submissions_count_each_and_fresh_reads_include_new_results",
+      "status": "passed"
+    },
+    {
+      "id": "test_results.ResultTests.test_text_and_numeric_answer_pages_only_return_nonblank_actual_path",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_all_question_kinds_can_be_added_and_read_after_new_app_login",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_create_draft_saves_complete_metadata_and_ignores_owner_spoof",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_database_failure_returns_friendly_503_without_partial_write",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_draft_accepts_optional_flags_and_empty_description",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_get_requests_do_not_create_documents_or_questions",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_guests_must_log_in_before_viewing_or_writing_surveys",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_invalid_metadata_preserves_input_and_escapes_html",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_invalid_missing_and_foreign_survey_ids_cannot_be_read_or_changed",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_invalid_question_configurations_do_not_change_saved_survey",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_invalid_question_form_keeps_entered_fields_for_correction",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_list_and_detail_show_only_the_current_owners_surveys",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_metadata_boundaries_are_enforced_before_writing",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_missing_wrong_and_cross_browser_csrf_cannot_create_or_add",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_published_and_closed_surveys_reject_question_changes",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_saved_survey_question_and_option_text_are_html_escaped",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_unknown_question_kind_is_rejected_on_get_and_post",
+      "status": "passed"
+    },
+    {
+      "id": "test_survey_routes.SurveyRouteTests.test_unset_question_bounds_remain_null_and_numbers_allow_decimals",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyDocumentTests.test_complete_normalized_draft_with_utc_dates",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyDocumentTests.test_defaults_and_documents_are_independent",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyDocumentTests.test_description_length_and_type",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyDocumentTests.test_owner_requires_object_id",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyDocumentTests.test_settings_require_real_booleans",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyDocumentTests.test_title_length_limits_apply_after_trimming",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyStorageTests.test_add_question_normalizes_and_preserves_order_and_created_time",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyStorageTests.test_add_requires_existing_owned_draft",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyStorageTests.test_concurrent_appends_do_not_lose_questions",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyStorageTests.test_concurrent_duplicate_append_succeeds_exactly_once",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyStorageTests.test_create_persists_complete_draft_and_leaves_other_collections_unchanged",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyStorageTests.test_duplicate_question_id_is_rejected_without_changes",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyStorageTests.test_invalid_creation_or_missing_owner_never_writes",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyStorageTests.test_invalid_ids_cannot_broaden_queries",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyStorageTests.test_invalid_question_does_not_change_document",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyStorageTests.test_lists_sort_newest_first_with_stable_id_tiebreaker",
+      "status": "passed"
+    },
+    {
+      "id": "test_surveys.SurveyStorageTests.test_lookup_and_lists_are_scoped_to_owner",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.PasswordVerificationTests.test_correct_password_verifies",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.PasswordVerificationTests.test_incorrect_password_fails",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.PasswordVerificationTests.test_invalid_password_input_fails",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UserDocumentTests.test_created_at_is_current_timezone_aware_utc_datetime",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UserDocumentTests.test_document_contains_exactly_the_four_agreed_fields",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UserDocumentTests.test_document_creation_rejects_empty_or_non_string_passwords",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UserDocumentTests.test_document_creation_rejects_invalid_usernames",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UserDocumentTests.test_document_stores_normalized_username",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UserDocumentTests.test_each_document_has_a_fresh_id_and_password_salt",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UserDocumentTests.test_password_is_stored_as_a_working_scrypt_hash",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UserDocumentTests.test_password_keeps_case_and_outer_spaces_without_extra_length_rules",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UserLookupTests.test_creation_and_lookup_apply_the_same_username_rules",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UserLookupTests.test_invalid_username_is_rejected_before_database_query",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UserLookupTests.test_lookup_uses_normalized_username_in_users_collection",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UsernameTests.test_accepts_both_length_boundaries_after_stripping",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UsernameTests.test_rejects_non_string_usernames",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UsernameTests.test_rejects_punctuation_internal_whitespace_and_unicode",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UsernameTests.test_rejects_short_and_long_usernames",
+      "status": "passed"
+    },
+    {
+      "id": "test_users.UsernameTests.test_strips_outer_whitespace_and_lowercases_ascii_letters",
+      "status": "passed"
+    }
+  ],
+  "elapsed_seconds_scope": "包含unittest测试发现与执行",
+  "unittest_reported_seconds": 64.954
+}

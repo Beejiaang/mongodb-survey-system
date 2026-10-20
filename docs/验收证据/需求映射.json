@@ -1,0 +1,415 @@
+{
+  "source": "大作业一.docx / 初始用户需求",
+  "checked_at": "2026-10-20T13:06:54+08:00",
+  "functional_requirement_count": 51,
+  "requirements": [
+    {
+      "group": "一、用户账号功能",
+      "id": "U01",
+      "requirement": "注册账号",
+      "acceptance": "网页注册有效账号，users保存成功；重复用户名拒绝。",
+      "test_id": "test_auth.AccountFlowTests.test_duplicate_normalized_username_is_rejected",
+      "result": "通过"
+    },
+    {
+      "group": "一、用户账号功能",
+      "id": "U02",
+      "requirement": "登录账号",
+      "acceptance": "正确密码登录；错误密码拒绝，用户名处理规则相同。",
+      "test_id": "test_auth.AccountFlowTests.test_login_uses_same_username_rules_and_preserves_password_spaces",
+      "result": "通过"
+    },
+    {
+      "group": "一、用户账号功能",
+      "id": "U03",
+      "requirement": "登录后使用自己的账号创建问卷",
+      "acceptance": "通过登录会话确定owner_id，成功保存自己的问卷。",
+      "test_id": "test_survey_routes.SurveyRouteTests.test_create_draft_saves_complete_metadata_and_ignores_owner_spoof",
+      "result": "通过"
+    },
+    {
+      "group": "一、用户账号功能",
+      "id": "U04",
+      "requirement": "查看自己创建的问卷列表",
+      "acceptance": "双账号分别创建；列表只含当前账号问卷。",
+      "test_id": "test_survey_routes.SurveyRouteTests.test_list_and_detail_show_only_the_current_owners_surveys",
+      "result": "通过"
+    },
+    {
+      "group": "一、用户账号功能",
+      "id": "U05",
+      "requirement": "查看自己问卷的统计结果",
+      "acceptance": "创建者可看结果；填写者没有管理或结果权限。",
+      "test_id": "test_results.ResultTests.test_owner_only_including_individual_question_and_invalid_ids",
+      "result": "通过"
+    },
+    {
+      "group": "一、用户账号功能",
+      "id": "U06",
+      "requirement": "用户包含用户名、密码、注册时间",
+      "acceptance": "存username、password_hash、created_at及_id；哈希可验证，无明文密码。",
+      "test_id": "test_users.UserDocumentTests.test_document_contains_exactly_the_four_agreed_fields",
+      "result": "通过"
+    },
+    {
+      "group": "一、用户账号功能",
+      "id": "U07",
+      "requirement": "用户之间权限隔离",
+      "acceptance": "其他账号不能查询或改变他人问卷；访问返回404。",
+      "test_id": "test_survey_routes.SurveyRouteTests.test_invalid_missing_and_foreign_survey_ids_cannot_be_read_or_changed",
+      "result": "通过"
+    },
+    {
+      "group": "二、问卷创建与管理",
+      "id": "S01",
+      "requirement": "创建时填写问卷标题",
+      "acceptance": "标题保存且重读一致；空白及超长输入拒绝。",
+      "test_id": "test_surveys.SurveyDocumentTests.test_title_length_limits_apply_after_trimming",
+      "result": "通过"
+    },
+    {
+      "group": "二、问卷创建与管理",
+      "id": "S02",
+      "requirement": "创建时填写问卷说明",
+      "acceptance": "说明保存，空说明允许；超过5000字符拒绝。",
+      "test_id": "test_surveys.SurveyDocumentTests.test_description_length_and_type",
+      "result": "通过"
+    },
+    {
+      "group": "二、问卷创建与管理",
+      "id": "S03",
+      "requirement": "配置是否匿名填写",
+      "acceptance": "匿名开关与草稿保存，填写后按配置处理身份。",
+      "test_id": "test_survey_routes.SurveyRouteTests.test_draft_accepts_optional_flags_and_empty_description",
+      "result": "通过"
+    },
+    {
+      "group": "二、问卷创建与管理",
+      "id": "S04",
+      "requirement": "发布问卷",
+      "acceptance": "有有效题目才能发布，记录发布时间，发布后题目锁定。",
+      "test_id": "test_publishing.PublishingTests.test_publish_sets_dates_locks_questions_and_keeps_share_url_stable",
+      "result": "通过"
+    },
+    {
+      "group": "二、问卷创建与管理",
+      "id": "S05",
+      "requirement": "设置截止时间",
+      "acceptance": "北京时间转UTC；截止瞬间及之后不再开放。",
+      "test_id": "test_publishing.PublishingTests.test_deadline_exact_boundary_blocks_shared_content_without_state_write",
+      "result": "通过"
+    },
+    {
+      "group": "二、问卷创建与管理",
+      "id": "S06",
+      "requirement": "关闭问卷",
+      "acceptance": "关闭后入口410，题目与回答保留，不能直接重新发布。",
+      "test_id": "test_publishing.PublishingTests.test_close_blocks_entry_preserves_data_and_cannot_reopen",
+      "result": "通过"
+    },
+    {
+      "group": "二、问卷创建与管理",
+      "id": "S07",
+      "requirement": "每个问卷有可访问的URL",
+      "acceptance": "/survey/<编号>可进入；草稿不公开、已发布入口稳定。",
+      "test_id": "test_publishing.PublishingTests.test_draft_and_unknown_share_links_are_hidden",
+      "result": "通过"
+    },
+    {
+      "group": "二、问卷创建与管理",
+      "id": "S08",
+      "requirement": "填写者先登录",
+      "acceptance": "未登录进入分享链接跳转登录，登录后返回原问卷。",
+      "test_id": "test_publishing.PublishingTests.test_share_login_returns_to_same_questionnaire",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q01",
+      "requirement": "一个问卷可添加多个题目",
+      "acceptance": "依次通过网页添加五道题，顺序与内容均保存。",
+      "test_id": "test_acceptance.FirstStageAcceptanceTests.test_first_stage_web_lifecycle_and_three_configured_jump_types",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q02",
+      "requirement": "单选题可设置选项",
+      "acceptance": "保存选项及稳定编号；填写必须选择已有选项。",
+      "test_id": "test_questions.QuestionTests.test_single_choice_valid_id_and_wrong_shapes",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q03",
+      "requirement": "单选题可设置必答",
+      "acceptance": "必答单选留空拒绝，选答留空允许。",
+      "test_id": "test_questions.QuestionTests.test_required_and_optional_absence_for_every_type",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q04",
+      "requirement": "多选题可设置多个选项",
+      "acceptance": "多选只接受有效编号列表，未知选项和重复选项拒绝。",
+      "test_id": "test_questions.QuestionTests.test_multiple_choice_inclusive_limits_and_wrong_shapes",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q05",
+      "requirement": "多选题可限制最少选择数",
+      "acceptance": "最少2项时选1项拒绝、选2项允许。",
+      "test_id": "test_questions.QuestionTests.test_multiple_choice_inclusive_limits_and_wrong_shapes",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q06",
+      "requirement": "多选题可限制最多选择数",
+      "acceptance": "最多3项时3项允许、4项拒绝。",
+      "test_id": "test_questions.QuestionTests.test_multiple_choice_inclusive_limits_and_wrong_shapes",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q07",
+      "requirement": "多选题可要求恰好选择指定数量",
+      "acceptance": "最少与最多均设2；仅恰好2项通过。",
+      "test_id": "test_questions.QuestionTests.test_exact_choice_count",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q08",
+      "requirement": "支持文本填空",
+      "acceptance": "填写文本后原样保存，包括非空文本首尾空格。",
+      "test_id": "test_responses.ResponseTests.test_four_types_roundtrip_and_drafts_excluded_from_submitted",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q09",
+      "requirement": "支持数字填空",
+      "acceptance": "网页数字转数值存MongoDB，零、小数及64位整数受支持。",
+      "test_id": "test_responses.ResponseTests.test_duplicate_scalar_values_rejected_and_zero_and_int64_preserved",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q10",
+      "requirement": "文本可限制最短长度",
+      "acceptance": "字符数少于下限拒绝；中文与emoji按码点计数。",
+      "test_id": "test_questions.QuestionTests.test_text_length_counts_unicode_codepoints_and_preserves_content",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q11",
+      "requirement": "文本可限制最长长度",
+      "acceptance": "字符数超过上限拒绝，等于边界允许。",
+      "test_id": "test_questions.QuestionTests.test_text_length_counts_unicode_codepoints_and_preserves_content",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q12",
+      "requirement": "数字可限制最小值",
+      "acceptance": "下限本身允许，小于下限拒绝。",
+      "test_id": "test_questions.QuestionTests.test_numeric_range_is_inclusive_and_zero_is_a_valid_answer",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q13",
+      "requirement": "数字可限制最大值",
+      "acceptance": "上限本身允许，大于上限拒绝。",
+      "test_id": "test_questions.QuestionTests.test_numeric_range_is_inclusive_and_zero_is_a_valid_answer",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q14",
+      "requirement": "数字可要求整数",
+      "acceptance": "整数题拒绝小数、布尔、NaN和无穷等错误输入。",
+      "test_id": "test_responses.ResponseTests.test_invalid_answers_never_advance_or_write",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q15",
+      "requirement": "年龄示例：整数且0～120",
+      "acceptance": "0、120合法，范围外或非整数拒绝。",
+      "test_id": "test_questions.QuestionTests.test_numeric_range_is_inclusive_and_zero_is_a_valid_answer",
+      "result": "通过"
+    },
+    {
+      "group": "三、题目与校验",
+      "id": "Q16",
+      "requirement": "手机号示例：必须为整数",
+      "acceptance": "13800138000按整数保存重读；不擅自增加11位或号段要求。",
+      "test_id": "test_database.DatabaseTests.test_embedded_questions_round_trip_through_mongodb",
+      "result": "通过"
+    },
+    {
+      "group": "四、题目跳转功能",
+      "id": "J01",
+      "requirement": "根据单选结果跳转",
+      "acceptance": "网页配置选中“其他”时跳过多选，填写路径实际生效。",
+      "test_id": "test_acceptance.FirstStageAcceptanceTests.test_first_stage_web_lifecycle_and_three_configured_jump_types",
+      "result": "通过"
+    },
+    {
+      "group": "四、题目跳转功能",
+      "id": "J02",
+      "requirement": "根据多选结果跳转",
+      "acceptance": "至少包含AB允许ABC；恰好AB拒绝额外项；按顺序首条命中。",
+      "test_id": "test_responses.ResponseTests.test_multichoice_exact_and_contains_follow_configured_priority",
+      "result": "通过"
+    },
+    {
+      "group": "四、题目跳转功能",
+      "id": "J03",
+      "requirement": "根据数字内容跳转",
+      "acceptance": "网页配置年龄小于18跳题，填写16时实际跳过身份题。",
+      "test_id": "test_acceptance.FirstStageAcceptanceTests.test_first_stage_web_lifecycle_and_three_configured_jump_types",
+      "result": "通过"
+    },
+    {
+      "group": "四、题目跳转功能",
+      "id": "J04",
+      "requirement": "条件可配置且自动执行",
+      "acceptance": "规则存questions.jump_rules，页面配置后三种跳转均实际执行。",
+      "test_id": "test_acceptance.FirstStageAcceptanceTests.test_first_stage_web_lifecycle_and_three_configured_jump_types",
+      "result": "通过"
+    },
+    {
+      "group": "五、填写问卷",
+      "id": "R01",
+      "requirement": "按顺序回答题目",
+      "acceptance": "无跳转命中时顺序进入下一题，完成后显示确认页。",
+      "test_id": "test_acceptance.FirstStageAcceptanceTests.test_first_stage_web_lifecycle_and_three_configured_jump_types",
+      "result": "通过"
+    },
+    {
+      "group": "五、填写问卷",
+      "id": "R02",
+      "requirement": "根据规则自动跳题",
+      "acceptance": "只经过规定路径，被跳过的必答题不阻止提交。",
+      "test_id": "test_responses.ResponseTests.test_jump_skips_required_and_previous_answer_change_removes_old_tail",
+      "result": "通过"
+    },
+    {
+      "group": "五、填写问卷",
+      "id": "R03",
+      "requirement": "输入不符合要求时提示错误",
+      "acceptance": "网页错误数字或少选返回400、提示错误、进度不变化。",
+      "test_id": "test_responses.ResponseTests.test_web_back_and_bad_numeric_inputs_retain_progress",
+      "result": "通过"
+    },
+    {
+      "group": "五、填写问卷",
+      "id": "R04",
+      "requirement": "填写完成后可以提交",
+      "acceptance": "逐题填写→确认→正式提交→成功回执，刷新不重复保存。",
+      "test_id": "test_responses.ResponseTests.test_web_full_flow_errors_review_receipt_and_no_skipped_answer",
+      "result": "通过"
+    },
+    {
+      "group": "五、填写问卷",
+      "id": "R05",
+      "requirement": "每次填写均保存",
+      "acceptance": "进度和正式回答在responses中；重建应用及重新登录后可继续。",
+      "test_id": "test_responses.ResponseTests.test_progress_survives_new_app_and_never_uses_cookie_for_answers",
+      "result": "通过"
+    },
+    {
+      "group": "五、填写问卷",
+      "id": "R06",
+      "requirement": "多人同时填写",
+      "acceptance": "双账号并发填写和提交，两份独立记录均保存且互不覆盖；另有同一提交及禁止重复的并发测试。",
+      "test_id": "test_responses.ResponseTests.test_multiple_users_submit_independently",
+      "result": "通过"
+    },
+    {
+      "group": "五、填写问卷",
+      "id": "R07",
+      "requirement": "匿名填写",
+      "acceptance": "匿名回答user_id=null，不保存用户名；内部伪名用于权限和防重复。",
+      "test_id": "test_responses.ResponseTests.test_anonymous_stores_no_user_id_and_scopes_hash_by_survey",
+      "result": "通过"
+    },
+    {
+      "group": "五、填写问卷",
+      "id": "R08",
+      "requirement": "允许时同一人可多次填写",
+      "acceptance": "允许重复时新填写生成新记录；同一记录重试仍幂等。",
+      "test_id": "test_responses.ResponseTests.test_repeat_enabled_creates_new_attempt_after_submission",
+      "result": "通过"
+    },
+    {
+      "group": "六、统计结果",
+      "id": "T01",
+      "requirement": "单选每个选项选择人数",
+      "acceptance": "按正式回答计数，未选项显示0；重复允许时按提交份数计算。",
+      "test_id": "test_results.ResultTests.test_exact_counts_skip_blank_multichoice_denominator_and_average",
+      "result": "通过"
+    },
+    {
+      "group": "六、统计结果",
+      "id": "T02",
+      "requirement": "单选总回答人数",
+      "acceptance": "展示本题有效回答份数，并区分留空和被跳过。",
+      "test_id": "test_results.ResultTests.test_exact_counts_skip_blank_multichoice_denominator_and_average",
+      "result": "通过"
+    },
+    {
+      "group": "六、统计结果",
+      "id": "T03",
+      "requirement": "多选每个选项选择次数",
+      "acceptance": "A+B与B两份答案使A=1、B=2；多项占比可超过100%。",
+      "test_id": "test_results.ResultTests.test_exact_counts_skip_blank_multichoice_denominator_and_average",
+      "result": "通过"
+    },
+    {
+      "group": "六、统计结果",
+      "id": "T04",
+      "requirement": "查看所有填空内容",
+      "acceptance": "仅实际路径非空答案，21条分20+1两页且无遗漏。",
+      "test_id": "test_results.ResultTests.test_pagination_stable_order_no_duplicates_and_excludes_blank_and_skipped",
+      "result": "通过"
+    },
+    {
+      "group": "六、统计结果",
+      "id": "T05",
+      "requirement": "数字平均值",
+      "acceptance": "0、10、20均计入，留空排除，平均10.00。",
+      "test_id": "test_results.ResultTests.test_exact_counts_skip_blank_multichoice_denominator_and_average",
+      "result": "通过"
+    },
+    {
+      "group": "六、统计结果",
+      "id": "T06",
+      "requirement": "查看整份问卷统计",
+      "acceptance": "汇总展示正式提交总数和所有题目统计。",
+      "test_id": "test_results.ResultTests.test_invalid_page_parameters_methods_and_no_writes",
+      "result": "通过"
+    },
+    {
+      "group": "六、统计结果",
+      "id": "T07",
+      "requirement": "查看某一道题统计",
+      "acceptance": "单题页面展示该题计数或填空答案、数字平均值。",
+      "test_id": "test_results.ResultTests.test_text_and_numeric_answer_pages_only_return_nonblank_actual_path",
+      "result": "通过"
+    },
+    {
+      "group": "六、统计结果",
+      "id": "T08",
+      "requirement": "根据已填写数据自动生成统计",
+      "acceptance": "新增正式提交后再次查询即更新，无手工计算或更新任务。",
+      "test_id": "test_results.ResultTests.test_repeat_submissions_count_each_and_fresh_reads_include_new_results",
+      "result": "通过"
+    }
+  ]
+}

@@ -265,8 +265,14 @@ class ResponseTests(unittest.TestCase):
         self.assertEqual(self.db.responses.count_documents({"state": "submitted"}), 2)
 
     def test_multiple_users_submit_independently(self):
-        for uid in (self.uid, self.other["_id"]):
-            rid = self.start(uid); self.complete(rid, uid); self.submit(rid, uid)
+        def fill_and_submit(uid):
+            rid = self.start(uid)
+            self.complete(rid, uid)
+            self.submit(rid, uid)
+            return rid
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            ids = list(pool.map(fill_and_submit, (self.uid, self.other["_id"])))
+        self.assertEqual(len(set(ids)), 2)
         self.assertEqual(self.db.responses.count_documents({"state": "submitted"}), 2)
 
     def test_closed_expired_draft_and_unknown_surveys_reject_without_submission(self):
