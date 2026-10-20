@@ -14,6 +14,7 @@ from database import close_request_client, init_db_command
 from survey_views import surveys, shared_surveys
 from response_views import filling
 from responses import ResponseError
+from result_views import results
 
 
 def create_app(config=None):
@@ -55,6 +56,7 @@ def create_app(config=None):
     application.register_blueprint(surveys)
     application.register_blueprint(shared_surveys)
     application.register_blueprint(filling)
+    application.register_blueprint(results)
     application.before_request(validate_csrf)
     application.before_request(load_user)
     application.teardown_appcontext(close_request_client)

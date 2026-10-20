@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="results-shell">
+<a class="text-link" href="{{ url_for('results.overview', survey_id=survey._id) if selected else url_for('surveys.detail', survey_id=survey._id) }}">← {{ '全部统计' if selected else '问卷详情' }}</a>
+<section class="account-heading"><p class="eyebrow">统计结果 · {{ status_labels[state] }}</p><h1>{{ survey.title }}</h1><p class="muted">仅统计已正式提交的回答。允许重复填写时，每次提交各计一份。</p></section>
+<div class="result-summary"><div><span>正式提交</span><strong>{{ summary.total }}</strong><span>份</span></div><div><span>问卷题目</span><strong>{{ survey.questions|length }}</strong><span>题</span></div></div>
+{% if summary.total == 0 %}<p class="notice">还没有正式提交的回答，未完成的填写进度不计入统计。</p>{% endif %}
+{% if selected %}
+{% with row=selected %}{% include 'surveys/_result_question.html' %}{% endwith %}
+{% if answers is not none %}
+<section class="editor-panel"><h2>填写内容</h2><p class="field-help">按提交时间从新到旧排列，每页最多20条。不展示填写者身份。</p>
+{% if answers['items'] %}
+<div class="result-table-wrap" tabindex="0" role="region" aria-label="填空答案列表"><table class="result-table answer-table"><caption>本题有效回答</caption><thead><tr><th scope="col">序号</th><th scope="col">填写内容</th><th scope="col">提交时间（北京时间）</th></tr></thead>
+<tbody>{% for item in answers['items'] %}<tr><td>{{ answers.offset + loop.index }}</td><td class="answer-content">{{ item.value }}</td><td>{{ item.submitted_at|beijing_time }}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<p class="muted">暂无填写内容。</p>{% endif %}
+<nav class="form-actions" aria-label="答案分页">{% if answers.page > 1 %}<a class="text-link" href="{{ url_for('results.question', survey_id=survey._id, question_id=selected.question.id, page=answers.page-1) }}">← 上一页</a>{% endif %}<span>第 {{ answers.page }} 页</span>{% if answers.has_next %}<a class="text-link" href="{{ url_for('results.question', survey_id=survey._id, question_id=selected.question.id, page=answers.page+1) }}">下一页 →</a>{% endif %}</nav>
+</section>
+{% endif %}
+{% else %}
+<p class="field-help">有效回答不含留空或跳过。填空题可进入单题页面查看全部填写内容。</p>
+{% for row in summary.questions %}{% include 'surveys/_result_question.html' %}{% else %}<p class="notice">这份草稿还没有添加题目。</p>{% endfor %}
+{% endif %}
+</div>
+{% endblock %}

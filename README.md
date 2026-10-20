@@ -8,6 +8,8 @@
 
 已实现问卷创建、自己的问卷列表与详情、逐题添加和保存。支持单选、多选、文本填空和数字填空，复用 [题型与校验说明](docs/题型与校验说明.md) 中的配置校验。页面与接口见 [问卷创建与保存说明](docs/问卷创建与保存说明.md)。发布、截止时间、关闭与分享入口已实现；单题跳转规则配置、优先级调整和试算已实现，详见 [跳转规则说明](docs/跳转规则说明.md)。逐题填写、返回修改、自动跳转、确认提交及答案保存已实现，见 [填写与答案保存说明](docs/填写与答案保存说明.md)。
 
+问卷详情的“查看统计”提供汇总与单题结果：选项计数及占比、文本答案、数字答案和平均值；仅创建者可查看。当前以数据表格展示，图表切换留待后续。详见 [统计结果说明](docs/统计结果说明.md)。
+
 项目分为两个阶段：先完成初始需求，再在现有代码上实现需求变更。第二阶段需要保留第一阶段的核心结构，并记录数据与功能的兼容性处理。
 
 ## 本地运行
@@ -73,6 +75,8 @@ $env:MONGODB_DB_NAME = "survey_system"
 ├── responses.py           # 填写进度、匿名标识、幂等提交
 ├── response_schema.py     # 回答结构约束与状态规则
 ├── response_views.py      # 逐题填写、确认与本人回执
+├── survey_results.py      # 正式回答汇总、平均值和分页答案
+├── result_views.py        # 创建者统计页面与权限检查
 ├── surveys.py             # 问卷草稿保存、所有权查询和原子追加题目
 ├── survey_schema.py       # 问卷及嵌入题目的 MongoDB 校验
 ├── survey_views.py        # 我的问卷、创建、详情及添加题目路由
@@ -133,7 +137,7 @@ $env:MONGODB_DB_NAME = "survey_system"
 
 数据库测试默认连接本机 27017 端口，可以通过 `MONGODB_TEST_URI` 指定另一个测试实例。只运行无需数据库的用户规则测试时，执行 `python -m unittest discover -s tests -p test_users.py -v`。提交前仍需运行完整测试。
 
-题型配置、单题答案校验、问卷创建页面、题目保存、所有权隔离及并发追加已有测试。`tests/test_publishing.py` 另覆盖发布、截止边界、关闭、分享与登录回跳。单独运行题型单元测试可执行 `.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_questions.py -v`。`tests/test_jumps.py` 覆盖跳转语义、路径、配置页面和旧结构升级；`tests/test_responses.py` 覆盖填写、提交、匿名及并发防重复；统计测试将在对应功能完成后添加。当前完整套件175项，测试步骤和结果见 [测试说明](docs/测试说明.md)。
+题型配置、单题答案校验、问卷创建页面、题目保存、所有权隔离及并发追加已有测试。`tests/test_publishing.py` 另覆盖发布、截止边界、关闭、分享与登录回跳。单独运行题型单元测试可执行 `.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_questions.py -v`。`tests/test_jumps.py` 覆盖跳转语义、路径、配置页面和旧结构升级；`tests/test_responses.py` 覆盖填写、提交、匿名及并发防重复；`tests/test_results.py` 覆盖统计口径、精度、分页和结果权限。当前完整套件189项，测试步骤和结果见 [测试说明](docs/测试说明.md)。
 
 ## Git 与 GitHub
 

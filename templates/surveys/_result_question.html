@@ -1,0 +1,16 @@
+{% set q = row.question %}
+<article class="editor-panel result-question">
+<p class="eyebrow">第 {{ row.number }} 题 · {{ kinds[q.input_type if q.type == 'fill_blank' else q.type] }}</p>
+<h2>{{ q.title }}</h2>
+<div class="survey-meta"><span>有效回答：{{ row.answered }} 份</span><span>选答留空：{{ row.blank }} 份</span><span>被跳过：{{ row.skipped }} 份</span></div>
+{% if q.type in ['single_choice', 'multiple_choice'] %}
+<p class="field-help">占比 = 选择该项的回答份数 ÷ 本题有效回答份数。{{ '多选题每份回答可计入多个选项，占比合计可能超过100%。' if q.type == 'multiple_choice' else '' }}</p>
+<div class="result-table-wrap" tabindex="0" role="region" aria-label="第{{ row.number }}题选项统计">
+<table class="result-table"><caption>选项统计</caption><thead><tr><th scope="col">选项</th><th scope="col">选择份数</th><th scope="col">占比</th></tr></thead>
+<tbody>{% for option in row.options %}<tr><th scope="row">{{ option.text }}</th><td>{{ option.count }}</td><td>{{ option.percent }}%</td></tr>{% endfor %}</tbody></table></div>
+{% elif q.input_type == 'number' %}
+<p class="result-average">平均值 <strong>{{ row.average if row.average is not none else '—' }}</strong></p><p class="field-help">根据本题所有有效数字回答计算，显示两位小数。数字0计入，留空与跳过不计入。</p>
+{% else %}<p class="muted">已收集 {{ row.answered }} 条文本回答。</p>{% endif %}
+{% if row.answered == 0 %}<p class="notice">本题暂无有效回答。</p>{% endif %}
+{% if not selected %}<a class="text-link" href="{{ url_for('results.question', survey_id=survey._id, question_id=q.id) }}">{{ '查看填写内容' if q.type == 'fill_blank' else '查看单题统计' }} →</a>{% endif %}
+</article>
