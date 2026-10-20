@@ -4,6 +4,7 @@ from flask import Blueprint, current_app, g, redirect, render_template, request,
 
 from auth import login_required
 from database import get_request_database
+from numeric_input import NUMBER_PATTERN, parse_numeric_input
 from responses import (ResponseError, own_response, open_survey, check_progress,
                        start_response, update_progress, submit_response)
 
@@ -29,15 +30,7 @@ def parse_answer(question):
     if question["type"] == "single_choice":
         return raw or None
     if question.get("input_type") == "number":
-        if not raw.strip():
-            return None
-        try:
-            return int(raw)
-        except ValueError:
-            try:
-                return float(raw)
-            except ValueError as error:
-                raise ValueError("请输入有效数字。") from error
+        return parse_numeric_input(raw)
     return raw
 
 
@@ -98,4 +91,4 @@ def fill(survey_id, response_id):
     can_back = bool(record["answers"]) and (question is None or question["id"] != survey["questions"][0]["id"])
     return render_template("surveys/fill.html", title="填写问卷", survey=survey, record=record,
         question=question, number=number, value=value, selected=selected, can_back=can_back,
-        review=review, error=error), status
+        review=review, error=error, number_pattern=NUMBER_PATTERN), status

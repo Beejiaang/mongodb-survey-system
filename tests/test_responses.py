@@ -362,12 +362,28 @@ class ResponseTests(unittest.TestCase):
         rid = self.start(); self.complete(rid)
         path = self.url(rid)
         self.assertEqual(self.client.post(path, data=self.form(path, action="back")).status_code, 303)
-        for value in ("abc", "nan", "inf", "18.5", "121", ""):
+        for value in ("abc", "nan", "inf", "18.5", "121", "", "十八", "１８", "١٨", "18岁", "1_8"):
             before = self.record(rid)
             result = self.client.post(path, data=self.form(path, action="next", answer=value))
             self.assertEqual(result.status_code, 400)
             self.assertEqual(self.record(rid), before)
+            if value in ("十八", "１８", "١٨", "18岁", "1_8"):
+                html = result.get_data(as_text=True)
+                self.assertIn("请使用阿拉伯数字回答", html)
+                self.assertIn(f'value="{value}"', html)
         self.assertEqual(self.client.post(path, data=self.form(path, action="next", answer="0")).status_code, 303)
+
+    def test_numeric_fill_has_browser_pattern_and_back_bypasses_invalid_number(self):
+        from numeric_input import NUMBER_PATTERN
+        rid = self.start(); self.step(rid, "a"); self.step(rid, "有效回答")
+        path = self.url(rid)
+        html = self.client.get(path).get_data(as_text=True)
+        self.assertIn(f'pattern="{NUMBER_PATTERN}"', html)
+        self.assertIn('inputmode="numeric"', html)
+        self.assertIn('aria-describedby="number-help"', html)
+        response = self.client.post(path, data=self.form(path, action="back", answer="错误输入"))
+        self.assertEqual(response.status_code, 303)
+        self.assertEqual(self.record(rid)["current_question_id"], "q3")
 
     def test_csrf_login_ownership_and_method_protection(self):
         guest = self.app.test_client()

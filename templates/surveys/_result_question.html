@@ -2,6 +2,7 @@
 <article class="editor-panel result-question">
 <p class="eyebrow">第 {{ row.number }} 题 · {{ kinds[q.input_type if q.type == 'fill_blank' else q.type] }}</p>
 <h2>{{ q.title }}</h2>
+{% if q.type == 'single_choice' %}<p class="result-average result-respondents">总回答人数：<strong>{{ row.respondents }}</strong> 人</p><p class="field-help">已正式提交且回答本题的账号去重人数；同一账号重复填写只计一人。下方份数和选项占比按每次有效回答计算。</p>{% endif %}
 <div class="survey-meta"><span>有效回答：{{ row.answered }} 份</span><span>选答留空：{{ row.blank }} 份</span><span>被跳过：{{ row.skipped }} 份</span></div>
 {% if q.input_type == 'number' %}<p class="result-average">平均值 <strong>{{ row.average if row.average is not none else '—' }}</strong></p><p class="field-help">根据本题所有有效数字回答计算，显示两位小数。数字0计入，留空与跳过不计入。</p>{% endif %}
 <div class="result-visual" data-result-visual data-chart-key="{{ survey._id }}:{{ q.id }}">

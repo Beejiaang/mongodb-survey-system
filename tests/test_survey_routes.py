@@ -82,6 +82,63 @@ class SurveyRouteTests(unittest.TestCase):
         data.update(fields)
         return self.client.post(path, data=data)
 
+    def test_one_click_numeric_hint_converts_text_without_saving_or_losing_title(self):
+        survey = self.saved_draft()
+        path = f"/surveys/{survey['_id']}/questions/new"
+        html = self.client.get(path + "?kind=text").get_data(as_text=True)
+        self.assertIn("若本题仅回答数字", html)
+        data = {"csrf_token": self.token(path + "?kind=text"), "kind": "text",
+                "title": "你的年龄", "required": "on", "action": "number_hint", "min_length": "10"}
+        response = self.client.post(path, data=data)
+        self.assertEqual(response.status_code, 200)
+        html = response.get_data(as_text=True)
+        title = "你的年龄（请使用阿拉伯数字回答）"
+        self.assertIn(f'name="title" value="{title}"', html)
+        self.assertIn('name="kind" value="number"', html)
+        self.assertIn('name="required" type="checkbox" checked', html)
+        self.assertNotIn('name="min_length"', html)
+        self.assertEqual(self.database.surveys.find_one({"_id": survey["_id"]}), survey)
+        # 再点一次不追加重复提示，数字限制也保留。
+        data.update(kind="number", title=title, min_value="0", max_value="120", integer_only="on")
+        html = self.client.post(path, data=data).get_data(as_text=True)
+        self.assertIn(f'name="title" value="{title}"', html)
+        self.assertIn('name="max_value" value="120"', html)
+        data.pop("action")
+        self.assertEqual(self.client.post(path, data=data).status_code, 303)
+        question = self.database.surveys.find_one({"_id": survey["_id"]})["questions"][0]
+        self.assertEqual((question["title"], question["input_type"], question["required"]), (title, "number", True))
+        self.assertEqual(question["validation"], {"min_value": 0, "max_value": 120, "integer_only": True})
+        # 同一份通过一键按钮创建的数字题，发布后确实强制校验并进入平均值统计。
+        detail = f"/surveys/{survey['_id']}"
+        self.assertEqual(self.client.post(detail + "/publish", data={"csrf_token": self.token(detail)}).status_code, 303)
+        share = f"/survey/{survey['_id']}"
+        start = self.client.post(share + "/start", data={"csrf_token": self.token(share)})
+        fill = start.location
+        record = self.database.responses.find_one({"survey_id": survey["_id"]})
+        payload = {"csrf_token": self.token(fill), "version": record["version"], "action": "next", "answer": "１８"}
+        self.assertEqual(self.client.post(fill, data=payload).status_code, 400)
+        self.assertEqual(self.database.responses.find_one({"_id": record["_id"]}), record)
+        payload["answer"] = "18"
+        self.assertEqual(self.client.post(fill, data=payload).status_code, 303)
+        payload.update(action="submit", version=record["version"] + 1)
+        self.assertEqual(self.client.post(fill, data=payload).status_code, 303)
+        html = self.client.get(detail + "/results").get_data(as_text=True)
+        self.assertIn("平均值 <strong>18.00</strong>", html)
+
+    def test_numeric_hint_requires_csrf_ownership_and_draft(self):
+        survey = self.saved_draft()
+        path = f"/surveys/{survey['_id']}/questions/new"
+        data = {"kind": "number", "title": "年龄", "action": "number_hint"}
+        self.assertEqual(self.client.post(path, data=data).status_code, 400)
+        data["csrf_token"] = self.token(path)
+        self.assume_user(self.other)
+        data["csrf_token"] = self.token()
+        self.assertEqual(self.client.post(path, data=data).status_code, 404)
+        self.assume_user(self.owner)
+        data["csrf_token"] = self.token(path)
+        self.database.surveys.update_one({"_id": survey["_id"]}, {"$set": {"status": "published"}})
+        self.assertEqual(self.client.post(path, data=data).status_code, 409)
+
     def test_create_draft_saves_complete_metadata_and_ignores_owner_spoof(self):
         survey = self.saved_draft(
             title="  校园生活调查  ", description="  了解校园生活体验。\n",

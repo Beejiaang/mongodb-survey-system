@@ -9,6 +9,23 @@ from surveys import get_owned_survey
 PAGE_SIZE = 20
 
 
+def single_choice_respondents(database, survey):
+    """按匿名内部标识去重，只返回每道单选题的人数，不返回身份。"""
+    ids = [q["id"] for q in survey["questions"] if q["type"] == "single_choice"]
+    if not ids:
+        return {}
+    pipeline = [
+        {"$match": {"survey_id": survey["_id"], "state": "submitted"}},
+        {"$unwind": "$answers"},
+        {"$match": {"answers.question_id": {"$in": ids}, "answers.value": {"$ne": None},
+                    "$expr": {"$in": ["$answers.question_id", "$path"]}}},
+        {"$group": {"_id": {"question": "$answers.question_id", "person": "$respondent_key"}}},
+        {"$group": {"_id": "$_id.question", "count": {"$sum": 1}}},
+    ]
+    with database.responses.aggregate(pipeline) as cursor:
+        return {row["_id"]: row["count"] for row in cursor}
+
+
 def numeric_distribution(database, survey_id, question_id):
     """按全量正式数字回答分为至多10个区间，不受答案列表分页影响。"""
     pipeline = [
@@ -78,7 +95,10 @@ def summarize(database, survey):
                         option["count"] += option["id"] in chosen
                 elif question["input_type"] == "number":
                     sums[qid] += Fraction(str(value))
+    respondents = single_choice_respondents(database, survey)
     for row in questions:
+        if row["question"]["type"] == "single_choice":
+            row["respondents"] = respondents.get(row["question"]["id"], 0)
         row["skipped"] = total - row["reached"]
         row["blank"] = row["reached"] - row["answered"]
         for option in row["options"]:

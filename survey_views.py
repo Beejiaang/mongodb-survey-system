@@ -194,6 +194,16 @@ def new_question(survey_id):
     if kind not in KINDS:
         abort(400)
     error, status = None, 200
+    if request.method == "POST" and request.form.get("action") == "number_hint":
+        if kind not in ("text", "number"):
+            abort(400)
+        values = request.form.to_dict()
+        title = values.get("title", "").strip()
+        hint = "请使用阿拉伯数字回答"
+        values["title"] = title if hint in title else f"{title}（{hint}）" if title else hint
+        values["kind"] = kind = "number"
+        return render_template("surveys/question_new.html", title="添加题目", survey=survey,
+                               kind=kind, kinds=KINDS, error=None, values=values)
     if request.method == "POST":
         try:
             question = _question_from_form(kind)

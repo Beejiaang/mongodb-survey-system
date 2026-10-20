@@ -95,12 +95,53 @@ class ResultTests(unittest.TestCase):
         self.assertEqual((q3["answered"], q3["blank"], q3["skipped"]), (2, 2, 0))
         self.assertEqual((q4["answered"], q4["blank"], q4["average"]), (3, 1, "10.00"))
 
+    def test_single_choice_people_deduplicated_separate_from_submission_counts(self):
+        self.sample()  # 同一人3份有效单选和1份留空，另有草稿。
+        self.submit(["b", [], None, 30], self.reader["_id"])
+        row = self.summary()["questions"][0]
+        self.assertEqual((row["respondents"], row["answered"], row["blank"]), (2, 4, 1))
+        self.assertEqual([o["count"] for o in row["options"]], [2, 2, 0])
+        for suffix in ("", "/questions/q1"):
+            html = self.client.get(self.url + suffix).get_data(as_text=True)
+            self.assertIn("总回答人数：<strong>2</strong> 人", html)
+            self.assertIn("有效回答：4 份", html)
+            self.assertIn("同一账号重复填写只计一人", html)
+
+    def test_single_choice_people_exclude_skipped_blank_draft_and_other_survey(self):
+        # 用第二道单选验证按实际路径分别去重，不能使用全卷人数代替。
+        qs = deepcopy(self.questions)
+        qs[1] = build_question("single_choice", "第二单选", options=qs[0]["options"], question_id="q2")
+        self.db.surveys.update_one({"_id": self.sid}, {"$set": {"questions": qs}})
+        self.submit(["a", None, None])  # 跳过q2
+        self.submit(["b", None, None, None])  # q2留空
+        rid = start_response(self.db, self.sid, self.uid, self.secret)
+        for version, answer in enumerate(("b", "a")):
+            update_progress(self.db, self.sid, rid, self.uid, self.secret, version, "next", answer)
+        q1, q2 = self.summary()["questions"][:2]
+        self.assertEqual((q1["respondents"], q2["respondents"]), (1, 0))
+        self.assertIn("总回答人数：<strong>0</strong> 人", self.client.get(self.url + "/questions/q2").get_data(as_text=True))
+        self.submit(["b", "a", None, None], self.reader["_id"])
+        self.assertEqual([r["respondents"] for r in self.summary()["questions"][:2]], [2, 1])
+        self.assertTrue(all(r["user_id"] is None for r in self.db.responses.find()))
+        # 不同问卷使用同样的题目编号，不得串入人数。
+        original = self.sid
+        self.sid = create_survey(self.db, self.uid, "另一份", allow_repeat=True)
+        for q in qs:
+            copy = deepcopy(q)
+            copy["jump_rules"] = []
+            add_question(self.db, self.sid, self.uid, copy)
+        publish_survey(self.db, self.sid, self.uid)
+        self.submit(["b", "b", None, None])
+        self.sid = original
+        self.assertEqual(self.summary()["questions"][1]["respondents"], 1)
+
     def test_empty_and_only_draft_progress_never_count(self):
         self.assertEqual(self.summary()["total"], 0)
         rid = start_response(self.db, self.sid, self.uid, self.secret)
         update_progress(self.db, self.sid, rid, self.uid, self.secret, 0, "next", "b")
         summary = self.summary()
         self.assertEqual(summary["total"], 0)
+        self.assertEqual(summary["questions"][0]["respondents"], 0)
         for row in summary["questions"]:
             self.assertEqual(row["answered"], 0)
             self.assertIsNone(row["average"])
