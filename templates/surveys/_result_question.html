@@ -3,14 +3,26 @@
 <p class="eyebrow">第 {{ row.number }} 题 · {{ kinds[q.input_type if q.type == 'fill_blank' else q.type] }}</p>
 <h2>{{ q.title }}</h2>
 <div class="survey-meta"><span>有效回答：{{ row.answered }} 份</span><span>选答留空：{{ row.blank }} 份</span><span>被跳过：{{ row.skipped }} 份</span></div>
+{% if q.input_type == 'number' %}<p class="result-average">平均值 <strong>{{ row.average if row.average is not none else '—' }}</strong></p><p class="field-help">根据本题所有有效数字回答计算，显示两位小数。数字0计入，留空与跳过不计入。</p>{% endif %}
+<div class="result-visual" data-result-visual data-chart-key="{{ survey._id }}:{{ q.id }}">
+<div class="chart-controls field" hidden><label for="chart-kind-{{ row.number }}">展示方式</label><select id="chart-kind-{{ row.number }}" class="chart-kind">
+{% if q.input_type == 'number' %}<option value="columns">分布柱状图</option><option value="bars">分布条形图</option><option value="line">频数折线图</option>
+{% else %}<option value="bars">{{ '回答状态条形图' if row.chart.kind == 'status' else '条形图' }}</option><option value="columns">柱状图</option><option value="pie">饼图</option><option value="donut">环形图</option>{% endif %}
+<option value="table">数据表格</option></select></div>
+<script type="application/json" class="chart-data">{{ row.chart|tojson }}</script>
+<div class="result-chart" hidden></div><p class="field-help chart-note" hidden aria-live="polite"></p>
+<div data-chart-table>
 {% if q.type in ['single_choice', 'multiple_choice'] %}
 <p class="field-help">占比 = 选择该项的回答份数 ÷ 本题有效回答份数。{{ '多选题每份回答可计入多个选项，占比合计可能超过100%。' if q.type == 'multiple_choice' else '' }}</p>
 <div class="result-table-wrap" tabindex="0" role="region" aria-label="第{{ row.number }}题选项统计">
 <table class="result-table"><caption>选项统计</caption><thead><tr><th scope="col">选项</th><th scope="col">选择份数</th><th scope="col">占比</th></tr></thead>
 <tbody>{% for option in row.options %}<tr><th scope="row">{{ option.text }}</th><td>{{ option.count }}</td><td>{{ option.percent }}%</td></tr>{% endfor %}</tbody></table></div>
 {% elif q.input_type == 'number' %}
-<p class="result-average">平均值 <strong>{{ row.average if row.average is not none else '—' }}</strong></p><p class="field-help">根据本题所有有效数字回答计算，显示两位小数。数字0计入，留空与跳过不计入。</p>
-{% else %}<p class="muted">已收集 {{ row.answered }} 条文本回答。</p>{% endif %}
+<p class="field-help">基于所有正式数字回答按数值顺序自动分为至多10个区间，区间可能不等宽；左闭右开，最后一个区间包含右端点。</p>
+<div class="result-table-wrap" tabindex="0" role="region" aria-label="数字分布表"><table class="result-table"><caption>全量数字回答分布</caption><thead><tr><th scope="col">数值区间</th><th scope="col">回答份数</th></tr></thead><tbody>{% for bin in row.chart.series %}<tr><th scope="row">{{ bin.label }}</th><td>{{ bin.count }}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<p class="muted">已收集 {{ row.answered }} 条文本回答。</p><div class="result-table-wrap"><table class="result-table"><caption>回答状态</caption><thead><tr><th scope="col">状态</th><th scope="col">份数</th></tr></thead><tbody>{% for item in row.chart.series %}<tr><th scope="row">{{ item.label }}</th><td>{{ item.count }}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
+</div></div>
+<noscript><p class="field-help">当前显示数据表格，启用JavaScript后可切换图表。</p></noscript>
 {% if row.answered == 0 %}<p class="notice">本题暂无有效回答。</p>{% endif %}
 {% if not selected %}<a class="text-link" href="{{ url_for('results.question', survey_id=survey._id, question_id=q.id) }}">{{ '查看填写内容' if q.type == 'fill_blank' else '查看单题统计' }} →</a>{% endif %}
 </article>

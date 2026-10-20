@@ -21,4 +21,5 @@
 {% for row in summary.questions %}{% include 'surveys/_result_question.html' %}{% else %}<p class="notice">这份草稿还没有添加题目。</p>{% endfor %}
 {% endif %}
 </div>
+<script src="{{ url_for('static', filename='result-charts.js') }}" defer></script>
 {% endblock %}

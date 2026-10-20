@@ -9,6 +9,27 @@ from surveys import get_owned_survey
 PAGE_SIZE = 20
 
 
+def numeric_distribution(database, survey_id, question_id):
+    """按全量正式数字回答分为至多10个区间，不受答案列表分页影响。"""
+    pipeline = [
+        {"$match": {"survey_id": survey_id, "state": "submitted", "path": question_id}},
+        {"$unwind": "$answers"},
+        {"$match": {"answers.question_id": question_id,
+                    "answers.value": {"$type": ["int", "long", "double"]}}},
+        {"$bucketAuto": {"groupBy": "$answers.value", "buckets": 10,
+                         "output": {"count": {"$sum": 1}}}},
+    ]
+    with database.responses.aggregate(pipeline) as cursor:
+        buckets = list(cursor)
+    result = []
+    for index, bucket in enumerate(buckets):
+        low, high = bucket["_id"]["min"], bucket["_id"]["max"]
+        # 数值仅作为字符串标签发送，避免浏览器丢失64位整数精度。
+        label = str(low) if low == high else f"[{low}, {high}{']' if index == len(buckets) - 1 else ')'}"
+        result.append({"label": label, "count": bucket["count"]})
+    return result
+
+
 def _average(total, count):
     if not count:
         return None
@@ -64,6 +85,17 @@ def summarize(database, survey):
             option["percent"] = format(option["count"] * 100 / row["answered"], ".1f") if row["answered"] else "0.0"
         if row["question"].get("input_type") == "number":
             row["average"] = _average(sums[row["question"]["id"]], row["answered"])
+            chart = {"kind": "number", "series": numeric_distribution(
+                database, survey["_id"], row["question"]["id"])}
+        elif row["options"]:
+            chart = {"kind": row["question"]["type"], "series": [
+                {"label": o["text"], "count": o["count"]} for o in row["options"]]}
+        else:
+            chart = {"kind": "status", "series": [
+                {"label": "有效回答", "count": row["answered"]},
+                {"label": "选答留空", "count": row["blank"]},
+                {"label": "被跳过", "count": row["skipped"]}]}
+        row["chart"] = chart
     return {"total": total, "questions": questions}
 
 

@@ -3,6 +3,8 @@
 from copy import deepcopy
 from datetime import timedelta
 import os
+import json
+import re
 import unittest
 from unittest.mock import patch
 from uuid import uuid4
@@ -251,3 +253,79 @@ class ResultTests(unittest.TestCase):
             response = self.client.get(self.url)
             self.assertEqual(response.status_code, 503)
             self.assertNotIn("secret-connection", response.get_data(as_text=True))
+
+    def chart_data(self, html):
+        return [json.loads(value) for value in re.findall(
+            r'<script type="application/json" class="chart-data">(.*?)</script>', html, re.S)]
+
+    def test_choice_chart_series_matches_original_counts_and_switch_options(self):
+        self.sample()
+        summary = self.summary()
+        self.assertEqual(summary["questions"][0]["chart"]["series"], [
+            {"label": "A", "count": 2}, {"label": "B", "count": 1}, {"label": "C", "count": 0}])
+        self.assertEqual([i["count"] for i in summary["questions"][1]["chart"]["series"]], [1, 2, 0])
+        html = self.client.get(self.url + "/questions/q2").get_data(as_text=True)
+        self.assertEqual(self.chart_data(html), [summary["questions"][1]["chart"]])
+        for kind in ("bars", "columns", "pie", "donut", "table"):
+            self.assertIn(f'<option value="{kind}">', html)
+        self.assertIn("/static/result-charts.js", html)
+        self.assertIn("100.0%", html)  # 原有回答人数占比仍可查。
+
+    def test_numeric_chart_uses_all_answers_not_first_page(self):
+        for i in range(21):
+            self.submit(["a", None, i - 10])
+        html = self.client.get(self.url + "/questions/q4").get_data(as_text=True)
+        chart = self.chart_data(html)[0]
+        self.assertEqual(chart["kind"], "number")
+        self.assertEqual(sum(i["count"] for i in chart["series"]), 21)
+        self.assertLessEqual(len(chart["series"]), 10)
+        self.assertIn('value="line"', html)
+        self.assertNotIn('value="pie"', html)
+        self.assertEqual(len(answer_page(self.db, self.sid, "q4", 1)["items"]), 20)
+        self.assertIn("0.00", html)
+
+    def test_numeric_single_value_zero_negative_and_large_integer_labels(self):
+        for value in (0, 0):
+            self.submit(["a", None, value])
+        self.assertEqual(self.summary()["questions"][3]["chart"]["series"], [{"label": "0", "count": 2}])
+        self.db.responses.delete_many({})
+        for value in (-20, 2**63 - 1):
+            self.submit(["a", None, value])
+        series = self.summary()["questions"][3]["chart"]["series"]
+        self.assertEqual(sum(i["count"] for i in series), 2)
+        self.assertIn("9223372036854775807", repr(series))
+        self.assertIn("-20", repr(series))
+        self.assertTrue(all(isinstance(i["label"], str) for i in series))
+
+    def test_text_chart_is_response_status_not_private_text(self):
+        self.sample()
+        html = self.client.get(self.url).get_data(as_text=True)
+        chart = self.chart_data(html)[2]
+        self.assertEqual(chart, {"kind": "status", "series": [
+            {"label": "有效回答", "count": 2}, {"label": "选答留空", "count": 2},
+            {"label": "被跳过", "count": 0}]})
+        self.assertNotIn("hello", json.dumps(chart))
+        self.assertNotIn("world", json.dumps(chart))
+
+    def test_empty_chart_data_and_javascript_unavailable_table_fallback(self):
+        summary = self.summary()
+        self.assertEqual(summary["questions"][3]["chart"]["series"], [])
+        self.assertEqual(sum(i["count"] for i in summary["questions"][0]["chart"]["series"]), 0)
+        html = self.client.get(self.url).get_data(as_text=True)
+        self.assertIn("<div data-chart-table>", html)
+        self.assertIn("启用JavaScript后可切换图表", html)
+        with self.client.get("/static/result-charts.js") as script:
+            self.assertEqual(script.status_code, 200)
+
+    def test_chart_json_escapes_script_end_and_never_contains_identity(self):
+        attack = '</script><img src=x onerror="alert(1)">'
+        self.db.surveys.update_one({"_id": self.sid}, {"$set": {"questions.0.options.0.text": attack}})
+        rid = self.submit(["a", "private text", 0], self.reader["_id"])
+        record = self.db.responses.find_one({"_id": rid})
+        html = self.client.get(self.url).get_data(as_text=True)
+        data = self.chart_data(html)
+        self.assertEqual(data[0]["series"][0]["label"], attack)
+        self.assertNotIn(attack, html)
+        payload = json.dumps(data)
+        for private in (record["respondent_key"], str(rid), str(self.reader["_id"]), "private text"):
+            self.assertNotIn(private, payload)
