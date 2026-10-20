@@ -4,7 +4,7 @@
 
 ## 当前进度
 
-原始需求已整理为 [逐项验收清单](docs/需求验收清单.md)。2026年10月20日本轮51项业务验收点均通过，当次190项自动测试通过；图表扩展后最新为196项Python及6项JavaScript测试通过。基础验收过程与证据见 [第一阶段验收报告](docs/第一阶段验收报告.md)。数据库设计理由、最终项目报告和AI个人贡献总结仍待补齐，功能通过不等于提交材料全部齐备。
+原始需求已整理为 [逐项验收清单](docs/需求验收清单.md)。2026年10月20日51项基础业务验收点通过，当次190项自动测试通过；后续增加图表、单选人数及数字格式校验，最新套件含209项Python及6项JavaScript测试，实际结果见 [测试说明](docs/测试说明.md)。基础验收历史证据见 [第一阶段验收报告](docs/第一阶段验收报告.md)。提交文档的四项内容及数据库设计理由已补齐，最终项目完成报告和AI个人贡献总结仍待完成。
 
 已实现首页、注册、登录、退出和个人账号页面，以及 MongoDB 集合初始化和用户数据处理。注册写入 `users`，登录使用相同的用户名规则和密码哈希验证。问卷草稿、题目保存到 `surveys`，填写进度和正式回答保存到 `responses`。
 
@@ -73,6 +73,7 @@ $env:MONGODB_DB_NAME = "survey_system"
 ├── database.py            # MongoDB 连接、集合校验和初始化命令
 ├── users.py               # 用户名、密码哈希及用户保存与查询
 ├── questions.py           # 题目配置和单题答案校验
+├── numeric_input.py       # 网页阿拉伯数字格式解析，与浏览器规则共用
 ├── jumps.py               # 单题条件、前向跳转、路径计算
 ├── responses.py           # 填写进度、匿名标识、幂等提交
 ├── response_schema.py     # 回答结构约束与状态规则
@@ -90,7 +91,9 @@ $env:MONGODB_DB_NAME = "survey_system"
 │   ├── auth/              # 注册和登录模板
 │   └── surveys/           # 问卷列表、创建、详情及题目表单
 ├── static/
-│   └── style.css          # 桌面和手机样式
+│   ├── style.css          # 桌面和手机样式
+│   ├── share.js           # 复制分享链接
+│   └── result-charts.js   # 本地SVG图表、表格切换及选择记忆
 ├── tests/
 │   ├── test_app.py        # 首页自动测试
 │   ├── test_auth.py       # 网页账号流程和会话集成测试
@@ -98,10 +101,21 @@ $env:MONGODB_DB_NAME = "survey_system"
 │   ├── test_questions.py  # 题型配置、答案和边界测试
 │   ├── test_surveys.py    # 问卷数据层、归属和并发测试
 │   ├── test_survey_routes.py # 问卷页面与真实数据库集成测试
-│   └── test_database.py   # 真实 MongoDB 集成测试
+│   ├── test_database.py   # 真实 MongoDB 集成测试
+│   ├── test_publishing.py # 发布、截止、关闭、分享与登录回跳
+│   ├── test_jumps.py      # 跳转配置、路径与兼容性
+│   ├── test_responses.py  # 填写保存、提交、匿名与并发
+│   ├── test_results.py    # 统计、人数、精度、权限与图表数据
+│   ├── test_numeric_input.py # 阿拉伯数字格式及边界
+│   ├── test_acceptance.py # 从注册创建到填写统计的整链验收
+│   ├── test_documentation.py # 文档与路由、字段、索引、示例、链接一致性
+│   └── result-charts.test.cjs # JavaScript图表测试
 ├── docs/
+│   ├── 系统说明.md         # 提交文档阅读入口、使用流程与系统结构
+│   ├── 数据库设计.md       # 三集合字段、索引、取舍与兼容性
+│   ├── API说明.md          # 全部业务接口、字段、权限与错误
+│   ├── 关键逻辑说明.md     # 校验、跳转、保存、并发与统计
 │   ├── 开发计划.md         # 功能范围与开发顺序
-│   ├── 数据库设计.md       # 集合、用户字段及索引
 │   └── AI使用日志.md       # 真实的 AI 协作记录
 ├── requirements.txt       # 已安装依赖的固定版本
 ├── AGENTS.md              # 改动、测试和提交规则
@@ -119,7 +133,7 @@ $env:MONGODB_DB_NAME = "survey_system"
 - 登录后填写问卷，支持匿名回答设置和重复填写设置。
 - 保存每次提交，并按问卷或题目统计回答。
 
-全部业务数据存储在 MongoDB 中。具体设计和接口说明将在功能实现时补充，详细计划见 [开发计划](docs/开发计划.md)。
+全部业务数据存储在 MongoDB 中。功能、设计与接口的统一阅读入口见 [系统说明](docs/系统说明.md)，详细计划见 [开发计划](docs/开发计划.md)。
 
 ## 当前验证方法
 
@@ -139,7 +153,7 @@ $env:MONGODB_DB_NAME = "survey_system"
 
 数据库测试默认连接本机 27017 端口，可以通过 `MONGODB_TEST_URI` 指定另一个测试实例。只运行无需数据库的用户规则测试时，执行 `python -m unittest discover -s tests -p test_users.py -v`。提交前仍需运行完整测试。
 
-题型配置、单题答案校验、问卷创建页面、题目保存、所有权隔离及并发追加已有测试。`tests/test_publishing.py` 另覆盖发布、截止边界、关闭、分享与登录回跳。单独运行题型单元测试可执行 `.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_questions.py -v`。`tests/test_jumps.py` 覆盖跳转语义、路径、配置页面和旧结构升级；`tests/test_responses.py` 覆盖填写、提交、匿名及并发防重复；`tests/test_numeric_input.py` 覆盖阿拉伯数字格式；`tests/test_results.py` 覆盖统计口径、单选人数去重、精度、分页和结果权限。`tests/test_acceptance.py` 补充注册、配置、填写与统计的完整链路验收。当前Python完整套件204项，另有6项JavaScript图表测试，测试步骤和结果见 [测试说明](docs/测试说明.md)。
+题型配置、单题答案校验、问卷创建页面、题目保存、所有权隔离及并发追加已有测试。`tests/test_publishing.py` 另覆盖发布、截止边界、关闭、分享与登录回跳。单独运行题型单元测试可执行 `.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_questions.py -v`。`tests/test_jumps.py` 覆盖跳转语义、路径、配置页面和旧结构升级；`tests/test_responses.py` 覆盖填写、提交、匿名及并发防重复；`tests/test_numeric_input.py` 覆盖阿拉伯数字格式；`tests/test_results.py` 覆盖统计口径、单选人数去重、精度、分页和结果权限。`tests/test_acceptance.py` 补充注册、配置、填写与统计的完整链路验收；`tests/test_documentation.py` 核对文档的接口、字段、索引、示例与本地链接。当前Python完整套件209项，另有6项JavaScript图表测试，测试步骤和结果见 [测试说明](docs/测试说明.md)。
 
 ## Git 与 GitHub
 
@@ -169,3 +183,5 @@ git push
 ## 提交材料
 
 最终提交应包含可运行代码、MongoDB 数据结构说明、配置说明、API 与关键逻辑说明、测试用例和项目完成报告。AI 使用过程见 [AI 使用日志](docs/AI使用日志.md)，后续开发应持续补充真实记录。
+
+“七、提交内容／2.文档”的四份材料已整理为 [系统说明](docs/系统说明.md)、[数据库设计](docs/数据库设计.md)、[API说明](docs/API说明.md)、[关键逻辑说明](docs/关键逻辑说明.md)。四份文档可从系统说明进入，也可单独阅读。项目完成报告及最终个人贡献总结仍作为后续提交步骤。
