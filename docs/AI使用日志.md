@@ -4,10 +4,6 @@
 
 ## 2026年10月15日 接续项目并修正首页
 
-用户提示词：
-
-> 把第一次大作业单列出来，在这个对话中完成
-
 AI 读取原作业要求、原对话进度及现有代码，发现 `app.py` 调用了 `render_template()`，但没有导入该函数。
 
 AI 将导入语句从 `from flask import Flask` 改为 `from flask import Flask, render_template`。随后使用 Flask 测试客户端请求首页，确认 HTTP 状态为 200，并包含“问卷系统首页”和“欢迎使用问卷系统。”。
