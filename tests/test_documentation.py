@@ -40,6 +40,14 @@ class DocumentationTests(unittest.TestCase):
         self.assertIsNotNone(numeric_row)
         self.assertEqual(tuple(numeric_row.group(1).split("、")),
                          allowed_operators({"type": "fill_blank", "input_type": "number"}))
+        catalog = (DOCS / "测试用例.md").read_text(encoding="utf-8")
+        case_count = len(re.findall(r"^\| [CQJVRSEFAN]\d{2} \|", catalog, re.M))
+        report_count = re.search(r"当前(\d+)组场景", source)
+        readme_count = re.search(r"整理的(\d+)组场景", (ROOT / "README.md").read_text(encoding="utf-8"))
+        self.assertIsNotNone(report_count)
+        self.assertIsNotNone(readme_count)
+        self.assertEqual(int(report_count.group(1)), case_count, "报告中的场景数未随用例同步")
+        self.assertEqual(int(readme_count.group(1)), case_count, "README中的场景数未随用例同步")
 
     def test_test_case_catalog_has_complete_rows_and_valid_references(self):
         source = (DOCS / "测试用例.md").read_text(encoding="utf-8")
