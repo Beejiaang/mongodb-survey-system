@@ -84,6 +84,29 @@ class PublishingTests(unittest.TestCase):
         self.assertEqual(self.post("publish").status_code, 409)
         self.assertEqual(self.stored(), stored)
 
+        # 只模拟不同请求Host，不建立局域网连接；真实跨设备验收另见手工N01。
+        for origin in ("http://192.168.1.50:5002", "http://10.0.0.50:8080"):
+            with self.subTest(origin=origin):
+                publisher = self.app.test_client()
+                with publisher.session_transaction(base_url=origin) as state:
+                    state["user_id"] = str(self.owner)
+                page = publisher.get(self.path, base_url=origin)
+                self.assertEqual(page.status_code, 200)
+                self.assertIn(f'id="share-url" readonly value="{origin}{self.share}"', page.get_data(as_text=True))
+                reader = self.app.test_client()
+                redirect = reader.get(self.share, base_url=origin)
+                self.assertEqual(redirect.status_code, 302)
+                self.assertEqual(redirect.location, "/login?next=" + self.share)
+                login = reader.get(redirect.location, base_url=origin)
+                token = re.search(r'name="csrf_token" value="([^"]+)"', login.get_data(as_text=True)).group(1)
+                result = reader.post(redirect.location, base_url=origin,
+                    data={"csrf_token": token, "username": "reader", "password": "test-pass"})
+                self.assertEqual(result.status_code, 303)
+                self.assertEqual(result.location, self.share)
+                shared = reader.get(result.location, base_url=origin)
+                self.assertEqual(shared.status_code, 200)
+                self.assertIn("开始或继续填写", shared.get_data(as_text=True))
+
     def test_empty_or_invalid_question_cannot_publish(self):
         self.db.surveys.update_one({"_id": self.sid}, {"$set": {"questions": []}})
         self.assertEqual(self.post("publish").status_code, 400)

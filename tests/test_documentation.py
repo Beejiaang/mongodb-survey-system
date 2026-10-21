@@ -43,10 +43,10 @@ class DocumentationTests(unittest.TestCase):
 
     def test_test_case_catalog_has_complete_rows_and_valid_references(self):
         source = (DOCS / "测试用例.md").read_text(encoding="utf-8")
-        rows = re.findall(r"^\| ([CQJVRSEFA]\d{2}) \| (.+) \|$", source, re.M)
+        rows = re.findall(r"^\| ([CQJVRSEFAN]\d{2}) \| (.+) \|$", source, re.M)
         expected = {f"{prefix}{n:02}" for prefix, count in
                     {"C": 4, "Q": 4, "J": 6, "V": 6, "R": 6, "S": 7,
-                     "E": 12, "F": 5, "A": 1}.items() for n in range(1, count + 1)}
+                     "E": 12, "F": 5, "A": 1, "N": 1}.items() for n in range(1, count + 1)}
         self.assertEqual({row[0] for row in rows}, expected)
         self.assertEqual(len(rows), len(expected), "用例编号重复")
         methods = set()
@@ -64,7 +64,12 @@ class DocumentationTests(unittest.TestCase):
                 self.assertEqual(len(columns), 4, "必须记录步骤/输入、预期、实际结果、测试定位")
                 self.assertTrue(all(columns))
                 self.assertIn("①", columns[0], "需要有序可复现步骤")
-                if case_id.startswith("F"):
+                if case_id.startswith("N"):
+                    self.assertEqual(columns[2], "待执行：尚无第二台真实设备的访问证据")
+                    for step in ("另一台设备", "数据库", "统计"):
+                        self.assertIn(step, columns[0])
+                    self.assertIn("手工", columns[-1])
+                elif case_id.startswith("F"):
                     self.assertTrue(set(columns[-1].split("；")) <= js_names, "JS测试引用失效")
                 else:
                     references = re.findall(r"`(test_\w+\.\w+\.test_\w+)`", columns[-1])

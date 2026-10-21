@@ -58,7 +58,7 @@ $env:MONGODB_DB_NAME = "survey_system"
 
 登录后点击“创建问卷”，保存标题、说明及填写设置，再添加题目；“我的问卷”可以重新打开已保存的草稿。页面只显示当前账号自己的问卷。更新代码后需重启已运行的开发服务。
 
-问卷详情中的“发布与分享”可以设置北京时间截止日期、发布、复制链接和关闭问卷。分享入口要求登录，可以开始或继续填写；到期或关闭后停止接受新提交。详见 [发布与分享说明](docs/发布与分享说明.md)。本机地址仅用于本机访问，跨设备分享需要后续部署。
+问卷详情中的“发布与分享”可以设置北京时间截止日期、发布、复制链接和关闭问卷。分享入口要求登录，可以开始或继续填写；到期或关闭后停止接受新提交。详见 [发布与分享说明](docs/发布与分享说明.md)。本机地址仅用于本机访问；跨设备需使用可访问的局域网或部署地址，真实第二设备验证见[测试用例N01](docs/测试用例.md)，目前待执行。
 
 账号操作需要 MongoDB 正常运行。密码仍按原规则要求非空，注册时还需确认密码。用户名去首尾空白并统一小写，密码保留原始大小写和空格。字段设计见 [数据库设计](docs/数据库设计.md)，网页接口见 [账号功能说明](docs/账号功能说明.md)。
 
@@ -154,7 +154,7 @@ $env:MONGODB_DB_NAME = "survey_system"
 
 数据库测试默认连接本机 27017 端口，可以通过 `MONGODB_TEST_URI` 指定另一个测试实例。只运行无需数据库的用户规则测试时，执行 `python -m unittest discover -s tests -p test_users.py -v`。提交前仍需运行完整测试。
 
-题型配置、单题答案校验、问卷创建页面、题目保存、所有权隔离及并发追加已有测试。`tests/test_publishing.py` 另覆盖发布、截止边界、关闭、分享与登录回跳。单独运行题型单元测试可执行 `.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_questions.py -v`。`tests/test_jumps.py` 覆盖跳转语义、路径、配置页面和旧结构升级；`tests/test_responses.py` 覆盖填写、提交、匿名及并发防重复；`tests/test_numeric_input.py` 覆盖阿拉伯数字格式；`tests/test_results.py` 覆盖统计口径、单选人数去重、精度、分页和结果权限。`tests/test_acceptance.py` 补充注册、配置、填写与统计的完整链路验收；`tests/test_documentation.py` 核对文档的接口、字段、索引、示例与本地链接。当前Python完整套件211项，另有14项JavaScript图表与分享测试；按原文六类要求和额外功能整理的51组场景见 [测试用例与验收结果](docs/测试用例.md)，历史记录见 [测试说明](docs/测试说明.md)。
+题型配置、单题答案校验、问卷创建页面、题目保存、所有权隔离及并发追加已有测试。`tests/test_publishing.py` 另覆盖发布、截止边界、关闭、分享与登录回跳。单独运行题型单元测试可执行 `.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_questions.py -v`。`tests/test_jumps.py` 覆盖跳转语义、路径、配置页面和旧结构升级；`tests/test_responses.py` 覆盖填写、提交、匿名及并发防重复；`tests/test_numeric_input.py` 覆盖阿拉伯数字格式；`tests/test_results.py` 覆盖统计口径、单选人数去重、精度、分页和结果权限。`tests/test_acceptance.py` 补充注册、配置、填写与统计的完整链路验收；`tests/test_documentation.py` 核对文档的接口、字段、索引、示例与本地链接。当前Python完整套件211项，另有14项JavaScript图表与分享测试；按原文六类要求和额外功能整理的52组场景（51组自动场景及1组待执行跨设备手工场景）见 [测试用例与验收结果](docs/测试用例.md)，历史记录见 [测试说明](docs/测试说明.md)。
 
 ## Git 与 GitHub
 
