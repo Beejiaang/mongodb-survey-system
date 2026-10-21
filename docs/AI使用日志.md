@@ -12,9 +12,7 @@ AI 将导入语句从 `from flask import Flask` 改为 `from flask import Flask,
 
 ## 2026年10月15日 准备 GitHub 项目基础文件
 
-用户提示词：
-
-> 这个项目后续需要上传github，把一些初始化的工作完成吧
+需求概述（整理）：为问卷系统完成项目初始化，准备后续上传 GitHub。
 
 AI 检查项目文件、Git 仓库状态和当前虚拟环境依赖，确认项目尚未初始化为 Git 仓库。AI 编写 `.gitignore`、`.gitattributes`、固定版本的 `requirements.txt`、README、开发计划和本日志。
 
