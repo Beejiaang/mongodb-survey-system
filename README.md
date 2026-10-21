@@ -4,7 +4,7 @@
 
 ## 当前进度
 
-原始需求已整理为 [逐项验收清单](docs/需求验收清单.md)。2026年10月20日51项基础业务验收点通过，当次190项自动测试通过；后续增加图表、单选人数及数字格式校验，最新套件含210项Python及14项JavaScript测试，实际结果见 [测试说明](docs/测试说明.md)。基础验收历史证据见 [第一阶段验收报告](docs/第一阶段验收报告.md)。提交文档的四项内容及数据库设计理由已补齐，最终项目完成报告和AI个人贡献总结仍待完成。
+原始需求已整理为 [逐项验收清单](docs/需求验收清单.md)。2026年10月20日51项基础业务验收点通过，当次190项自动测试通过；后续增加图表、单选人数及数字格式校验，最新套件含211项Python及14项JavaScript测试，实际结果见 [测试说明](docs/测试说明.md)。基础验收历史证据见 [第一阶段验收报告](docs/第一阶段验收报告.md)。提交文档的四项内容及数据库设计理由已补齐，[项目完成报告](docs/项目完成报告.md)主体已整理，AI协作事实与问题修正已汇总，第六节个人设计理解、实际修改和反思待本人补充确认。
 
 已实现首页、注册、登录、退出和个人账号页面，以及 MongoDB 集合初始化和用户数据处理。注册写入 `users`，登录使用相同的用户名规则和密码哈希验证。问卷草稿、题目保存到 `surveys`，填写进度和正式回答保存到 `responses`。
 
@@ -154,7 +154,7 @@ $env:MONGODB_DB_NAME = "survey_system"
 
 数据库测试默认连接本机 27017 端口，可以通过 `MONGODB_TEST_URI` 指定另一个测试实例。只运行无需数据库的用户规则测试时，执行 `python -m unittest discover -s tests -p test_users.py -v`。提交前仍需运行完整测试。
 
-题型配置、单题答案校验、问卷创建页面、题目保存、所有权隔离及并发追加已有测试。`tests/test_publishing.py` 另覆盖发布、截止边界、关闭、分享与登录回跳。单独运行题型单元测试可执行 `.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_questions.py -v`。`tests/test_jumps.py` 覆盖跳转语义、路径、配置页面和旧结构升级；`tests/test_responses.py` 覆盖填写、提交、匿名及并发防重复；`tests/test_numeric_input.py` 覆盖阿拉伯数字格式；`tests/test_results.py` 覆盖统计口径、单选人数去重、精度、分页和结果权限。`tests/test_acceptance.py` 补充注册、配置、填写与统计的完整链路验收；`tests/test_documentation.py` 核对文档的接口、字段、索引、示例与本地链接。当前Python完整套件210项，另有14项JavaScript图表与分享测试；按原文六类要求和额外功能整理的51组场景见 [测试用例与验收结果](docs/测试用例.md)，历史记录见 [测试说明](docs/测试说明.md)。
+题型配置、单题答案校验、问卷创建页面、题目保存、所有权隔离及并发追加已有测试。`tests/test_publishing.py` 另覆盖发布、截止边界、关闭、分享与登录回跳。单独运行题型单元测试可执行 `.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_questions.py -v`。`tests/test_jumps.py` 覆盖跳转语义、路径、配置页面和旧结构升级；`tests/test_responses.py` 覆盖填写、提交、匿名及并发防重复；`tests/test_numeric_input.py` 覆盖阿拉伯数字格式；`tests/test_results.py` 覆盖统计口径、单选人数去重、精度、分页和结果权限。`tests/test_acceptance.py` 补充注册、配置、填写与统计的完整链路验收；`tests/test_documentation.py` 核对文档的接口、字段、索引、示例与本地链接。当前Python完整套件211项，另有14项JavaScript图表与分享测试；按原文六类要求和额外功能整理的51组场景见 [测试用例与验收结果](docs/测试用例.md)，历史记录见 [测试说明](docs/测试说明.md)。
 
 ## Git 与 GitHub
 

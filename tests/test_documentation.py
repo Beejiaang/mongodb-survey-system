@@ -10,6 +10,7 @@ from urllib.parse import unquote, urlsplit
 
 from app import create_app
 from database import COLLECTION_NAMES, USER_VALIDATOR, initialize_database
+from jumps import allowed_operators
 from questions import validate_question
 from response_schema import RESPONSE_VALIDATOR
 from survey_schema import SURVEY_VALIDATOR
@@ -20,6 +21,24 @@ DOCS = ROOT / "docs"
 
 
 class DocumentationTests(unittest.TestCase):
+    def test_completion_report_covers_assignment_and_personal_ai_review(self):
+        source = (DOCS / "项目完成报告.md").read_text(encoding="utf-8")
+        required = ["一、项目目标", "二、系统设计", "三、MongoDB设计", "四、跳转设计",
+                    "五、校验设计", "六、AI使用过程", "七、测试结果", "八、遇到的问题", "九、如何解决"]
+        for heading in required:
+            with self.subTest(section=heading):
+                match = re.search(rf"^## {re.escape(heading)}\n(.*?)(?=^## |\Z)", source, re.M | re.S)
+                self.assertIsNotNone(match)
+                self.assertGreater(len(match.group(1).strip()), 100, "必需章节不能只有占位标题")
+        for topic in ("AI帮了什么", "AI做错了什么", "自己设计了什么", "自己改了什么"):
+            self.assertIn(topic, source)
+        for evidence in ("测试用例.md", "AI使用日志.md", "关键逻辑说明.md", "数据库设计.md"):
+            self.assertIn(f"]({evidence})", source)
+        numeric_row = re.search(r"^\| 数字填空 \| ([a-z_、]+) \|", source, re.M)
+        self.assertIsNotNone(numeric_row)
+        self.assertEqual(tuple(numeric_row.group(1).split("、")),
+                         allowed_operators({"type": "fill_blank", "input_type": "number"}))
+
     def test_test_case_catalog_has_complete_rows_and_valid_references(self):
         source = (DOCS / "测试用例.md").read_text(encoding="utf-8")
         rows = re.findall(r"^\| ([CQJVRSEFA]\d{2}) \| (.+) \|$", source, re.M)
