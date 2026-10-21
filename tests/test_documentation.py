@@ -1,5 +1,6 @@
 """提交文档与实际路由、schema、索引和示例保持一致。"""
 
+import ast
 import json
 from pathlib import Path
 import re
@@ -19,6 +20,36 @@ DOCS = ROOT / "docs"
 
 
 class DocumentationTests(unittest.TestCase):
+    def test_test_case_catalog_has_complete_rows_and_valid_references(self):
+        source = (DOCS / "测试用例.md").read_text(encoding="utf-8")
+        rows = re.findall(r"^\| ([CQJVRSEFA]\d{2}) \| (.+) \|$", source, re.M)
+        expected = {f"{prefix}{n:02}" for prefix, count in
+                    {"C": 4, "Q": 4, "J": 6, "V": 6, "R": 6, "S": 7,
+                     "E": 12, "F": 5, "A": 1}.items() for n in range(1, count + 1)}
+        self.assertEqual({row[0] for row in rows}, expected)
+        self.assertEqual(len(rows), len(expected), "用例编号重复")
+        methods = set()
+        for path in (ROOT / "tests").glob("test_*.py"):
+            for cls in ast.parse(path.read_text(encoding="utf-8")).body:
+                if isinstance(cls, ast.ClassDef):
+                    methods.update(f"{path.stem}.{cls.name}.{method.name}" for method in cls.body
+                                   if isinstance(method, ast.FunctionDef) and method.name.startswith("test_"))
+        js_names = set()
+        for path in (ROOT / "tests").glob("*.test.cjs"):
+            js_names.update(re.findall(r"test\('([^']+)'", path.read_text(encoding="utf-8")))
+        for case_id, content in rows:
+            with self.subTest(case=case_id):
+                columns = [part.strip() for part in content.split(" | ")]
+                self.assertEqual(len(columns), 4, "必须记录步骤/输入、预期、实际结果、测试定位")
+                self.assertTrue(all(columns))
+                self.assertIn("①", columns[0], "需要有序可复现步骤")
+                if case_id.startswith("F"):
+                    self.assertTrue(set(columns[-1].split("；")) <= js_names, "JS测试引用失效")
+                else:
+                    references = re.findall(r"`(test_\w+\.\w+\.test_\w+)`", columns[-1])
+                    self.assertTrue(references, "缺少明确的Python测试定位")
+                    self.assertTrue(set(references) <= methods, "Python测试引用失效")
+
     def test_all_business_routes_and_methods_are_documented(self):
         source = (DOCS / "API说明.md").read_text(encoding="utf-8")
         documented = set()
