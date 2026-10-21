@@ -23,6 +23,8 @@ DOCS = ROOT / "docs"
 class DocumentationTests(unittest.TestCase):
     def test_completion_report_covers_assignment_and_personal_ai_review(self):
         source = (DOCS / "项目完成报告.md").read_text(encoding="utf-8")
+        self.assertIn("课程：当代数据管理系统｜", source)
+        self.assertIn("当代数据管理系统第一次大作业。", (ROOT / "README.md").read_text(encoding="utf-8"))
         required = ["一、项目目标", "二、系统设计", "三、MongoDB设计", "四、跳转设计",
                     "五、校验设计", "六、AI使用过程", "七、测试结果", "八、遇到的问题", "九、如何解决"]
         for heading in required:
