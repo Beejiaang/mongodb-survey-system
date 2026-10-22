@@ -110,10 +110,28 @@
         "saved_numeric_value": 120,
         "current_question_number": 2
       }
+    },
+    {
+      "name": "文本低于最少字数拒绝",
+      "input": "好",
+      "expected": "不足2字时拒绝保存，停留第二题",
+      "actual": "用户反馈“答案低于最小限制”；数据库仍为草稿version=3，仅有数字120的答案，文本未保存且当前仍为第2题",
+      "result": "通过",
+      "evidence_source": "用户文字反馈及数据库只读复核，未提供本项截图",
+      "response_id": "6ad9a3f3dfdb95973f12de0e",
+      "database_check": {
+        "state": "draft",
+        "version": 3,
+        "answer_count": 1,
+        "path_length": 1,
+        "saved_numeric_value": 120,
+        "text_answer_saved": false,
+        "current_question_number": 2
+      }
     }
   ],
   "remaining": [
-    "文本最少2及最多20字的限制",
+    "文本超过20字拒绝及2字、20字边界接受",
     "手机复制实际效果及设备信息待确认"
   ]
 }
