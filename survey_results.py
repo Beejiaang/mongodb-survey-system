@@ -111,10 +111,8 @@ def summarize(database, survey):
             chart = {"kind": row["question"]["type"], "series": [
                 {"label": o["text"], "count": o["count"]} for o in row["options"]]}
         else:
-            chart = {"kind": "status", "series": [
-                {"label": "有效回答", "count": row["answered"]},
-                {"label": "选答留空", "count": row["blank"]},
-                {"label": "被跳过", "count": row["skipped"]}]}
+            # 文本题仅保留计数和分页原文，不生成图表数据。
+            continue
         row["chart"] = chart
     return {"total": total, "questions": questions}
 

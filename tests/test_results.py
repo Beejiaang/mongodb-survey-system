@@ -338,15 +338,18 @@ class ResultTests(unittest.TestCase):
         self.assertIn("-20", repr(series))
         self.assertTrue(all(isinstance(i["label"], str) for i in series))
 
-    def test_text_chart_is_response_status_not_private_text(self):
+    def test_text_has_no_chart_and_keeps_counts_and_paginated_answers(self):
         self.sample()
-        html = self.client.get(self.url).get_data(as_text=True)
-        chart = self.chart_data(html)[2]
-        self.assertEqual(chart, {"kind": "status", "series": [
-            {"label": "有效回答", "count": 2}, {"label": "选答留空", "count": 2},
-            {"label": "被跳过", "count": 0}]})
-        self.assertNotIn("hello", json.dumps(chart))
-        self.assertNotIn("world", json.dumps(chart))
+        row = self.summary()["questions"][2]
+        self.assertNotIn("chart", row)
+        self.assertEqual((row["answered"], row["blank"], row["skipped"]), (2, 2, 0))
+        overview = self.client.get(self.url).get_data(as_text=True)
+        self.assertEqual(len(self.chart_data(overview)), 3)
+        html = self.client.get(self.url + "/questions/q3").get_data(as_text=True)
+        for removed in ('data-result-visual', 'chart-kind', 'chart-data', 'result-charts.js', '启用JavaScript后可切换图表'):
+            self.assertNotIn(removed, html)
+        for retained in ('有效回答：2 份', '选答留空：2 份', '填写内容', 'hello', 'world'):
+            self.assertIn(retained, html)
 
     def test_empty_chart_data_and_javascript_unavailable_table_fallback(self):
         summary = self.summary()

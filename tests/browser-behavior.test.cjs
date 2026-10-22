@@ -34,7 +34,7 @@ function chartFixture({kind = 'single_choice', key = 'survey:q1', storage = new 
 }
 
 test('实际切换事件绘制全部支持图形，表格模式恢复原表格', () => {
-  for (const kind of ['single_choice', 'multiple_choice', 'status', 'number']) {
+  for (const kind of ['single_choice', 'multiple_choice', 'number']) {
     const f = chartFixture({kind});
     const modes = kind === 'number' ? {columns: 'rect', bars: 'rect', line: 'polyline'} : {bars: 'rect', columns: 'rect', pie: 'path', donut: 'circle'};
     for (const [mode, shape] of Object.entries(modes)) {
@@ -70,7 +70,7 @@ test('浏览器拒绝本地存储时仍能切换图表和表格', () => {
 });
 
 test('损坏JSON或非法计数保留可读表格并隐藏无效控件', () => {
-  for (const raw of ['{broken', JSON.stringify({series: [{label: 'A', count: -1}]})]) {
+  for (const raw of ['{broken', JSON.stringify({series: [{label: 'A', count: -1}]}), JSON.stringify({kind: 'status', series: [{label: '有效回答', count: 1}]})]) {
     const {parts} = chartFixture({raw});
     assert.equal(parts['[data-chart-table]'].hidden, false);
     assert.equal(parts['.chart-controls'].hidden, true);

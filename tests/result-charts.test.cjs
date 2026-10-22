@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const {allowed, seriesOf, metrics, noteFor, arcPath} = require('../static/result-charts.js');
 
 test('单选和多选提供四种图表及表格，数字仅提供分布图', () => {
-  for (const kind of ['single_choice', 'multiple_choice', 'status']) {
+  for (const kind of ['single_choice', 'multiple_choice']) {
     assert.deepEqual(allowed(kind), ['bars', 'columns', 'pie', 'donut', 'table']);
   }
   assert.deepEqual(allowed('number'), ['columns', 'bars', 'line', 'table']);
@@ -30,7 +30,8 @@ test('长标签、中文和64位整数标签保持字符串且不修改输入', 
 test('多选饼图明确分母为总选中次数，不冒充人数占比', () => {
   for (const mode of ['pie', 'donut']) assert.match(noteFor('multiple_choice', mode), /总选中次数.*不是回答人数/);
   assert.match(noteFor('single_choice', 'pie'), /有效回答份数/);
-  assert.match(noteFor('status', 'pie'), /正式提交份数/);
+  assert.deepEqual(allowed('status'), []);
+  assert.deepEqual(allowed('text'), []);
   assert.match(noteFor('number', 'line'), /不表示时间趋势/);
 });
 test('圆弧坐标在极小及大小扇区中保持有限', () => {

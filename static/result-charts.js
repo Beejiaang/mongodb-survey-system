@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   const colors = ['#23554b', '#bd7944', '#507fb1', '#8973a5', '#76944e', '#bb6266', '#438c91', '#9c873c'];
-  const allowed = kind => kind === 'number' ? ['columns', 'bars', 'line', 'table'] : ['bars', 'columns', 'pie', 'donut', 'table'];
+  const allowed = kind => kind === 'number' ? ['columns', 'bars', 'line', 'table'] : ['single_choice', 'multiple_choice'].includes(kind) ? ['bars', 'columns', 'pie', 'donut', 'table'] : [];
   function seriesOf(data) {
     if (!Array.isArray(data.series)) throw new Error('图表数据格式有误');
     return data.series.map(item => {
@@ -15,7 +15,6 @@
   }
   function noteFor(kind, mode) {
     if (kind === 'number') return '横轴按数值区间排列，显示全量有效数字回答的频数；区间可能不等宽，柱宽不代表数值跨度。折线连接区间频数，不表示时间趋势。';
-    if (kind === 'status') return '统计本题有效回答、选答留空与被跳过的份数；圆形图以本问卷正式提交份数为分母。文本原文请查看填写内容。';
     if (kind === 'multiple_choice' && ['pie', 'donut'].includes(mode)) return '圆形图展示各选项占总选中次数的构成比例，分母是所有选项选中次数之和，不是回答人数；回答人数占比请切换数据表格。';
     if (kind === 'multiple_choice') return '每项显示选中该选项的回答份数；一份多选回答可同时计入多个选项。回答人数占比请查看数据表格。';
     return '每项显示选择该选项的回答份数；圆形图以本题有效回答份数为分母。';
@@ -109,6 +108,7 @@
       try {
         data = JSON.parse(widget.querySelector('.chart-data').textContent);
         seriesOf(data);
+        if (!allowed(data.kind).length) return;
         try { const saved = document.defaultView.localStorage.getItem(key); if (allowed(data.kind).includes(saved)) select.value = saved; } catch (_) { /* 隐私模式仍可切换。 */ }
       } catch (_) { return; } // 数据异常保留原表格。
       const update = () => {
