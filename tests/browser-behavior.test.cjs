@@ -19,7 +19,7 @@ class Element {
 
 function chartFixture({kind = 'single_choice', key = 'survey:q1', storage = new Map(), raw, failDraw = false} = {}) {
   const parts = Object.fromEntries(['.chart-kind', '.chart-controls', '.result-chart', '[data-chart-table]', '.chart-note', '.chart-data'].map(s => [s, new Element()]));
-  parts['.chart-kind'].value = kind === 'number' ? 'columns' : 'bars';
+  parts['.chart-kind'].value = 'bars';
   for (const s of ['.chart-controls', '.result-chart', '.chart-note']) parts[s].hidden = true;
   parts['.chart-data'].textContent = raw ?? JSON.stringify({kind, series: [{label: 'A', count: 2}, {label: 'B', count: 1}]});
   const widget = {dataset: {chartKey: key}, querySelector: s => parts[s]};
@@ -36,7 +36,7 @@ function chartFixture({kind = 'single_choice', key = 'survey:q1', storage = new 
 test('实际切换事件绘制全部支持图形，表格模式恢复原表格', () => {
   for (const kind of ['single_choice', 'multiple_choice', 'number']) {
     const f = chartFixture({kind});
-    const modes = kind === 'number' ? {columns: 'rect', bars: 'rect', line: 'polyline'} : {bars: 'rect', columns: 'rect', pie: 'path', donut: 'circle'};
+    const modes = kind === 'number' ? {bars: 'rect'} : {bars: 'rect', columns: 'rect', pie: 'path', donut: 'circle'};
     for (const [mode, shape] of Object.entries(modes)) {
       f.select(mode);
       assert.equal(f.parts['[data-chart-table]'].hidden, true);
@@ -56,7 +56,10 @@ test('图表选择重新挂载后恢复，其他题不受影响，非法缓存�
   assert.equal(chartFixture({storage}).parts['.chart-kind'].value, 'donut');
   assert.equal(chartFixture({storage, key: 'survey:q2'}).parts['.chart-kind'].value, 'bars');
   storage.set('survey-chart:v1:survey:q1', 'pie');
-  assert.equal(chartFixture({storage, kind: 'number'}).parts['.chart-kind'].value, 'columns');
+  for (const removed of ['pie', 'columns', 'line']) {
+    storage.set('survey-chart:v1:survey:q1', removed);
+    assert.equal(chartFixture({storage, kind: 'number'}).parts['.chart-kind'].value, 'bars');
+  }
   assert.deepEqual([...storage.keys()], ['survey-chart:v1:survey:q1', 'survey-chart:v1:survey:q2']);
 });
 

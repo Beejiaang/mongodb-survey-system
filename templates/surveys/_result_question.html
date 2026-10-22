@@ -11,7 +11,7 @@
 {% else %}
 <div class="result-visual" data-result-visual data-chart-key="{{ survey._id }}:{{ q.id }}">
 <div class="chart-controls field" hidden><label for="chart-kind-{{ row.number }}">展示方式</label><select id="chart-kind-{{ row.number }}" class="chart-kind">
-{% if q.input_type == 'number' %}<option value="columns">分布柱状图</option><option value="bars">分布条形图</option><option value="line">频数折线图</option>
+{% if q.input_type == 'number' %}<option value="bars">分布条形图</option>
 {% else %}<option value="bars">条形图</option><option value="columns">柱状图</option><option value="pie">饼图</option><option value="donut">环形图</option>{% endif %}
 <option value="table">数据表格</option></select></div>
 <script type="application/json" class="chart-data">{{ row.chart|tojson }}</script>

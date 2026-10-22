@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   const colors = ['#23554b', '#bd7944', '#507fb1', '#8973a5', '#76944e', '#bb6266', '#438c91', '#9c873c'];
-  const allowed = kind => kind === 'number' ? ['columns', 'bars', 'line', 'table'] : ['single_choice', 'multiple_choice'].includes(kind) ? ['bars', 'columns', 'pie', 'donut', 'table'] : [];
+  const allowed = kind => kind === 'number' ? ['bars', 'table'] : ['single_choice', 'multiple_choice'].includes(kind) ? ['bars', 'columns', 'pie', 'donut', 'table'] : [];
   function seriesOf(data) {
     if (!Array.isArray(data.series)) throw new Error('图表数据格式有误');
     return data.series.map(item => {
@@ -14,7 +14,7 @@
     return {total: series.reduce((n, item) => n + item.count, 0), max: Math.max(0, ...series.map(item => item.count))};
   }
   function noteFor(kind, mode) {
-    if (kind === 'number') return '横轴按数值区间排列，显示全量有效数字回答的频数；区间可能不等宽，柱宽不代表数值跨度。折线连接区间频数，不表示时间趋势。';
+    if (kind === 'number') return '按数值区间显示全部有效数字回答的频数；区间可能不等宽，条形长度表示回答份数。';
     if (kind === 'multiple_choice' && ['pie', 'donut'].includes(mode)) return '圆形图展示各选项占总选中次数的构成比例，分母是所有选项选中次数之和，不是回答人数；回答人数占比请切换数据表格。';
     if (kind === 'multiple_choice') return '每项显示选中该选项的回答份数；一份多选回答可同时计入多个选项。回答人数占比请查看数据表格。';
     return '每项显示选择该选项的回答份数；圆形图以本题有效回答份数为分母。';
@@ -39,7 +39,7 @@
       if (text !== undefined) el.textContent = text;
       return el;
     };
-    const svg = node('svg', {role: 'img', 'aria-label': `${mode === 'bars' ? '条形' : mode === 'columns' ? '柱状' : mode === 'line' ? '频数折线' : mode === 'pie' ? '饼' : '环形'}图：${series.map(i => `${i.label} ${i.count}份`).join('；')}`});
+    const svg = node('svg', {role: 'img', 'aria-label': `${mode === 'bars' ? '条形' : mode === 'columns' ? '柱状' : mode === 'pie' ? '饼' : '环形'}图：${series.map(i => `${i.label} ${i.count}份`).join('；')}`});
     const color = i => colors[i % colors.length];
     const legend = document.createElement('ul'); legend.className = 'chart-legend';
     const round = ['pie', 'donut'].includes(mode);
@@ -86,10 +86,9 @@
         svg.append(node('text', {x: 45, y: y + 4, 'text-anchor': 'end', 'font-size': 12}, Number((max * tick / 4).toFixed(2))));
       }
       const points = series.map((item, i) => [75 + (i + 0.5) * (width - 100) / series.length, baseline - item.count / max * 220]);
-      if (mode === 'line') svg.append(node('polyline', {points: points.map(p => p.join(',')).join(' '), fill: 'none', stroke: '#23554b', 'stroke-width': 3}));
       series.forEach((item, i) => {
         const [x, y] = points[i];
-        const shape = mode === 'line' ? node('circle', {cx: x, cy: y, r: 5, fill: color(i)}) : node('rect', {x: x - 22, y, width: 44, height: baseline - y, rx: 3, fill: color(i)});
+        const shape = node('rect', {x: x - 22, y, width: 44, height: baseline - y, rx: 3, fill: color(i)});
         shape.append(node('title', {}, `${item.label}：${item.count}份`)); svg.append(shape);
         svg.append(node('text', {x, y: y - 10, 'text-anchor': 'middle', 'font-size': 13}, item.count));
         // 轴标签用序号，完整标签在图例中，长文本不会互相覆盖。
