@@ -110,6 +110,40 @@ def utcnow():
     return now.replace(microsecond=now.microsecond // 1000 * 1000)
 
 
+def change_question_layout(database, survey_id, owner_id, question_id, action, revision):
+    """Move/delete a draft question with CAS; invalidate every survey jump rule."""
+    from copy import deepcopy
+    from jumps import question_revision
+
+    survey = get_owned_survey(database, survey_id, owner_id)
+    if survey is None or survey["status"] != "draft":
+        return False
+    if revision != question_revision(survey["questions"]):
+        return False
+    questions = deepcopy(survey["questions"])
+    position = next((i for i, q in enumerate(questions) if q["id"] == question_id), None)
+    if position is None:
+        raise ValueError("题目不存在。")
+    if action == "delete":
+        questions.pop(position)
+    elif action in ("up", "down"):
+        target = position + (-1 if action == "up" else 1)
+        if not 0 <= target < len(questions):
+            raise ValueError("题目已在边界，无法继续移动。")
+        questions[position], questions[target] = questions[target], questions[position]
+    else:
+        raise ValueError("不支持的题目操作。")
+    for question in questions:
+        question["jump_rules"] = []
+    questions = validate_questions(questions)
+    result = database.surveys.update_one(
+        {"_id": survey["_id"], "owner_id": survey["owner_id"], "status": "draft",
+         "questions": survey["questions"]},
+        {"$set": {"questions": questions, "updated_at": utcnow()}},
+    )
+    return result.modified_count == 1
+
+
 def save_jump_rules(database, survey_id, owner_id, question_id, rules, revision):
     from copy import deepcopy
     from jumps import question_revision

@@ -12,7 +12,7 @@
 
 ## 全部业务路由
 
-本表覆盖18个业务路径，未列Flask自动生成的HEAD、OPTIONS以及静态资源GET接口。
+本表覆盖19个业务路径，未列Flask自动生成的HEAD、OPTIONS以及静态资源GET接口。
 
 | 方法 | 路径 | 身份与用途 | 正常结果 |
 | --- | --- | --- | --- |
@@ -26,6 +26,7 @@
 | GET | /surveys/<survey_id> | 问卷创建者查看详情 | 200 |
 | GET, POST | /surveys/<survey_id>/questions/new | 问卷创建者；仅草稿可追加 | GET 200；保存成功303到详情；提示按钮200回填表单 |
 | GET, POST | /surveys/<survey_id>/questions/<question_id>/jumps | 问卷创建者；仅草稿可配置或试算 | GET/试算200；保存、排序、删除成功303到规则页 |
+| POST | /surveys/<survey_id>/questions/<question_id>/layout | 问卷创建者；草稿上移、下移或删除题目，清空全部跳转 | 成功303；过期或已发布409 |
 | POST | /surveys/<survey_id>/deadline | 问卷创建者；草稿或已发布 | 保存成功303到详情 |
 | POST | /surveys/<survey_id>/publish | 问卷创建者；有效草稿 | 发布成功303到详情 |
 | POST | /surveys/<survey_id>/close | 问卷创建者；已发布 | 关闭成功303到详情 |
@@ -117,3 +118,7 @@ version每次保存、返回或首次正式提交递增；旧版本不能覆盖�
 | 503 | MongoDB不可用，页面不展示内部连接细节 |
 
 多个条件同时不满足时，以最先执行的检查为准，例如无效CSRF会在路由业务前返回400。表单型校验错误会回填非密码输入；涉及版本或开放状态的冲突需要刷新并重新进入。
+
+## 第二阶段：题目布局
+
+POST布局接口带revision（当前整卷摘要）和action=up/down/delete。上移、下移保留编号和题目内容；删除移除指定题目。三种成功操作均清空整卷jump_rules。首题上移、末题下移或未知动作400；过期摘要及已发布/关闭409；他人问卷404；缺少CSRF400。原子更新同时匹配旧题目数组、归属和draft状态。

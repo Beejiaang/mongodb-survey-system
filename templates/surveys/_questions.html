@@ -8,6 +8,14 @@
 {% elif question.type == 'fill_blank' %}<span>最小值：{{ question.validation.min_value if question.validation.min_value is not none else '不限' }}</span><span>最大值：{{ question.validation.max_value if question.validation.max_value is not none else '不限' }}</span><span>{{ '仅限整数' if question.validation.integer_only else '允许小数' }}</span>{% endif %}
 </div>
 {% if request.endpoint == 'surveys.detail' %}
+{% if survey.status == 'draft' %}
+<form method="post" action="{{ url_for('surveys.question_layout', survey_id=survey._id, question_id=question.id) }}" class="form-actions">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="revision" value="{{ revision }}">
+<button class="nav-button" name="action" value="up" {% if loop.first %}disabled{% endif %} aria-label="上移第{{ loop.index }}题">↑ 上移</button>
+<button class="nav-button" name="action" value="down" {% if loop.last %}disabled{% endif %} aria-label="下移第{{ loop.index }}题">↓ 下移</button>
+<button class="nav-button" name="action" value="delete" onclick="return confirm('删除本题并清空本问卷全部跳转规则？')">删除题目</button>
+</form>
+{% endif %}
 <p class="field-help">跳转规则：{{ question.jump_rules|length }} 条，按顺序取第一条命中规则。</p>
 {% if survey.status == 'draft' and (question.type != 'fill_blank' or question.input_type == 'number') %}<a class="text-link" href="{{ url_for('surveys.edit_jumps', survey_id=survey._id, question_id=question.id) }}">配置与试算跳转 →</a>{% endif %}
 {% endif %}

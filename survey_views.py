@@ -11,7 +11,7 @@ from questions import build_question
 from jumps import OPERATORS, allowed_operators, next_question_id, question_revision
 from surveys import (add_question, create_survey, get_owned_survey, list_owned_surveys,
                      availability, publish_survey, set_survey_deadline, close_survey,
-                     get_shared_survey, save_jump_rules)
+                     get_shared_survey, save_jump_rules, change_question_layout)
 
 
 surveys = Blueprint("surveys", __name__, url_prefix="/surveys")
@@ -128,8 +128,27 @@ def _render_detail(survey, error=None, deadline_value=None, status=200):
         "surveys/detail.html", title="问卷详情", survey=survey, kinds=KINDS,
         status_labels=STATUS_LABELS, state=availability(survey), error=error,
         deadline_value=deadline_value,
+        revision=question_revision(survey["questions"]),
         share_url=url_for("shared_surveys.entry", survey_id=survey["_id"], _external=True),
     ), status
+
+
+@surveys.post("/<survey_id>/questions/<question_id>/layout")
+@login_required
+def question_layout(survey_id, question_id):
+    survey = _owned(survey_id)
+    if not any(q["id"] == question_id for q in survey["questions"]):
+        abort(404)
+    try:
+        saved = change_question_layout(get_request_database(), survey_id, g.user["_id"],
+                                       question_id, request.form.get("action"),
+                                       request.form.get("revision"))
+    except ValueError as invalid:
+        return _render_detail(survey, error=str(invalid), status=400)
+    if not saved:
+        return _render_detail(_owned(survey_id), error="问卷已变化或发布，请刷新后重试。", status=409)
+    flash("题目已调整，本问卷全部跳转规则已清空，请重新配置。", "success")
+    return redirect(url_for("surveys.detail", survey_id=survey_id), code=303)
 
 
 @surveys.post("/<survey_id>/deadline")
