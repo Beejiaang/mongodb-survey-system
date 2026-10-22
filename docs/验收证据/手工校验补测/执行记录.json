@@ -164,10 +164,29 @@
         "saved_text_value": "你好",
         "current_question_id": null
       }
+    },
+    {
+      "name": "文本最多字数边界接受",
+      "input": "12345678901234567890",
+      "expected": "恰好20字符时保存并再次进入答案确认页，尚未正式提交",
+      "actual": "用户确认再次成功进入确认页；数据库文本更新为20字符，草稿version=6、2条答案及2题路径，current_question_id为空",
+      "result": "通过",
+      "evidence_source": "用户文字确认及数据库只读复核，未提供本项截图",
+      "response_id": "6ad9a3f3dfdb95973f12de0e",
+      "database_check": {
+        "state": "draft",
+        "version": 6,
+        "answer_count": 2,
+        "path_length": 2,
+        "saved_numeric_value": 120,
+        "saved_text_value": "12345678901234567890",
+        "current_question_id": null
+      }
     }
   ],
   "remaining": [
-    "文本20字上限边界接受",
+    "补测回答正式提交与回执核对",
     "手机复制实际效果及设备信息待确认"
-  ]
+  ],
+  "validation_status": "数字及文本限制10项检查通过；尚未正式提交补测回答"
 }
