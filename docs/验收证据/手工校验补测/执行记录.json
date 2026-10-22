@@ -28,10 +28,25 @@
         "answer_count": 0,
         "path_length": 0
       }
+    },
+    {
+      "name": "整数限制拒绝小数",
+      "input": "18.5",
+      "expected": "提示必须填写整数，停留第一题且不保存答案",
+      "actual": "截图显示“此题必须填写整数。”，输入18.5保留，仍为第1题；数据库进度未推进",
+      "result": "通过",
+      "screenshot": "小数整数限制拦截.jpg",
+      "screenshot_sha256": "fd38d88bf78cc935b9b26757fb08f467738f635d3d76c230c374e1566f5db3f4",
+      "response_id": "6ad9a3f3dfdb95973f12de0e",
+      "database_check": {
+        "state": "draft",
+        "version": 0,
+        "answer_count": 0,
+        "path_length": 0
+      }
     }
   ],
   "remaining": [
-    "小数不符合整数要求时拒绝",
     "数字低于0和高于120时拒绝",
     "数字0和120边界接受",
     "文本最少2及最多20字的限制",
