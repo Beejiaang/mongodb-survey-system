@@ -56,12 +56,14 @@ GET使用kind查询参数选择题型，缺省single_choice；POST使用隐藏�
 
 | kind | 专有字段 | 保存类型 |
 | --- | --- | --- |
-| single_choice | options_text，每行一个选项，至少两个 | type=single_choice |
-| multiple_choice | options_text、min_choices、max_choices | type=multiple_choice |
+| single_choice | option_text（重复字段），按行提交至少两个选项 | type=single_choice |
+| multiple_choice | option_text（重复字段）、min_choices、max_choices | type=multiple_choice |
 | text | min_length、max_length | type=fill_blank、input_type=text |
 | number | min_value、max_value、integer_only=on | type=fill_blank、input_type=number |
 
 上下限为空表示不限制，包含边界；数量和长度为非负整数。文本长度按Unicode码点计数。最少不能大于最多，多选限制不能超过选项总数；必答配置须有可填写的值。
+
+选择题新表单按A、B、C顺序提交重复字段`option_text`，不允许空白或含换行的选项。`action=add_option`只返回多一行的表单，不保存；兼容旧`options_text`换行字段。填空统一入口，通过`input_type=text/number`选择回答内容，优先于旧`kind=text/number`；只读取所选类型的限制。
 
 文本或数字题提交action=number_hint时，仅返回整理后的数字表单，不写数据库：附加“请使用阿拉伯数字回答”，已有提示不重复；保留标题、必答及已有数字设置，文本长度设置不再适用。还须点击“保存题目”才能追加题目，成功返回303。此动作也要求CSRF、问卷归属及草稿状态。
 

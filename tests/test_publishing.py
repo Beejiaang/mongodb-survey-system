@@ -105,7 +105,33 @@ class PublishingTests(unittest.TestCase):
                 self.assertEqual(result.location, self.share)
                 shared = reader.get(result.location, base_url=origin)
                 self.assertEqual(shared.status_code, 200)
-                self.assertIn("开始或继续填写", shared.get_data(as_text=True))
+                self.assertIn("开始填写", shared.get_data(as_text=True))
+
+    def test_share_entry_hides_questions_and_navigation_and_resumes_only_own_progress(self):
+        from responses import start_response
+        publish_survey(self.db, self.sid, self.owner)
+        self.login_as(self.reader["_id"])
+        before = self.db.responses.count_documents({})
+        html = self.client.get(self.share).get_data(as_text=True)
+        self.assertIn("开始填写", html)
+        self.assertNotIn("你的建议", html)
+        self.assertNotIn("我的问卷", html)
+        self.assertNotIn('href="/account"', html)
+        self.assertNotIn('href="/"', html)
+        self.assertIn(">退出</button>", html)
+        self.assertEqual(self.db.responses.count_documents({}), before)
+        secret = self.app.config["RESPONSE_IDENTITY_KEY"]
+        start_response(self.db, self.sid, self.owner, secret)
+        self.assertIn("开始填写", self.client.get(self.share).get_data(as_text=True))
+        start_response(self.db, self.sid, self.reader["_id"], secret)
+        html = self.client.get(self.share).get_data(as_text=True)
+        self.assertIn("继续填写", html)
+        self.assertNotIn("开始填写", html)
+        self.db.surveys.update_one({"_id": self.sid}, {"$set": {"status": "closed"}})
+        closed = self.client.get(self.share)
+        self.assertEqual(closed.status_code, 410)
+        self.assertNotIn("你的建议", closed.get_data(as_text=True))
+        self.assertNotIn('action="' + self.share + '/start"', closed.get_data(as_text=True))
 
     def test_empty_or_invalid_question_cannot_publish(self):
         self.db.surveys.update_one({"_id": self.sid}, {"$set": {"questions": []}})
@@ -209,10 +235,10 @@ class PublishingTests(unittest.TestCase):
                                 "username": "reader", "password": "test-pass"})
         self.assertEqual(response.location, self.share)
         html = browser.get(self.share).get_data(as_text=True)
-        self.assertIn("你的建议", html)
+        self.assertNotIn("你的建议", html)
         self.assertNotIn(str(self.owner), html)
         self.assertNotIn("发布问卷", html)
-        self.assertIn("开始或继续填写", html)
+        self.assertIn("开始填写", html)
 
     def test_registration_preserves_share_destination(self):
         browser = self.app.test_client()

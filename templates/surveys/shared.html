@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
 {% if state == 'closed' or state == 'expired' %}
-<section class="survey-empty"><h1>{{ '问卷已关闭' if state == 'closed' else '问卷已截止' }}</h1><p class="muted">这份问卷当前不开放，请联系问卷创建者。</p><a class="text-link" href="{{ url_for('account') }}">返回我的账号</a></section>
+<section class="survey-empty"><h1>{{ '问卷已关闭' if state == 'closed' else '问卷已截止' }}</h1><p class="muted">这份问卷当前不开放，请联系问卷创建者。</p></section>
 {% else %}
 <section class="account-heading"><p class="eyebrow">分享问卷</p><h1>{{ survey.title }}</h1><p class="survey-description">{{ survey.description }}</p></section>
 <div class="survey-meta"><span>{{ survey.questions|length }} 道题目</span><span>截止时间：{{ survey.deadline|beijing_time if survey.deadline else '不限制' }}（北京时间）</span></div>
 <section class="editor-panel">
 <p>{{ '匿名收集：答案不保存你的用户编号，系统保留内部标识用于防止重复及恢复进度。' if survey.is_anonymous else '实名收集：回答会关联你的账号。' }}</p>
 <p>{{ '允许多次填写；每次正式提交后可以重新开始。' if survey.allow_repeat else '每个账号只能正式提交一次。' }} 未完成的填写会保存进度，尚未提交的回答不计入结果。</p>
-<form method="post" action="{{ url_for('filling.start', survey_id=survey._id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="button">开始或继续填写 →</button></form>
+<form method="post" action="{{ url_for('filling.start', survey_id=survey._id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="button">{{ '继续填写' if has_progress else '开始填写' }} →</button></form>
 </section>
-{% include 'surveys/_questions.html' %}
+
 {% endif %}
 {% endblock %}

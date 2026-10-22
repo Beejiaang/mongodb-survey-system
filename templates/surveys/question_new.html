@@ -3,7 +3,7 @@
 {% block content %}
 <div class="editor-shell"><a class="text-link" href="{{ url_for('surveys.detail', survey_id=survey._id) }}">← 返回问卷</a>
 <section class="account-heading"><p class="eyebrow">{{ survey.title }} / 添加题目</p><h1>下一个好问题</h1><p class="muted">先选择题型，再填写内容与规则。</p></section>
-<nav class="question-types" aria-label="选择题型">{% for value, label in kinds.items() %}<a href="{{ url_for('surveys.new_question', survey_id=survey._id, kind=value) }}" {% if kind == value %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}</nav>
+<nav class="question-types" aria-label="选择题型">{% for value, label in [('single_choice', '单选题'), ('multiple_choice', '多选题'), ('text', '填空题')] %}<a href="{{ url_for('surveys.new_question', survey_id=survey._id, kind=value) }}" {% if kind == value or (value == 'text' and kind == 'number') %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}</nav>
 <p class="field-help">切换题型会清空尚未保存的本题输入。</p>
 <section class="editor-panel">
 {% if error %}<p class="notice error" role="alert">{{ error }}</p>{% endif %}
@@ -12,11 +12,19 @@
 <div class="field"><label for="title">题目内容 <span class="required-mark">必填</span></label><input id="title" name="title" value="{{ values.get('title', '') }}" required></div>
 {% if kind in ['text', 'number'] %}<div><p class="field-help">若本题仅回答数字，请使用数字填空：填写时强制检查阿拉伯数字，结果中可查看平均值。</p><button class="nav-button" type="submit" name="action" value="number_hint" formnovalidate>{{ '改为数字填空并' if kind == 'text' else '一键' }}添加“请使用阿拉伯数字回答”</button><p class="field-help">保留题目内容和必答设置，提示不会重复添加；确认后点击“保存题目”。</p></div>{% endif %}
 <label class="check-field"><input name="required" type="checkbox" {% if values.get('required') == 'on' %}checked{% endif %}>设为必答题</label>
-{% if kind in ['single_choice', 'multiple_choice'] %}<div class="field"><label for="options_text">选项</label><textarea id="options_text" name="options_text" rows="5" required aria-describedby="options-help">{{ values.get('options_text', '') }}</textarea><p id="options-help" class="field-help">每行一个选项，至少填写两个；空白行将忽略。</p></div>{% endif %}
+{% if kind in ['single_choice', 'multiple_choice'] %}
+<div class="field"><span id="options-label">选项</span><div data-option-editor role="group" aria-labelledby="options-label">
+{% for value in option_values %}<div class="option-row"><label class="option-letter" for="option-{{ loop.index }}">{{ option_label(loop.index) }}</label><input id="option-{{ loop.index }}" name="option_text" value="{{ value }}" aria-label="选项 {{ option_label(loop.index) }} 的内容" placeholder="填写选项内容" required></div>{% endfor %}
+<button class="option-add" type="submit" name="action" value="add_option" formnovalidate aria-label="添加下一个选项">＋</button>
+</div></div>{% endif %}
 {% if kind == 'multiple_choice' %}<div class="field-pair">{{ bound('min_choices', '最少选择数', true) }}{{ bound('max_choices', '最多选择数', true) }}</div><p class="field-help">要求恰好选择两个时，将上下限都设为 2。</p>
-{% elif kind == 'text' %}<div class="field-pair">{{ bound('min_length', '最短长度', true) }}{{ bound('max_length', '最长长度', true) }}</div>
-{% elif kind == 'number' %}<div class="field-pair">{{ bound('min_value', '最小值') }}{{ bound('max_value', '最大值') }}</div><label class="check-field"><input name="integer_only" type="checkbox" {% if values.get('integer_only') == 'on' %}checked{% endif %}>只能填写整数</label>{% endif %}
+{% endif %}
+{% if kind in ['text', 'number'] %}
+<div class="field"><label for="input-type">回答内容</label><select id="input-type" name="input_type" data-fill-type><option value="text" {% if kind == 'text' %}selected{% endif %}>文字</option><option value="number" {% if kind == 'number' %}selected{% endif %}>数字</option></select></div>
+<fieldset class="fill-validation" data-fill-validation="text"><legend>文字限制</legend><div class="field-pair">{{ bound('min_length', '最短长度', true) }}{{ bound('max_length', '最长长度', true) }}</div></fieldset>
+<fieldset class="fill-validation" data-fill-validation="number"><legend>数字限制</legend><div class="field-pair">{{ bound('min_value', '最小值') }}{{ bound('max_value', '最大值') }}</div><label class="check-field"><input name="integer_only" type="checkbox" {% if values.get('integer_only') == 'on' %}checked{% endif %}>只能填写整数</label></fieldset><noscript><p class="field-help">只会应用所选回答内容对应的限制。</p></noscript>{% endif %}
 {% if kind != 'single_choice' %}<p class="field-help">留空表示不限制，上下限包含边界。选答题允许不填写；填写后仍须满足限制。</p>{% endif %}
 <div class="form-actions"><button class="button" type="submit">保存题目 →</button><a href="{{ url_for('surveys.detail', survey_id=survey._id) }}">取消</a></div>
 </form></section></div>
+<script src="{{ url_for('static', filename='question-editor.js') }}" defer></script>
 {% endblock %}

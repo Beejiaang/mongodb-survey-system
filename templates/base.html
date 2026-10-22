@@ -10,14 +10,14 @@
 <body>
     <a class="skip-link" href="#main">跳到正文</a>
     <header class="site-header">
-        <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark" aria-hidden="true">问</span>问卷小站</a>
+        {% if respondent_layout %}<span class="brand"><span class="brand-mark" aria-hidden="true">问</span>问卷小站</span>{% else %}<a class="brand" href="{{ url_for('index') }}"><span class="brand-mark" aria-hidden="true">问</span>问卷小站</a>{% endif %}
         <nav aria-label="主导航">
             {% if g.user %}
-            <a href="{{ url_for('surveys.index') }}" {% if request.blueprint == 'surveys' %}aria-current="page"{% endif %}>我的问卷</a>
-            <a class="nav-account" href="{{ url_for('account') }}">{{ g.user.username }}</a>
+            {% if not respondent_layout %}<a href="{{ url_for('surveys.index') }}" {% if request.blueprint == 'surveys' %}aria-current="page"{% endif %}>我的问卷</a>
+            <a class="nav-account" href="{{ url_for('account') }}">{{ g.user.username }}</a>{% endif %}
             <form method="post" action="{{ url_for('auth.logout') }}" class="nav-form">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button class="nav-button" type="submit">退出登录</button>
+                <button class="nav-button" type="submit">{{ '退出' if respondent_layout else '退出登录' }}</button>
             </form>
             {% else %}
             <a href="{{ url_for('auth.login') }}" {% if request.endpoint == 'auth.login' %}aria-current="page"{% endif %}>登录</a>

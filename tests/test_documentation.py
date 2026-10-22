@@ -54,7 +54,7 @@ class DocumentationTests(unittest.TestCase):
         rows = re.findall(r"^\| ([CQJVRSEFAN]\d{2}) \| (.+) \|$", source, re.M)
         expected = {f"{prefix}{n:02}" for prefix, count in
                     {"C": 4, "Q": 4, "J": 6, "V": 6, "R": 6, "S": 7,
-                     "E": 12, "F": 5, "A": 1, "N": 1}.items() for n in range(1, count + 1)}
+                     "E": 14, "F": 6, "A": 1, "N": 1}.items() for n in range(1, count + 1)}
         self.assertEqual({row[0] for row in rows}, expected)
         self.assertEqual(len(rows), len(expected), "用例编号重复")
         methods = set()

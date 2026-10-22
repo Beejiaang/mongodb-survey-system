@@ -19,8 +19,7 @@
 <div class="field"><label for="answer">你的回答</label><textarea id="answer" name="answer" rows="5">{{ value if value is not none else '' }}</textarea></div>
 <p class="field-help">最短长度：{{ question.validation.min_length if question.validation.min_length is not none else '不限' }}；最长长度：{{ question.validation.max_length if question.validation.max_length is not none else '不限' }}。</p>
 {% else %}
-<div class="field"><label for="answer">你的数字回答</label><input id="answer" name="answer" type="text" inputmode="{{ 'numeric' if question.validation.integer_only else 'decimal' }}" pattern="{{ number_pattern }}" {% if question.required %}required{% endif %} title="请使用阿拉伯数字回答，例如18、-2.5或1e3；不要填写单位。" aria-describedby="number-help" value="{{ value if value is not none else '' }}"><p id="number-help" class="field-help">请使用阿拉伯数字回答（0–9），可带正负号、小数点或科学计数法，例如18、-2.5、1e3。不要填写单位；系统会强制检查。</p></div>
-<p class="field-help">{{ '只接受整数。' if question.validation.integer_only else '支持小数。' }}最小值：{{ question.validation.min_value if question.validation.min_value is not none else '不限' }}；最大值：{{ question.validation.max_value if question.validation.max_value is not none else '不限' }}。上下限包含边界。</p>
+<div class="field"><label for="answer">你的数字回答</label><input id="answer" name="answer" type="text" inputmode="{{ 'numeric' if question.validation.integer_only else 'decimal' }}" pattern="{{ number_pattern }}" {% if question.required %}required{% endif %} title="请使用阿拉伯数字回答，例如18、-2.5或1e3；不要填写单位。" value="{{ value if value is not none else '' }}"></div>
 {% endif %}
 <p class="field-help">点击下一步会保存本题并按规则跳转。修改前题后，需要重新填写后续题目。</p>
 {% else %}

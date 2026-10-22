@@ -96,7 +96,8 @@ class SurveyRouteTests(unittest.TestCase):
         self.assertIn(f'name="title" value="{title}"', html)
         self.assertIn('name="kind" value="number"', html)
         self.assertIn('name="required" type="checkbox" checked', html)
-        self.assertNotIn('name="min_length"', html)
+        self.assertIn('data-fill-type', html)
+        self.assertIn('<option value="number" selected>', html)
         self.assertEqual(self.database.surveys.find_one({"_id": survey["_id"]}), survey)
         # 再点一次不追加重复提示，数字限制也保留。
         data.update(kind="number", title=title, min_value="0", max_value="120", integer_only="on")
@@ -138,6 +139,53 @@ class SurveyRouteTests(unittest.TestCase):
         data["csrf_token"] = self.token(path)
         self.database.surveys.update_one({"_id": survey["_id"]}, {"$set": {"status": "published"}})
         self.assertEqual(self.client.post(path, data=data).status_code, 409)
+
+    def test_option_rows_preserve_order_errors_and_no_script_add_without_saving(self):
+        survey = self.saved_draft()
+        path = f"/surveys/{survey['_id']}/questions/new"
+        html = self.client.get(path).get_data(as_text=True)
+        self.assertEqual(html.count('name="option_text"'), 2)
+        self.assertIn('aria-label="选项 A 的内容"', html)
+        self.assertIn('aria-label="选项 B 的内容"', html)
+        fields = {"csrf_token": self.token(path), "kind": "single_choice", "title": "行选项",
+                  "option_text": ["苹果", "香蕉"], "action": "add_option"}
+        added = self.client.post(path, data=fields)
+        self.assertEqual(added.status_code, 200)
+        self.assertEqual(added.get_data(as_text=True).count('name="option_text"'), 3)
+        self.assertEqual(self.database.surveys.find_one({"_id": survey["_id"]}), survey)
+        fields.pop("action")
+        for invalid in (["苹果", ""], ["苹果", "香蕉\n西瓜"]):
+            fields["option_text"] = invalid
+            result = self.client.post(path, data=fields)
+            self.assertEqual(result.status_code, 400)
+            self.assertIn("苹果", result.get_data(as_text=True))
+            self.assertEqual(self.database.surveys.find_one({"_id": survey["_id"]}), survey)
+        for kind in ("single_choice", "multiple_choice"):
+            fields.update(kind=kind, option_text=["苹果", "香蕉", "西瓜"])
+            self.assertEqual(self.client.post(path, data=fields).status_code, 303)
+        questions = self.database.surveys.find_one({"_id": survey["_id"]})["questions"]
+        for question in questions:
+            self.assertEqual([o["text"] for o in question["options"]], ["苹果", "香蕉", "西瓜"])
+            self.assertEqual(len({o["id"] for o in question["options"]}), 3)
+
+    def test_unified_fill_entry_saves_selected_type_and_ignores_inactive_bounds(self):
+        survey = self.saved_draft()
+        path = f"/surveys/{survey['_id']}/questions/new"
+        html = self.client.get(path + "?kind=number").get_data(as_text=True)
+        nav = re.search(r'<nav class="question-types".*?</nav>', html, re.S).group()
+        self.assertEqual(nav.count("<a "), 3)
+        self.assertIn(">填空题</a>", nav)
+        fields = {"csrf_token": self.token(path), "kind": "text", "title": "年龄", "input_type": "number",
+                  "min_value": "0", "max_value": "120", "integer_only": "on", "min_length": "invalid"}
+        self.assertEqual(self.client.post(path, data=fields).status_code, 303)
+        fields.update(kind="number", input_type="text", title="建议", min_length="2", max_length="20", min_value="invalid")
+        self.assertEqual(self.client.post(path, data=fields).status_code, 303)
+        questions = self.database.surveys.find_one({"_id": survey["_id"]})["questions"]
+        self.assertEqual([q["input_type"] for q in questions], ["number", "text"])
+        self.assertEqual(questions[0]["validation"], {"min_value": 0, "max_value": 120, "integer_only": True})
+        self.assertEqual(questions[1]["validation"], {"min_length": 2, "max_length": 20})
+        fields["input_type"] = "unknown"
+        self.assertEqual(self.client.post(path, data=fields).status_code, 400)
 
     def test_create_draft_saves_complete_metadata_and_ignores_owner_spoof(self):
         survey = self.saved_draft(

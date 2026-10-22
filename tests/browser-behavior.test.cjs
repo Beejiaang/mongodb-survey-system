@@ -87,13 +87,14 @@ test('绘图异常恢复表格且给出提示，仍可切换表格模式', () =>
   assert.equal(f.parts['[data-chart-table]'].hidden, false);
 });
 
-function shareFixture(navigator, hasButton = true) {
+function shareFixture(navigator, hasButton = true, legacyCopy = () => false) {
   const button = new Element('button');
   const input = {value: 'http://127.0.0.1:5000/survey/0123456789abcdef01234567', focused: false, selected: false,
-    focus() { this.focused = true; }, select() { this.selected = true; }};
+    focus() { this.focused = true; }, select() { this.selected = true; },
+    setSelectionRange(start, end) { this.range = [start, end]; }};
   const message = new Element();
   const elements = {'copy-share': hasButton ? button : null, 'share-url': input, 'copy-status': message};
-  vm.runInNewContext(readFileSync(require.resolve('../static/share.js'), 'utf8'), {navigator, document: {getElementById: id => elements[id]}});
+  vm.runInNewContext(readFileSync(require.resolve('../static/share.js'), 'utf8'), {navigator, document: {getElementById: id => elements[id], execCommand: legacyCopy}});
   return {button, input, message};
 }
 
@@ -106,17 +107,75 @@ test('分享按钮将完整链接交给剪贴板并显示成功提示', async ()
   assert.equal(f.input.selected, false);
 });
 
-test('剪贴板缺失或拒绝权限时选中完整链接供手动复制', async () => {
+test('剪贴板缺失或拒绝权限时兼容复制，均失败则选中链接供手动复制', async () => {
   for (const navigator of [{}, {clipboard: {writeText: async () => { throw new Error('denied'); }}}]) {
-    const f = shareFixture(navigator);
-    await f.button.listeners.click();
-    assert.equal(f.input.focused, true);
-    assert.equal(f.input.selected, true);
-    assert.match(f.message.textContent, /手动复制/);
+    for (const outcome of [true, false, 'throw']) {
+      const commands = [];
+      const f = shareFixture(navigator, true, command => {
+        commands.push(command);
+        if (outcome === 'throw') throw new Error('blocked');
+        return outcome;
+      });
+      await f.button.listeners.click();
+      assert.deepEqual(commands, ['copy']);
+      assert.equal(f.input.focused, true);
+      assert.equal(f.input.selected, true);
+      assert.deepEqual(f.input.range, [0, f.input.value.length]);
+      assert.match(f.message.textContent, outcome === true ? /链接已复制/ : /Ctrl\+C.*长按/);
+    }
   }
 });
 
 test('没有分享按钮的页面加载脚本不报错', () => {
   const f = shareFixture({}, false);
   assert.deepEqual(f.button.listeners, {});
+});
+
+const {optionLabel, mountQuestionEditor} = require('../static/question-editor.js');
+
+test('选项加号依次添加C和D，保留原内容并将焦点放到新行', () => {
+  const add = new Element('button');
+  const editor = new Element();
+  const first = new Element(); first.textContent = '原选项内容';
+  editor.append(first, new Element(), add);
+  editor.querySelector = () => add;
+  editor.querySelectorAll = () => editor.children.filter(child => child !== add);
+  editor.insertBefore = (row, button) => editor.children.splice(editor.children.indexOf(button), 0, row);
+  const document = {querySelector: selector => selector === '[data-option-editor]' ? editor : null,
+    createElement: tag => { const el = new Element(tag); el.focus = () => { el.focused = true; }; return el; }};
+  mountQuestionEditor(document);
+  for (const letter of ['C', 'D']) {
+    let prevented = false;
+    add.listeners.click({preventDefault() { prevented = true; }});
+    const [label, input] = editor.children.at(-2).children;
+    assert.equal(prevented, true);
+    assert.equal(label.textContent, letter);
+    assert.equal(input.name, 'option_text');
+    assert.equal(input.attrs['aria-label'], `选项 ${letter} 的内容`);
+    assert.equal(input.required, true);
+    assert.equal(input.focused, true);
+    assert.equal(editor.children.at(-1), add);
+    assert.equal(first.textContent, '原选项内容');
+  }
+  assert.equal(optionLabel(26), 'Z');
+  assert.equal(optionLabel(27), 'AA');
+});
+
+test('填空文字数字切换只启用对应限制并保留两组输入', () => {
+  const type = new Element('select'); type.value = 'text';
+  const hiddenKind = {value: 'text'};
+  const sections = ['text', 'number'].map(kind => ({dataset: {fillValidation: kind}, value: kind === 'text' ? '20' : '120'}));
+  const document = {querySelector: selector => ({'[data-fill-type]': type, 'input[name="kind"]': hiddenKind}[selector] || null),
+    querySelectorAll: () => sections};
+  mountQuestionEditor(document);
+  assert.equal(sections[0].disabled, false);
+  assert.equal(sections[1].hidden, true);
+  type.value = 'number'; type.listeners.change();
+  assert.equal(hiddenKind.value, 'number');
+  assert.equal(sections[0].hidden, true);
+  assert.equal(sections[0].disabled, true);
+  assert.equal(sections[1].hidden, false);
+  assert.equal(sections[1].disabled, false);
+  type.value = 'text'; type.listeners.change();
+  assert.deepEqual(sections.map(s => s.value), ['20', '120']);
 });

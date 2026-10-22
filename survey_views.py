@@ -3,7 +3,7 @@
 from uuid import uuid4
 from datetime import datetime, timedelta, timezone
 
-from flask import Blueprint, abort, flash, g, redirect, render_template, request, url_for
+from flask import Blueprint, abort, current_app, flash, g, redirect, render_template, request, url_for
 
 from auth import login_required
 from database import get_request_database
@@ -55,7 +55,13 @@ def _bound(name, label, *, integer=False):
 def _question_from_form(kind):
     kwargs = {"required": _checkbox("required")}
     if kind in ("single_choice", "multiple_choice"):
-        labels = request.form.get("options_text", "").splitlines()
+        if "option_text" in request.form:
+            labels = request.form.getlist("option_text")
+            if any(not label.strip() or "\n" in label or "\r" in label for label in labels):
+                raise ValueError("请填写每个选项的内容，每个选项只能占一行。")
+        else:
+            # 兼容已有表单/API调用；新页面使用逐行输入。
+            labels = request.form.get("options_text", "").splitlines()
         kwargs["options"] = [{"id": uuid4().hex, "text": label.strip()}
                              for label in labels if label.strip()]
         if kind == "multiple_choice":
@@ -179,8 +185,31 @@ def entry(survey_id):
     if g.user is None:
         return redirect(url_for("auth.login", next=url_for("shared_surveys.entry", survey_id=survey_id)))
     state = availability(survey)
+    from responses import respondent_key
+    progress = get_request_database().responses.find_one({
+        "survey_id": survey["_id"], "state": "draft",
+        "respondent_key": respondent_key(current_app.config["RESPONSE_IDENTITY_KEY"], survey["_id"], g.user["_id"]),
+    }, {"_id": 1}) if state == "published" else None
     return render_template("surveys/shared.html", title="问卷入口", survey=survey,
-                           state=state, kinds=KINDS), 410 if state in ("expired", "closed") else 200
+                           state=state, has_progress=bool(progress), respondent_layout=True), 410 if state in ("expired", "closed") else 200
+
+
+def _option_label(index):
+    label = ""
+    while index:
+        index, remainder = divmod(index - 1, 26)
+        label = chr(65 + remainder) + label
+    return label
+
+
+def _render_question(survey, kind, values, error=None, status=200):
+    labels = values.getlist("option_text") if hasattr(values, "getlist") and "option_text" in values else values.get("options_text", "").splitlines()
+    if request.form.get("action") == "add_option":
+        labels.append("")
+    labels += [""] * max(0, 2 - len(labels))
+    return render_template("surveys/question_new.html", title="添加题目", survey=survey,
+                           kind=kind, kinds=KINDS, error=error, values=values,
+                           option_values=labels, option_label=_option_label), status
 
 
 @surveys.route("/<survey_id>/questions/new", methods=("GET", "POST"))
@@ -193,7 +222,15 @@ def new_question(survey_id):
     kind = request.form.get("kind", "single_choice") if request.method == "POST" else request.args.get("kind", "single_choice")
     if kind not in KINDS:
         abort(400)
+    if request.method == "POST" and kind in ("text", "number"):
+        kind = request.form.get("input_type", kind)
+        if kind not in ("text", "number"):
+            abort(400)
     error, status = None, 200
+    if request.method == "POST" and request.form.get("action") == "add_option":
+        if kind not in ("single_choice", "multiple_choice"):
+            abort(400)
+        return _render_question(survey, kind, request.form)
     if request.method == "POST" and request.form.get("action") == "number_hint":
         if kind not in ("text", "number"):
             abort(400)
@@ -202,8 +239,7 @@ def new_question(survey_id):
         hint = "请使用阿拉伯数字回答"
         values["title"] = title if hint in title else f"{title}（{hint}）" if title else hint
         values["kind"] = kind = "number"
-        return render_template("surveys/question_new.html", title="添加题目", survey=survey,
-                               kind=kind, kinds=KINDS, error=None, values=values)
+        return _render_question(survey, kind, values)
     if request.method == "POST":
         try:
             question = _question_from_form(kind)
@@ -216,8 +252,7 @@ def new_question(survey_id):
                                        message="问卷状态已变化，请返回问卷查看后重试。"), 409
             flash("题目已保存。", "success")
             return redirect(url_for("surveys.detail", survey_id=survey_id), code=303)
-    return render_template("surveys/question_new.html", title="添加题目", survey=survey,
-                           kind=kind, kinds=KINDS, error=error, values=request.form), status
+    return _render_question(survey, kind, request.form, error, status)
 
 
 @surveys.route("/<survey_id>/questions/<question_id>/jumps", methods=("GET", "POST"))
