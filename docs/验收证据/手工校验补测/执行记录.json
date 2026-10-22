@@ -1,0 +1,40 @@
+{
+  "survey_id": "6ad9a33c49019d3ec4ad775b",
+  "execution_date": "2026-10-22",
+  "status": "进行中",
+  "account": "ceshi2",
+  "numeric_validation": {
+    "min_value": 0,
+    "max_value": 120,
+    "integer_only": true
+  },
+  "text_validation": {
+    "min_length": 2,
+    "max_length": 20
+  },
+  "checks": [
+    {
+      "name": "中文数字格式拦截",
+      "input": "十八",
+      "expected": "提示格式不符并停留第一题，数据库不保存答案",
+      "actual": "截图显示浏览器格式错误并停留第1题；草稿version=0、answers为空、path为空",
+      "result": "通过",
+      "screenshot": "中文数字拦截.jpg",
+      "screenshot_sha256": "24730bef8a5b63b5f070e3a85d559ef58e521236cb90eda59cf843a3d287eb28",
+      "response_id": "6ad9a3f3dfdb95973f12de0e",
+      "database_check": {
+        "state": "draft",
+        "version": 0,
+        "answer_count": 0,
+        "path_length": 0
+      }
+    }
+  ],
+  "remaining": [
+    "小数不符合整数要求时拒绝",
+    "数字低于0和高于120时拒绝",
+    "数字0和120边界接受",
+    "文本最少2及最多20字的限制",
+    "手机复制实际效果及设备信息待确认"
+  ]
+}
