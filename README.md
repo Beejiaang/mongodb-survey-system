@@ -189,7 +189,7 @@ git push
 
 ### 保存报告为PDF
 
-已提供[项目完成报告PDF](output/pdf/项目完成报告.pdf)，包含中文字体、表格、架构图、页码及指向GitHub材料的链接。Markdown是编辑源文件，修改后需重新导出PDF。
+已提供[项目完成报告PDF](output/pdf/2026_ECNU_PJ1_1_高顾翔.pdf)，包含中文字体、表格、架构图、页码及指向GitHub材料的链接。Markdown是编辑源文件，修改后需重新导出PDF。
 
 Windows项目目录中可运行：
 
@@ -198,4 +198,8 @@ Windows项目目录中可运行：
 .\.venv\Scripts\python.exe tools/export_report_pdf.py
 ```
 
-默认读取`docs/项目完成报告.md`，输出到`output/pdf/项目完成报告.pdf`，使用Windows自带宋体和黑体。其他系统需通过`--font`和`--heading-font`指定支持中文的TrueType字体。导出只依赖reportlab，不影响问卷系统的运行依赖。报告正文或架构图结构变化后，须重新检查分页与内容完整性；当前PDF验证见[检查记录](docs/验收证据/报告PDF验证.json)。
+默认读取`docs/项目完成报告.md`，输出到`output/pdf/2026_ECNU_PJ1_1_高顾翔.pdf`，使用Windows自带宋体和黑体。其他系统需通过`--font`和`--heading-font`指定支持中文的TrueType字体。导出只依赖reportlab，不影响问卷系统的运行依赖。报告正文或架构图结构变化后，须重新检查分页与内容完整性；当前PDF验证见[检查记录](docs/验收证据/报告PDF验证.json)。
+
+## 第二阶段
+
+第一阶段已完成。第二阶段在原实现上扩展，计划及已确定规则见[第二阶段开发计划](docs/第二阶段开发计划.md)，阶段修改与兼容性记录见[第二阶段项目完成报告](docs/第二阶段项目完成报告.md)。第一阶段报告及PDF保留对应阶段结果。
