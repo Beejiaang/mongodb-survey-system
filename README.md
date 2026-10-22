@@ -186,3 +186,16 @@ git push
 最终提交应包含可运行代码、MongoDB 数据结构说明、配置说明、API 与关键逻辑说明、测试用例和项目完成报告。AI 使用过程见 [AI 使用日志](docs/AI使用日志.md)，后续开发应持续补充真实记录。
 
 “七、提交内容／2.文档”的四份材料已整理为 [系统说明](docs/系统说明.md)、[数据库设计](docs/数据库设计.md)、[API说明](docs/API说明.md)、[关键逻辑说明](docs/关键逻辑说明.md)。四份文档可从系统说明进入，也可单独阅读。[项目完成报告](docs/项目完成报告.md)全文和[AI使用日志](docs/AI使用日志.md)均已上传，可直接在GitHub查看。N01跨设备核心流程已实测通过，范围和未收集证据见测试记录。
+
+### 保存报告为PDF
+
+已提供[项目完成报告PDF](output/pdf/项目完成报告.pdf)，包含中文字体、表格、架构图、页码及指向GitHub材料的链接。Markdown是编辑源文件，修改后需重新导出PDF。
+
+Windows项目目录中可运行：
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install reportlab
+.\.venv\Scripts\python.exe tools/export_report_pdf.py
+```
+
+默认读取`docs/项目完成报告.md`，输出到`output/pdf/项目完成报告.pdf`，使用Windows自带宋体和黑体。其他系统需通过`--font`和`--heading-font`指定支持中文的TrueType字体。导出只依赖reportlab，不影响问卷系统的运行依赖。报告正文或架构图结构变化后，须重新检查分页与内容完整性；当前PDF验证见[检查记录](docs/验收证据/报告PDF验证.json)。

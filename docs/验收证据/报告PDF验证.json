@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-22",
+  "source": "docs/项目完成报告.md",
+  "pdf": "output/pdf/项目完成报告.pdf",
+  "source_sha256": "69b83c67b18665d6cd390b21eeb10b3b3a65c5e4e2aa4485a0f152f22cf890b8",
+  "pdf_sha256": "3f62faba89ecaede3d6967e0555d76d84cdbd9d65c354f5c27debc408ace97da",
+  "pages": 12,
+  "paper": "A4",
+  "source_text_blocks_matched": 271,
+  "missing_text_blocks": [],
+  "embedded_fonts": [
+    "SimHei",
+    "SimSun-0"
+  ],
+  "link_annotations": 35,
+  "character_page_bounds": "通过",
+  "architecture": "原Mermaid图的8条有向边绘制为矢量图，导出工具校验源边集合",
+  "rendering_tool": "Poppler pdftoppm",
+  "visual_review": "最终12页渲染图逐页检查通过：中文、表格、矢量架构图、页眉页脚和分页无重叠或裁切",
+  "business_tests": "本轮不重复完整业务套件；另运行文档一致性测试",
+  "notes": [
+    "排除页眉页脚后比对文字，避免跨页段落受到页码干扰",
+    "Markdown本地材料链接转换为GitHub地址",
+    "保留个人6.4与6.6原文；更新复制及上传状态，并补充3.4冗余与配置驱动说明"
+  ],
+  "documentation_tests": {
+    "executed": 7,
+    "result": "通过"
+  }
+}

@@ -30,3 +30,6 @@ Thumbs.db
 
 # 课程原始题目留在本地；项目说明见 README.md
 /大作业一.docx
+
+# PDF排版检查的临时渲染文件
+/tmp/pdfs/
