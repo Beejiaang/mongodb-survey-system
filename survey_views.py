@@ -221,14 +221,14 @@ def _option_label(index):
     return label
 
 
-def _render_question(survey, kind, values, error=None, status=200):
+def _render_question(survey, kind, values, error=None, status=200, **context):
     labels = values.getlist("option_text") if hasattr(values, "getlist") and "option_text" in values else values.get("options_text", "").splitlines()
     if request.form.get("action") == "add_option":
         labels.append("")
     labels += [""] * max(0, 2 - len(labels))
     return render_template("surveys/question_new.html", title="添加题目", survey=survey,
                            kind=kind, kinds=KINDS, error=error, values=values,
-                           option_values=labels, option_label=_option_label), status
+                           option_values=labels, option_label=_option_label, **context), status
 
 
 @surveys.route("/<survey_id>/questions/new", methods=("GET", "POST"))

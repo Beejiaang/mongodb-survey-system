@@ -1,0 +1,9 @@
+{% from 'surveys/_title.html' import question_title %}
+<h2>{{ question_title(q.title) }}</h2>
+<p class="muted">{{ kinds[q.input_type if q.type == 'fill_blank' else q.type] }} · {{ '必答' if q.required else '选答' }}</p>
+{% if q.options is defined %}<ol type="A">{% for o in q.options %}<li>{{ o.text }}</li>{% endfor %}</ol>{% endif %}
+<div class="question-rules">
+{% if q.type == 'multiple_choice' %}<span>最少选择 {{ q.validation.min_choices if q.validation.min_choices is not none else '不限' }}</span><span>最多选择 {{ q.validation.max_choices if q.validation.max_choices is not none else '不限' }}</span>
+{% elif q.input_type == 'text' %}<span>最少字符 {{ q.validation.min_length if q.validation.min_length is not none else '不限' }}</span><span>最多字符 {{ q.validation.max_length if q.validation.max_length is not none else '不限' }}</span>
+{% elif q.input_type == 'number' %}<span>最小值 {{ q.validation.min_value if q.validation.min_value is not none else '不限' }}</span><span>最大值 {{ q.validation.max_value if q.validation.max_value is not none else '不限' }}</span><span>{{ '必须为整数' if q.validation.integer_only else '允许小数' }}</span>{% endif %}
+</div>

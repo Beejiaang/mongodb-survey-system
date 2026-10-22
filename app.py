@@ -15,6 +15,8 @@ from survey_views import surveys, shared_surveys
 from response_views import filling
 from responses import ResponseError
 from result_views import results
+from library_views import library
+from question_library import LibraryError
 
 
 def create_app(config=None):
@@ -57,6 +59,7 @@ def create_app(config=None):
     application.register_blueprint(shared_surveys)
     application.register_blueprint(filling)
     application.register_blueprint(results)
+    application.register_blueprint(library)
     application.before_request(validate_csrf)
     application.before_request(load_user)
     application.teardown_appcontext(close_request_client)
@@ -78,6 +81,7 @@ def create_app(config=None):
         return render_template("account.html", title="我的账号")
 
     @application.errorhandler(ResponseError)
+    @application.errorhandler(LibraryError)
     def response_error(error):
         return render_template("error.html", title="填写提示", message=str(error)), error.status
 

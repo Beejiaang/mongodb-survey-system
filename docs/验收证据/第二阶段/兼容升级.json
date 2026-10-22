@@ -1,0 +1,18 @@
+{
+  "database": "retained LAN test database",
+  "old_collections_unchanged": true,
+  "matches_phase_one_backup": true,
+  "document_counts": {
+    "users": 3,
+    "surveys": 4,
+    "responses": 4
+  },
+  "collections_after": [
+    "question_banks",
+    "question_items",
+    "question_versions",
+    "responses",
+    "surveys",
+    "users"
+  ]
+}

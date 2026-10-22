@@ -12,7 +12,7 @@
 
 ## 全部业务路由
 
-本表覆盖19个业务路径，未列Flask自动生成的HEAD、OPTIONS以及静态资源GET接口。
+本表覆盖33个业务路径，未列Flask自动生成的HEAD、OPTIONS以及静态资源GET接口。
 
 | 方法 | 路径 | 身份与用途 | 正常结果 |
 | --- | --- | --- | --- |
@@ -35,6 +35,20 @@
 | GET, POST | /survey/<survey_id>/fill/<response_id> | 本次回答所属账号 | GET显示当前题、确认页或回执200；保存/返回/首次提交成功303；已提交记录直接显示回执200 |
 | GET | /surveys/<survey_id>/results | 问卷创建者 | 整卷统计200 |
 | GET | /surveys/<survey_id>/results/questions/<question_id> | 问卷创建者 | 单题统计及填空答案分页200 |
+| GET | /library | 本人及获共享题目列表 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| GET, POST | /library/new | 创建独立题目，复用题型表单 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| GET | /library/items/<item_id> | 版本详情、选择、差异及历史 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| GET, POST | /library/items/<item_id>/versions/new | 作者基于指定版本创建新版本 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| POST | /library/versions/<version_id>/restore | 作者用旧内容生成新版本，记录恢复来源 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| POST | /library/versions/<version_id>/fork | 接收者派生自己的题目 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| POST | /library/items/<item_id>/share | 作者定向共享或撤销 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| POST | /library/versions/<version_id>/use | 将确切版本加入本人草稿 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| POST | /library/from-survey/<survey_id>/<question_id> | 本人问卷题目保存为常用题，旧卷不变 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| GET | /library/items/<item_id>/usage | 使用情况，本人问卷详情及作者可见的其他引用名称、编号、状态 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| GET, POST | /library/banks | 创建和列出本人题库 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| GET, POST | /library/banks/<bank_id> | 本人题库查看、条目增删、手动更新、名称修改和删除 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| GET, POST | /library/select/<survey_id> | 本人草稿从题库或可用题目选择版本 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| GET | /library/versions/<version_id>/results | 当前用户自建问卷中此版本的跨问卷统计 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
 
 已登录访问注册页跳转/account；登录页跳转合法next或/account。他人的管理页和回答编号均返回404，不能仅凭分享链接查看结果或管理问卷。已提交的本人回执在关闭后仍可访问。
 
@@ -122,3 +136,13 @@ version每次保存、返回或首次正式提交递增；旧版本不能覆盖�
 ## 第二阶段：题目布局
 
 POST布局接口带revision（当前整卷摘要）和action=up/down/delete。上移、下移保留编号和题目内容；删除移除指定题目。三种成功操作均清空整卷jump_rules。首题上移、末题下移或未知动作400；过期摘要及已发布/关闭409；他人问卷404；缺少CSRF400。原子更新同时匹配旧题目数组、归属和draft状态。
+
+## 第二阶段题目与题库参数
+
+GET版本详情可用version选择版本、compare选择同题比较版本。新版本编辑通过base查询参数指定来源，题目字段沿用原添加题目表单，另有change_note（最多500字符）。没有原地覆盖版本的接口。restore无业务必填字段，始终新建版本并记录恢复源。
+
+share带username和action=share/revoke；use带survey_id；select的POST带version_id，GET可带bank筛选本人题库。from-survey路径指定本人问卷及本地题目编号，保存来源映射而不重写原卷。
+
+题库列表POST带name和description；题库详情POST须带revision及action。put带version_id（同题替换题库条目指定版本），remove带现有version_id，rename带name和description，delete只删除题库容器。过期摘要409，不覆盖他人或新的条目。
+
+跨问卷统计GET可带page（正整数，最多100000），每页20条原文，只统计当前用户自建问卷中的submitted及实际到达题目。相同版本的多次出现按回答次数计数，正式提交总份数不重复；不将按问卷隔离的HMAC计数描述为跨问卷去重人数。授权撤销后本人已导入问卷的统计仍可查看。

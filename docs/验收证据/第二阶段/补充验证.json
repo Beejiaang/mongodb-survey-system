@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-22",
+  "change": "使用清单显示引用问卷的名称、编号和状态，管理和回答权限独立",
+  "source": "本轮实际终端输出",
+  "related_tests": {
+    "pattern": "test_library*.py",
+    "passed": 33,
+    "seconds": 12.106
+  },
+  "documentation_tests": {
+    "passed": 7,
+    "seconds": 0.218
+  },
+  "results": [
+    "作者可核对其他引用问卷的只读信息",
+    "没有其他问卷管理链接",
+    "直接访问其他问卷结果仍为404",
+    "跨问卷统计仅包含自建问卷"
+  ]
+}

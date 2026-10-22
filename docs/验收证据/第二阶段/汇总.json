@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-22",
+  "phase_one_base": "60dbd4c",
+  "phase_one_tag": "phase1-complete-20261022",
+  "requirements": 8,
+  "new_checks": 39,
+  "python": {
+    "passed": 253,
+    "duration_seconds": 87.821
+  },
+  "javascript": {
+    "passed": 16,
+    "duration_ms": 151.1051
+  },
+  "pip_check": "通过",
+  "documentation_tests": 7,
+  "phone_phase_two": "未执行",
+  "git_push": "本轮未推送",
+  "evidence_sha256": {
+    "docs/验收证据/第二阶段/完整回归-python.txt": "efb322afe10b5c5ffcc1e8d4c0567913437b140c90689739f08a5e161c50ffb0",
+    "docs/验收证据/第二阶段/完整回归-javascript.tap": "e5e365caa0b227edfddf9f651b4c21c927d492ffb0488b4c8a1e5e94ae722ba2",
+    "docs/验收证据/第二阶段/兼容升级.json": "7a9de230a932a726ea1f490c45868061c5b7d159481cfb006f8ab92de09851bb",
+    "docs/验收证据/第二阶段/运行检查.json": "093b1cc4306d89c9d027aa09f790b240d2e151c6f28b5f85715b863936bea35b"
+  },
+  "post_regression_related_tests": 33,
+  "post_regression_documentation_tests": 7
+}

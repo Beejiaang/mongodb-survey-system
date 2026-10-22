@@ -4,6 +4,7 @@
 <section class="survey-heading"><div><p class="eyebrow">问卷详情 <span class="status-badge">{{ status_labels[state] }}</span></p><h1>{{ survey.title }}</h1><p class="survey-description">{{ survey.description or '暂无问卷说明' }}</p></div>{% if survey.status == 'draft' %}<a class="button" href="{{ url_for('surveys.new_question', survey_id=survey._id) }}">添加题目 ＋</a>{% endif %}</section>
 <div class="survey-meta"><span>{{ survey.questions|length }} 道题目</span><span>{{ '匿名收集' if survey.is_anonymous else '实名收集' }}</span><span>{{ '允许重复填写' if survey.allow_repeat else '每人填写一次' }}</span><span>最后保存：{{ survey.updated_at|beijing_time }}（北京时间）</span></div>
 <div class="form-actions"><a class="button" href="{{ url_for('results.overview', survey_id=survey._id) }}">查看统计 →</a></div>
+{% if survey.status == 'draft' %}<div class="form-actions"><a class="nav-button" href="{{ url_for('library.select', survey_id=survey._id) }}">从已有题目或题库选题 →</a></div>{% endif %}
 {% if survey.status == 'draft' %}<p class="field-help draft-note">草稿仅自己可见。题目可上移、下移或删除；调序和删除会清空本问卷全部跳转规则，请随后重新配置。发布后题目锁定。</p>{% endif %}
 <section class="editor-panel" aria-labelledby="publishing-title">
 <h2 id="publishing-title">发布与分享</h2>

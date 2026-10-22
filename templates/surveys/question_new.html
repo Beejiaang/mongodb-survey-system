@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% macro bound(name, label, integer=false) %}<div class="field"><label for="{{ name }}">{{ label }}</label><input type="number" step="{{ '1' if integer else 'any' }}" {% if integer %}min="0"{% endif %} id="{{ name }}" name="{{ name }}" value="{{ values.get(name, '') }}" placeholder="不限制"></div>{% endmacro %}
 {% block content %}
-<div class="editor-shell"><a class="text-link" href="{{ url_for('surveys.detail', survey_id=survey._id) }}">← 返回问卷</a>
-<section class="account-heading"><p class="eyebrow">{{ survey.title }} / 添加题目</p><h1>下一个好问题</h1><p class="muted">先选择题型，再填写内容与规则。</p></section>
-<nav class="question-types" aria-label="选择题型">{% for value, label in [('single_choice', '单选题'), ('multiple_choice', '多选题'), ('text', '填空题')] %}<a href="{{ url_for('surveys.new_question', survey_id=survey._id, kind=value) }}" {% if kind == value or (value == 'text' and kind == 'number') %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}</nav>
+<div class="editor-shell"><a class="text-link" href="{{ url_for('library.item', item_id=library_item._id) if library_mode and library_item else url_for('library.index') if library_mode else url_for('surveys.detail', survey_id=survey._id) }}">← {{ '返回题目' if library_mode else '返回问卷' }}</a>
+<section class="account-heading"><p class="eyebrow">{{ '常用题目' if library_mode else survey.title ~ ' / 添加题目' }}</p><h1>{{ '基于v' ~ base_version.number ~ '创建新版本' if library_mode and base_version else '保存常用题目' if library_mode else '下一个好问题' }}</h1><p class="muted">{{ '保存后生成独立版本，已有问卷继续使用原版本。' if library_mode else '先选择题型，再填写内容与规则。' }}</p></section>
+<nav class="question-types" aria-label="选择题型">{% for value, label in [('single_choice', '单选题'), ('multiple_choice', '多选题'), ('text', '填空题')] %}<a href="{{ url_for('library.new_version', item_id=library_item._id, base=base_version._id, kind=value) if library_mode and library_item else url_for('library.new', kind=value) if library_mode else url_for('surveys.new_question', survey_id=survey._id, kind=value) }}" {% if kind == value or (value == 'text' and kind == 'number') %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}</nav>
 <p class="field-help">切换题型会清空尚未保存的本题输入。</p>
 <section class="editor-panel">
 {% if error %}<p class="notice error" role="alert">{{ error }}</p>{% endif %}
@@ -24,7 +24,8 @@
 <fieldset class="fill-validation" data-fill-validation="text"><legend>文字限制</legend><div class="field-pair">{{ bound('min_length', '最短长度', true) }}{{ bound('max_length', '最长长度', true) }}</div></fieldset>
 <fieldset class="fill-validation" data-fill-validation="number"><legend>数字限制</legend><div class="field-pair">{{ bound('min_value', '最小值') }}{{ bound('max_value', '最大值') }}</div><label class="check-field"><input name="integer_only" type="checkbox" {% if values.get('integer_only') == 'on' %}checked{% endif %}>只能填写整数</label></fieldset><noscript><p class="field-help">只会应用所选回答内容对应的限制。</p></noscript>{% endif %}
 {% if kind != 'single_choice' %}<p class="field-help">留空表示不限制，上下限包含边界。选答题允许不填写；填写后仍须满足限制。</p>{% endif %}
-<div class="form-actions"><button class="button" type="submit">保存题目 →</button><a href="{{ url_for('surveys.detail', survey_id=survey._id) }}">取消</a></div>
+{% if library_mode and base_version %}<div class="field"><label for="change-note">修改说明</label><textarea id="change-note" name="change_note" maxlength="500">{{ values.get('change_note', '') }}</textarea></div>{% endif %}
+<div class="form-actions"><button class="button" type="submit">{{ '保存新版本' if library_mode and base_version else '保存题目' }} →</button><a href="{{ url_for('library.index') if library_mode else url_for('surveys.detail', survey_id=survey._id) }}">取消</a></div>
 </form></section></div>
 <script src="{{ url_for('static', filename='question-editor.js') }}" defer></script>
 {% endblock %}

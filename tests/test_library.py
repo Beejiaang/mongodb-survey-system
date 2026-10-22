@@ -112,6 +112,12 @@ class LibraryTests(StageTwoFixture):
         self.assertIsNotNone(get_item(self.database, iid, self.owner))
         self.assertEqual(self.database.surveys.find_one({"_id": sid}), old)
         with self.assertRaises(LibraryError):save_survey_question(self.database, sid, self.other, self.question["id"])
+        # Legacy question bodies have no 200-character cap; the short library name is only a label.
+        long_question = dict(self.question, title="较长的题目内容" * 40)
+        long_item = create_item(self.database, self.owner, long_question)
+        entry = get_item(self.database, long_item, self.owner)
+        self.assertEqual(len(entry["name"]), 200)
+        self.assertEqual(get_version(self.database, entry["current_version_id"], self.owner)[1]["content"]["title"], long_question["title"])
 
     def test_import_into_published_or_other_survey_is_rejected(self):
         sid = create_survey(self.database, self.owner, "已发布")
@@ -121,15 +127,16 @@ class LibraryTests(StageTwoFixture):
         other_sid = create_survey(self.database, self.other, "他人")
         with self.assertRaises(LibraryError):import_version(self.database, other_sid, self.owner, self.v1)
 
-    def test_usage_lists_own_surveys_and_only_counts_others(self):
+    def test_usage_lists_other_survey_metadata_without_granting_answer_access(self):
         sid = create_survey(self.database, self.owner, "可见名称")
         import_version(self.database, sid, self.owner, self.v1)
         share_item(self.database, self.iid, self.owner, "other")
-        private_sid = create_survey(self.database, self.other, "不应泄露的名称")
+        private_sid = create_survey(self.database, self.other, "其他用户的引用问卷")
         import_version(self.database, private_sid, self.other, self.v1)
         result = usage(self.database, self.iid, self.owner)
         self.assertEqual([s["title"] for s in result["surveys"]], ["可见名称"])
         self.assertEqual(result["other_count"], 1)
+        self.assertEqual(result["other_surveys"], [{"_id":private_sid,"title":"其他用户的引用问卷","status":"draft"}])
 
     def test_bank_pins_versions_and_requires_explicit_update(self):
         bid = create_bank(self.database, self.owner, "常用题")

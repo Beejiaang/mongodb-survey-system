@@ -8,6 +8,8 @@
 {% elif question.type == 'fill_blank' %}<span>最小值：{{ question.validation.min_value if question.validation.min_value is not none else '不限' }}</span><span>最大值：{{ question.validation.max_value if question.validation.max_value is not none else '不限' }}</span><span>{{ '仅限整数' if question.validation.integer_only else '允许小数' }}</span>{% endif %}
 </div>
 {% if request.endpoint == 'surveys.detail' %}
+<div class="form-actions"><form method="post" action="{{ url_for('library.from_survey', survey_id=survey._id, question_id=question.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="nav-button">保存为常用题目</button></form>
+{% if question.source is defined %}<a class="text-link" href="{{ url_for('library.item', item_id=question.source.question_id, version=question.source.version_id) }}">查看来源版本及差异</a><a class="text-link" href="{{ url_for('library.version_results', version_id=question.source.version_id) }}">此版本跨问卷统计</a>{% endif %}</div>
 {% if survey.status == 'draft' %}
 <form method="post" action="{{ url_for('surveys.question_layout', survey_id=survey._id, question_id=question.id) }}" class="form-actions">
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="revision" value="{{ revision }}">

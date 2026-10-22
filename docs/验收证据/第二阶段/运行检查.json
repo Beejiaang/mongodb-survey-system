@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-22",
+  "http_checks": [
+    {
+      "host": "127.0.0.1",
+      "path": "/library",
+      "http": 200,
+      "expected_content_present": true
+    },
+    {
+      "host": "192.168.31.94",
+      "path": "/library/items/6ad9f41b0fa9d68906fe35a8",
+      "http": 200,
+      "expected_content_present": true
+    },
+    {
+      "host": "127.0.0.1",
+      "path": "/library/versions/6ad9f4570fa9d68906fe35ad/results",
+      "http": 200,
+      "expected_content_present": true
+    },
+    {
+      "host": "127.0.0.1",
+      "path": "/library/banks",
+      "http": 200,
+      "expected_content_present": true
+    },
+    {
+      "host": "127.0.0.1",
+      "path": "/surveys/6ad998516198d179c61c7d19/results",
+      "http": 200,
+      "expected_content_present": true
+    }
+  ],
+  "old_data_still_matches_backup_after_browser_preview": true,
+  "browser_check": {
+    "browser": "Codex内置浏览器",
+    "account": "ceshi",
+    "item_id": "6ad9f41b0fa9d68906fe35a8",
+    "v1": "6ad9f41b0fa9d68906fe35a9",
+    "v2": "6ad9f4570fa9d68906fe35ad",
+    "observed": [
+      "数字提示转换及限制回填",
+      "v1最大值120，v2最大值100",
+      "差异表及两版历史显示",
+      "实际页面截图检查，无明显溢出"
+    ],
+    "phone_test": "本阶段未执行"
+  }
+}

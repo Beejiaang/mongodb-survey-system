@@ -100,6 +100,24 @@ class DocumentationTests(unittest.TestCase):
                     self.assertTrue(references, "缺少明确的Python测试定位")
                     self.assertTrue(set(references) <= methods, "Python测试引用失效")
 
+        phase_two = (DOCS / "第二阶段测试用例.md").read_text(encoding="utf-8")
+        phase_rows = re.findall(r"^\| (P2-\d{2}) \| (.+) \|$", phase_two, re.M)
+        self.assertEqual([r[0] for r in phase_rows], [f"P2-{n:02}" for n in range(1, 40)])
+        documented_methods = set()
+        for _, content in phase_rows:
+            columns = content.split(" | ")
+            self.assertEqual(len(columns), 4)
+            self.assertIn("①", columns[0])
+            self.assertIn("通过", columns[2])
+            documented_methods.update(re.findall(r"`(test_\w+\.\w+\.test_\w+)`", columns[3]))
+        phase_prefixes = ("test_layout.", "test_library.", "test_library_web.",
+                          "test_library_results.", "test_phase2_acceptance.")
+        self.assertEqual(documented_methods, {m for m in methods if m.startswith(phase_prefixes)})
+        report = (DOCS / "第二阶段项目完成报告.md").read_text(encoding="utf-8")
+        self.assertIn(f"完整Python套件{len(methods)}项通过", report)
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn(f"第二阶段当前完整套件{len(methods)}项Python", readme)
+
     def test_all_business_routes_and_methods_are_documented(self):
         source = (DOCS / "API说明.md").read_text(encoding="utf-8")
         documented = set()

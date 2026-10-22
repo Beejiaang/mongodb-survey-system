@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block content %}
+<a href="{{ url_for('library.index') }}">← 题目与题库</a><section class="account-heading"><p class="eyebrow">我的题库</p><h1>把常用题目整理在一起</h1></section>
+{% for b in banks %}<article class="editor-panel"><h2><a href="{{ url_for('library.bank', bank_id=b._id) }}">{{ b.name }}</a></h2><p>{{ b.description }}</p><p class="muted">{{ b.entries|length }}道题目</p></article>{% else %}<p class="notice">还没有题库，可以在下面创建。</p>{% endfor %}
+<section class="editor-panel"><h2>创建题库</h2><form method="post" class="account-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="field"><label for="name">题库名称</label><input id="name" name="name" maxlength="200" required></div><div class="field"><label for="description">说明</label><textarea id="description" name="description" maxlength="500"></textarea></div><button class="button">创建题库</button></form></section>
+{% endblock %}

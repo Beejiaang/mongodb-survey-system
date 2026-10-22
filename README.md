@@ -112,7 +112,7 @@ $env:MONGODB_DB_NAME = "survey_system"
 │   └── result-charts.test.cjs # JavaScript图表测试
 ├── docs/
 │   ├── 系统说明.md         # 提交文档阅读入口、使用流程与系统结构
-│   ├── 数据库设计.md       # 三集合字段、索引、取舍与兼容性
+│   ├── 数据库设计.md       # 六集合字段、索引、取舍与兼容性
 │   ├── API说明.md          # 全部业务接口、字段、权限与错误
 │   ├── 关键逻辑说明.md     # 校验、跳转、保存、并发与统计
 │   ├── 开发计划.md         # 功能范围与开发顺序
@@ -154,7 +154,7 @@ $env:MONGODB_DB_NAME = "survey_system"
 
 数据库测试默认连接本机 27017 端口，可以通过 `MONGODB_TEST_URI` 指定另一个测试实例。只运行无需数据库的用户规则测试时，执行 `python -m unittest discover -s tests -p test_users.py -v`。提交前仍需运行完整测试。
 
-题型配置、单题答案校验、问卷创建页面、题目保存、所有权隔离及并发追加已有测试。`tests/test_publishing.py` 另覆盖发布、截止边界、关闭、分享与登录回跳。单独运行题型单元测试可执行 `.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_questions.py -v`。`tests/test_jumps.py` 覆盖跳转语义、路径、配置页面和旧结构升级；`tests/test_responses.py` 覆盖填写、提交、匿名及并发防重复；`tests/test_numeric_input.py` 覆盖阿拉伯数字格式；`tests/test_results.py` 覆盖统计口径、单选人数去重、精度、分页和结果权限。`tests/test_acceptance.py` 补充注册、配置、填写与统计的完整链路验收；`tests/test_documentation.py` 核对文档的接口、字段、索引、示例与本地链接。当前Python完整套件214项，另有16项JavaScript图表与分享测试；按原文六类要求和额外功能整理的55组场景（54组自动场景及1组按实际样本通过的跨设备手工核心场景）见 [测试用例与验收结果](docs/测试用例.md)，历史记录见 [测试说明](docs/测试说明.md)。
+题型配置、单题答案校验、问卷创建页面、题目保存、所有权隔离及并发追加已有测试。`tests/test_publishing.py` 另覆盖发布、截止边界、关闭、分享与登录回跳。单独运行题型单元测试可执行 `.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_questions.py -v`。`tests/test_jumps.py` 覆盖跳转语义、路径、配置页面和旧结构升级；`tests/test_responses.py` 覆盖填写、提交、匿名及并发防重复；`tests/test_numeric_input.py` 覆盖阿拉伯数字格式；`tests/test_results.py` 覆盖统计口径、单选人数去重、精度、分页和结果权限。`tests/test_acceptance.py` 补充注册、配置、填写与统计的完整链路验收；`tests/test_documentation.py` 核对文档的接口、字段、索引、示例与本地链接。第一阶段冻结版本为214项Python；第二阶段当前完整套件253项Python，另有16项JavaScript图表与分享测试；按原文六类要求和额外功能整理的55组场景（54组自动场景及1组按实际样本通过的跨设备手工核心场景）见 [测试用例与验收结果](docs/测试用例.md)，历史记录见 [测试说明](docs/测试说明.md)。
 
 ## Git 与 GitHub
 
@@ -204,6 +204,10 @@ Windows项目目录中可运行：
 
 第一阶段已完成。第二阶段在原实现上扩展，计划及已确定规则见[第二阶段开发计划](docs/第二阶段开发计划.md)，阶段修改与兼容性记录见[第二阶段项目完成报告](docs/第二阶段项目完成报告.md)。第一阶段报告及PDF保留对应阶段结果。
 
-第二阶段已增加草稿题目上移、下移和删除。调序或删题清空整卷跳转，发布后仍锁题。后续版本与题库进度见第二阶段文档。
+第二阶段已增加草稿题目上移、下移和删除。调序或删题清空整卷跳转，发布后仍锁题。版本和题库功能见下文。
 
-题目版本后端已扩展为六集合；旧三集合和答案结构继续保留。固定版本、恢复新建、定向共享、题库条目及已知schema升级已有后端验证，网页入口随后接入。
+第二阶段已扩展为六集合，旧三集合和答案结构继续保留。登录后进入“题目与题库”，可保存或创建题目、查看版本差异、新建及恢复版本、定向共享、管理题库和查看单版本跨问卷统计。问卷草稿可从题库选入确切版本。
+
+第二阶段当前测试及验收见[第二阶段测试用例](docs/第二阶段测试用例.md)。第一阶段报告和PDF保持对应阶段；本次变更记录在[第二阶段报告](docs/第二阶段项目完成报告.md)。启动新代码前运行原`flask --app app:app init-db`命令，自动升级已知第一阶段schema并新增题库集合，不清空数据；未知schema会拒绝覆盖。
+
+第二阶段完整回归：253项Python、16项JavaScript通过，新增39项检查；保留的LAN验收库兼容升级后，原3条用户、4份问卷、4份回答的内容哈希与备份一致。已增加真实内置浏览器的创建和版本比较检查，第二阶段手机实测未执行。

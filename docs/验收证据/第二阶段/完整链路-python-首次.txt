@@ -1,0 +1,13 @@
+======================================================================
+FAIL: test_complete_version_bank_shared_response_and_statistics_flow (test_phase2_acceptance.PhaseTwoAcceptanceTests.test_complete_version_bank_shared_response_and_statistics_flow)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "E:\db\lab\第一次大作业\tests\test_phase2_acceptance.py", line 65, in test_complete_version_bank_shared_response_and_statistics_flow
+    self.assertEqual(self.database.surveys.find_one({'_id':sid}),frozen)
+AssertionError: {'_id[710 chars]19, 59, 166000, tzinfo=FixedOffset(datetime.ti[152 chars]None} != {'_id[710 chars]19, 58, 871000, tzinfo=FixedOffset(datetime.ti[152 chars]None}
+Diff is 1426 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 1 test in 1.334s
+
+FAILED (failures=1)

@@ -65,10 +65,10 @@ def _content(question):
     return validate_question(content)
 
 
-def create_item(database, owner_id, question, *, name=None, forked_from=None):
+def create_item(database, owner_id, question, *, name=None, forked_from=None, original_use=None):
     _user(database, owner_id)
     content = _content(question)
-    name = _text(content["title"] if name is None else name, "题目名称")
+    name = _text(content["title"][:200] if name is None else name, "题目名称")
     now = utcnow()
     item_id, version_id = ObjectId(), ObjectId()
     version = {"_id": version_id, "question_id": item_id, "number": 1, "content": content,
@@ -81,6 +81,7 @@ def create_item(database, owner_id, question, *, name=None, forked_from=None):
         "_id": item_id, "owner_id": owner_id, "name": name,
         "current_version_id": version_id, "current_version_number": 1, "next_version": 1,
         "shared_with": [], "forked_from_version_id": forked_from, "created_at": now, "updated_at": now,
+        "original_use": {**original_use, "version_id": version_id} if original_use else None,
     })
     return item_id
 
@@ -124,7 +125,8 @@ def save_survey_question(database, survey_id, user_id, question_id):
     if question is None:
         raise LibraryError("问卷题目不存在。", 404)
     # Do not rewrite legacy surveys or invalidate their existing response revisions.
-    return create_item(database, user_id, question)
+    return create_item(database, user_id, question,
+                       original_use={"survey_id": survey["_id"], "instance_id": question["id"]})
 
 
 def import_version(database, survey_id, user_id, version_id):
@@ -181,10 +183,19 @@ def usage(database, item_id, user_id, version_id=None):
             raise LibraryError("版本不属于当前题目。")
         match["source.version_id"] = version["_id"]
     query = {"questions": {"$elemMatch": match}}
+    original = item["original_use"]
+    if original and (version_id is None or original["version_id"] == _object_id(version_id)):
+        old = database.surveys.find_one({"_id": original["survey_id"]})
+        instance = next((q for q in old["questions"] if q["id"] == original["instance_id"]), None) if old else None
+        version = database.question_versions.find_one({"_id": original["version_id"]})
+        if instance and version and _content(instance) == version["content"]:
+            query = {"$or": [query, {"_id": original["survey_id"]}]}
     own = list(database.surveys.find({**query, "owner_id": user_id},
                                     {"title": 1, "status": 1, "questions": 1}).sort("created_at", -1))
-    other_count = database.surveys.count_documents({**query, "owner_id": {"$ne": user_id}}) if item["owner_id"] == user_id else None
-    return {"surveys": own, "other_count": other_count}
+    others = list(database.surveys.find({**query, "owner_id": {"$ne": user_id}},
+                                       {"title": 1, "status": 1}).sort("created_at", -1)) if item["owner_id"] == user_id else []
+    return {"surveys": own, "other_surveys": others,
+            "other_count": len(others) if item["owner_id"] == user_id else None}
 
 
 def create_bank(database, owner_id, name, description=""):
@@ -203,13 +214,25 @@ def get_bank(database, bank_id, owner_id):
 
 
 def bank_revision(bank):
-    return question_revision(bank["entries"])
+    return question_revision([bank["name"], bank["description"], bank["entries"]])
 
 
-def change_bank(database, bank_id, owner_id, action, version_id, revision):
+def change_bank(database, bank_id, owner_id, action, version_id, revision, *, name=None, description=""):
     bank = get_bank(database, bank_id, owner_id)
     if revision != bank_revision(bank):
         raise LibraryError("题库已变化，请刷新后重试。", 409)
+    if action in ("rename", "delete"):
+        query = {"_id": bank["_id"], "owner_id": owner_id, "entries": bank["entries"],
+                 "name": bank["name"], "description": bank["description"]}
+        if action == "delete":
+            changed = database.question_banks.delete_one(query).deleted_count
+        else:
+            changed = database.question_banks.update_one(query, {"$set": {
+                "name": _text(name, "题库名称"), "description": _text(description, "说明", 500, empty=True),
+                "updated_at": utcnow()}}).matched_count
+        if not changed:
+            raise LibraryError("题库已变化，请刷新后重试。", 409)
+        return
     entries = deepcopy(bank["entries"])
     if action == "remove":
         entries = [e for e in entries if e["version_id"] != _object_id(version_id)]

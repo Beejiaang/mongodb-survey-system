@@ -14,6 +14,7 @@
         <nav aria-label="主导航">
             {% if g.user %}
             {% if not respondent_layout %}<a href="{{ url_for('surveys.index') }}" {% if request.blueprint == 'surveys' %}aria-current="page"{% endif %}>我的问卷</a>
+            <a href="{{ url_for('library.index') }}" {% if request.blueprint == 'library' %}aria-current="page"{% endif %}>题目与题库</a>
             <a class="nav-account" href="{{ url_for('account') }}">{{ g.user.username }}</a>{% endif %}
             <form method="post" action="{{ url_for('auth.logout') }}" class="nav-form">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

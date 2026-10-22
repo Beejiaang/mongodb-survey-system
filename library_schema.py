@@ -21,6 +21,8 @@ ITEM_VALIDATOR = {"$jsonSchema": object_schema({
     "next_version": {"bsonType": ["int", "long"], "minimum": 0},
     "shared_with": {"bsonType": "array", "uniqueItems": True, "items": OID},
     "forked_from_version_id": MAYBE_OID, "created_at": DATE, "updated_at": DATE,
+    "original_use": {"oneOf": [{"bsonType": "null"}, object_schema({
+        "survey_id": OID, "instance_id": {"bsonType": "string", "minLength": 1}, "version_id": OID})]},
 })}
 CONTENT_SCHEMA = deepcopy(QUESTION_SCHEMA)
 for variant in CONTENT_SCHEMA["oneOf"]:
