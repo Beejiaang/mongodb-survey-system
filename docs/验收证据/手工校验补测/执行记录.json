@@ -185,7 +185,7 @@
     }
   ],
   "remaining": [
-    "手机复制实际效果及设备信息待确认"
+    "手机型号及打开问卷的应用或浏览器名称待补充"
   ],
   "validation_status": "数字及文本限制10项检查通过；补测回答正式提交成功",
   "submission": {
@@ -220,5 +220,19 @@
       "answers_unchanged": true,
       "submitted_at_unchanged": true
     }
-  }
+  },
+  "mobile_copy": {
+    "result": "通过（用户确认可正常粘贴）",
+    "survey_id": "6ad998516198d179c61c7d19",
+    "steps": [
+      "手机退出填写账号并登录问卷创建账号",
+      "进入四题问卷管理页点击复制链接",
+      "在手机其他输入框粘贴"
+    ],
+    "expected_url": "http://10.131.37.121:5002/survey/6ad998516198d179c61c7d19",
+    "actual": "用户反馈“可以正常黏贴”",
+    "evidence_source": "用户文字确认，未提供粘贴截图或按钮提示原文；AI未读取手机剪贴板",
+    "button_message": null
+  },
+  "functional_test_status": "数字及文本限制、正式提交、回执刷新和手机复制已通过；测试环境信息待补充"
 }
