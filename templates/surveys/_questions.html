@@ -1,5 +1,6 @@
+{% from 'surveys/_title.html' import question_title %}
 {% for question in survey.questions %}
-<article class="question-card"><div class="survey-card-top"><span class="eyebrow">第 {{ loop.index }} 题 · {{ kinds[question.input_type if question.type == 'fill_blank' else question.type] }}</span><span class="status-badge">{{ '必答' if question.required else '选答' }}</span></div><h2>{{ question.title }}</h2>
+<article class="question-card"><div class="survey-card-top"><span class="eyebrow">第 {{ loop.index }} 题 · {{ kinds[question.input_type if question.type == 'fill_blank' else question.type] }}</span><span class="status-badge">{{ '必答' if question.required else '选答' }}</span></div><h2>{{ question_title(question.title) }}</h2>
 {% if question.type in ['single_choice', 'multiple_choice'] %}<ul class="question-options">{% for option in question.options %}<li><span class="preview-option {{ 'square' if question.type == 'multiple_choice' else '' }}" aria-hidden="true"></span>{{ option.text }}</li>{% endfor %}</ul>{% endif %}
 <div class="question-rules">
 {% if question.type == 'multiple_choice' %}<span>最少选择：{{ question.validation.min_choices if question.validation.min_choices is not none else '不限' }}</span><span>最多选择：{{ question.validation.max_choices if question.validation.max_choices is not none else '不限' }}</span>

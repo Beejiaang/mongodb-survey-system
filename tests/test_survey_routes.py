@@ -115,6 +115,9 @@ class SurveyRouteTests(unittest.TestCase):
         share = f"/survey/{survey['_id']}"
         start = self.client.post(share + "/start", data={"csrf_token": self.token(share)})
         fill = start.location
+        html = self.client.get(fill).get_data(as_text=True)
+        self.assertIn('<span class="numeric-hint">请使用阿拉伯数字回答</span>', html)
+        self.assertNotIn('你的年龄（请使用阿拉伯数字回答）', html)
         record = self.database.responses.find_one({"survey_id": survey["_id"]})
         payload = {"csrf_token": self.token(fill), "version": record["version"], "action": "next", "answer": "１８"}
         self.assertEqual(self.client.post(fill, data=payload).status_code, 400)

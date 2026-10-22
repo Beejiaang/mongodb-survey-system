@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from 'surveys/_title.html' import question_title %}
 {% block content %}
 <div class="editor-shell">
 <a class="text-link" href="{{ url_for('shared_surveys.entry', survey_id=survey._id) }}">← 问卷介绍</a>
@@ -8,7 +9,7 @@
 <form method="post" class="account-form">
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="version" value="{{ record.version }}">
 {% if question %}
-<h2>{{ question.title }} <span class="field-help">{{ '必答' if question.required else '选答，可留空' }}</span></h2>
+<h2>{{ question_title(question.title) }} <span class="field-help">{{ '必答' if question.required else '选答，可留空' }}</span></h2>
 {% if question.type in ['single_choice','multiple_choice'] %}
 <fieldset class="survey-settings"><legend>{{ '请选择一项' if question.type == 'single_choice' else '请选择符合的选项' }}</legend>
 {% if question.type == 'single_choice' and not question.required %}<label class="check-field"><input type="radio" name="answer" value="" {% if not selected %}checked{% endif %}>不选择</label>{% endif %}
@@ -24,7 +25,7 @@
 <p class="field-help">点击下一步会保存本题并按规则跳转。修改前题后，需要重新填写后续题目。</p>
 {% else %}
 <p class="muted">以下仅包含本次实际经过的题目。确认后将正式提交。</p>
-{% for item in review %}<div class="jump-rule"><h2>{{ loop.index }}. {{ item.title }}</h2><p class="survey-description">{{ item.answer }}</p></div>{% endfor %}
+{% for item in review %}<div class="jump-rule"><h2>{{ loop.index }}. {{ question_title(item.title) }}</h2><p class="survey-description">{{ item.answer }}</p></div>{% endfor %}
 {% endif %}
 <div class="form-actions">
 {% if can_back %}<button type="submit" class="nav-button" name="action" value="back" formnovalidate>上一题</button>{% endif %}
