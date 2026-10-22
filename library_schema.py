@@ -39,5 +39,13 @@ BANK_VALIDATOR = {"$jsonSchema": object_schema({
     "entries": {"bsonType": "array", "uniqueItems": True, "items": SOURCE_SCHEMA},
     "created_at": DATE, "updated_at": DATE,
 })}
+SHARE_VALIDATOR = {"$jsonSchema": object_schema({
+    "_id": OID, "question_id": OID, "version_id": OID, "owner_id": OID,
+    "requester_id": OID, "survey_id": OID,
+    "status": {"enum": ["pending", "approved", "rejected", "revoked"]},
+    "origin": {"enum": ["request", "direct"]}, "message": NOTE,
+    "created_at": DATE, "updated_at": DATE,
+    "decided_at": {"bsonType": ["date", "null"]}, "decided_by": MAYBE_OID,
+})}
 LIBRARY_VALIDATORS = {"question_items": ITEM_VALIDATOR, "question_versions": VERSION_VALIDATOR,
-                      "question_banks": BANK_VALIDATOR}
+                      "question_banks": BANK_VALIDATOR, "question_shares": SHARE_VALIDATOR}

@@ -19,6 +19,9 @@ class LibraryResultTests(StageTwoFixture):
     def survey(self, version, owner=None, copies=1):
         owner = self.owner if owner is None else owner
         sid = create_survey(self.database, owner, "统计问卷", allow_repeat=True, is_anonymous=True)
+        if owner != self.owner:
+            version_row = self.database.question_versions.find_one({"_id":version})
+            share_item(self.database,version_row["question_id"],self.owner,"other",survey_id=sid,version_id=version)
         for _ in range(copies):import_version(self.database, sid, owner, version)
         publish_survey(self.database, sid, owner)
         return sid
@@ -39,7 +42,6 @@ class LibraryResultTests(StageTwoFixture):
         self.submit(a, [0]);self.submit(a, [10]);self.submit(b, [20])
         v2 = create_version(self.database, iid, self.owner, v1, dict(q, title="新版年龄"))
         self.submit(self.survey(v2), [90])
-        share_item(self.database, iid, self.owner, "other")
         self.submit(self.survey(v1, self.other), [1000])
         rid = start_response(self.database, a, self.third, self.secret)
         update_progress(self.database, a, rid, self.third, self.secret, 0, "next", 100)
@@ -109,10 +111,9 @@ class LibraryResultTests(StageTwoFixture):
 
     def test_revocation_preserves_own_statistics_and_never_opens_other_answers(self):
         iid,vid=self.item(build_question("fill_blank","数字",input_type="number"))
-        share_item(self.database,iid,self.owner,"other")
         sid=self.survey(vid,self.other);self.submit(sid,[7])
         self.assertEqual(summarize_version(self.database,vid,self.owner)["answered"],0)
-        share_item(self.database,iid,self.owner,"other",revoke=True)
+        share_item(self.database,iid,self.owner,"other",survey_id=sid,version_id=vid,revoke=True)
         self.login(self.other)
         response=self.client.get(f"/library/versions/{vid}/results")
         self.assertEqual(response.status_code,200)

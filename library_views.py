@@ -5,7 +5,8 @@ from auth import login_required
 from database import get_request_database
 from question_library import (LibraryError, bank_revision, change_bank, create_bank, create_item,
     create_version, fork_version, get_bank, get_item, get_version, import_version, list_items,
-    list_versions, save_survey_question, share_item, usage, version_difference)
+    list_versions, save_survey_question, share_item, usage, version_difference,
+    request_share, decide_share, share_records)
 from survey_views import KINDS, STATUS_LABELS, _question_from_form, _render_question
 from surveys import get_owned_survey, list_owned_surveys
 
@@ -85,7 +86,9 @@ def item(item_id):
     owner = g.user["_id"]
     entry = get_item(_db(), item_id, owner)
     versions = list_versions(_db(), entry["_id"], owner)
-    selected_id = request.args.get("version", str(entry["current_version_id"]))
+    if not versions:
+        raise LibraryError("题目不存在或未获授权。", 404)
+    selected_id = request.args.get("version", str(versions[0]["_id"]))
     _, selected = get_version(_db(), selected_id, owner)
     if selected["question_id"] != entry["_id"]:
         raise LibraryError("版本不属于当前题目。")
@@ -97,10 +100,13 @@ def item(item_id):
             raise LibraryError("比较版本不属于当前题目。")
     differences = version_difference(compare["content"], selected["content"]) if compare else []
     drafts = [s for s in list_owned_surveys(_db(), owner) if s["status"] == "draft"]
-    shared_users = list(_db().users.find({"_id": {"$in": entry["shared_with"]}}, {"username": 1})) if entry["owner_id"] == owner else []
+    if entry["owner_id"] != owner:
+        allowed = _db().question_shares.distinct("survey_id", {
+            "version_id": selected["_id"], "requester_id": owner, "status": "approved"})
+        drafts = [s for s in drafts if s["_id"] in allowed]
     return render_template("library/item.html", title=entry["name"], item=entry, versions=versions,
                            selected=selected, compare=compare, differences=differences,
-                           mapping=mapping, drafts=drafts, shared_users=shared_users, kinds=KINDS)
+                           mapping=mapping, drafts=drafts, kinds=KINDS)
 
 
 @library.route("/items/<item_id>/versions/new", methods=("GET", "POST"))
@@ -136,9 +142,35 @@ def share(item_id):
     action = request.form.get("action")
     if action not in ("share", "revoke"):
         raise LibraryError("请选择共享或撤销。")
-    share_item(_db(), item_id, g.user["_id"], request.form.get("username", ""), revoke=action == "revoke")
+    share_item(_db(), item_id, g.user["_id"], request.form.get("username", ""),
+               survey_id=request.form.get("survey_id"), version_id=request.form.get("version_id"),
+               revoke=action == "revoke")
     flash("共享设置已保存。", "success")
     return redirect(url_for("library.item", item_id=item_id), code=303)
+
+
+@library.route("/sharing", methods=("GET", "POST"))
+@login_required
+def sharing():
+    if request.method == "POST":
+        raw_number = request.form.get("version_number", "1")
+        if not raw_number.isascii() or not raw_number.isdigit() or len(raw_number) > 9:
+            raise LibraryError("版本号须为正整数。")
+        request_share(_db(), request.form.get("item_id"), g.user["_id"], request.form.get("survey_id"),
+                      version_number=int(raw_number), message=request.form.get("message", ""))
+        flash("申请已提交；出题者批准后，仅可在指定问卷使用该版本。", "success")
+        return redirect(url_for("library.sharing"), code=303)
+    return render_template("library/sharing.html", title="题目共享申请与审批",
+                           records=share_records(_db(), g.user["_id"]),
+                           drafts=[s for s in list_owned_surveys(_db(), g.user["_id"]) if s["status"] == "draft"])
+
+
+@library.post("/sharing/<share_id>/decision")
+@login_required
+def sharing_decision(share_id):
+    decide_share(_db(), share_id, g.user["_id"], request.form.get("action"))
+    flash("审批或撤销已保存。", "success")
+    return redirect(url_for("library.sharing"), code=303)
 
 
 @library.post("/versions/<version_id>/use")
@@ -214,13 +246,13 @@ def select(survey_id):
         import_version(_db(), survey_id, g.user["_id"], request.form.get("version_id"))
         flash("指定版本已加入问卷。", "success")
         return redirect(url_for("surveys.detail", survey_id=survey_id), code=303)
-    items = list_items(_db(), g.user["_id"])
+    items = list_items(_db(), g.user["_id"], survey_id=survey_id)
     bank_id = request.args.get("bank")
     pinned = get_bank(_db(), bank_id, g.user["_id"])["entries"] if bank_id else None
     allowed = {r["version_id"] for r in pinned} if pinned is not None else None
     rows = []
     for item in items:
-        versions = list_versions(_db(), item["_id"], g.user["_id"])
+        versions = list_versions(_db(), item["_id"], g.user["_id"], survey_id=survey_id)
         versions = [v for v in versions if allowed is None or v["_id"] in allowed]
         if versions:
             rows.append({"item": item, "versions": versions})

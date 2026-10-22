@@ -120,6 +120,11 @@ def initialize_database(database):
     database.question_items.create_index([("shared_with", 1), ("created_at", -1)], name="item_shared_created")
     database.question_versions.create_index([("question_id", 1), ("number", 1)], unique=True, name="question_version_unique")
     database.question_banks.create_index([("owner_id", 1), ("created_at", -1)], name="bank_owner_created")
+    database.question_shares.create_index(
+        [("version_id", 1), ("requester_id", 1), ("survey_id", 1)], unique=True,
+        partialFilterExpression={"status": {"$in": ["pending", "approved"]}}, name="active_survey_share")
+    database.question_shares.create_index([("owner_id", 1), ("created_at", -1)], name="share_owner_created")
+    database.question_shares.create_index([("requester_id", 1), ("created_at", -1)], name="share_requester_created")
 
 
 @click.command("init-db")

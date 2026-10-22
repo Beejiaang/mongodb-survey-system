@@ -74,25 +74,24 @@ class LibraryTests(StageTwoFixture):
         item = get_item(self.database, self.iid, self.owner)
         self.assertEqual(item["current_version_id"], rows[0]["_id"])
 
-    def test_share_fork_revoke_preserve_imported_survey_and_independent_fork(self):
+    def test_share_revoke_preserves_snapshot_and_blocks_independent_fork(self):
         with self.assertRaises(LibraryError):get_version(self.database, self.v1, self.other)
-        share_item(self.database, self.iid, self.owner, " OTHER ")
-        self.assertEqual(len(list_items(self.database, self.other)), 1)
         sid = create_survey(self.database, self.other, "对方问卷")
+        share_item(self.database, self.iid, self.owner, " OTHER ", survey_id=sid, version_id=self.v1)
+        self.assertEqual(len(list_items(self.database, self.other)), 1)
         import_version(self.database, sid, self.other, self.v1)
-        fork = fork_version(self.database, self.v1, self.other)
-        self.assertEqual(get_item(self.database, fork, self.other)["forked_from_version_id"], self.v1)
+        with self.assertRaises(LibraryError):fork_version(self.database, self.v1, self.other)
         with self.assertRaises(LibraryError):create_version(self.database, self.iid, self.other, self.v1, self.question)
         old = deepcopy(self.database.surveys.find_one({"_id": sid}))
-        share_item(self.database, self.iid, self.owner, "other", revoke=True)
+        share_item(self.database, self.iid, self.owner, "other", survey_id=sid, version_id=self.v1, revoke=True)
         with self.assertRaises(LibraryError):get_version(self.database, self.v1, self.other)
         with self.assertRaises(LibraryError):import_version(self.database, sid, self.other, self.v1)
         self.assertEqual(self.database.surveys.find_one({"_id": sid}), old)
-        self.assertEqual(len(list_items(self.database, self.other)), 1)  # own fork remains
+        self.assertEqual(len(list_items(self.database, self.other)), 0)
 
     def test_sharing_is_owner_only_and_invalid_users_do_not_change_grants(self):
         for uid, username in [(self.other, "third"), (self.owner, "missing"), (self.owner, "owner")]:
-            with self.assertRaises(LibraryError):share_item(self.database, self.iid, uid, username)
+            with self.assertRaises(LibraryError):share_item(self.database, self.iid, uid, username, survey_id=ObjectId(), version_id=self.v1)
         self.assertEqual(get_item(self.database, self.iid, self.owner)["shared_with"], [])
 
     def test_cross_item_base_and_bad_content_rejected_without_allocating_version(self):
@@ -130,8 +129,8 @@ class LibraryTests(StageTwoFixture):
     def test_usage_lists_other_survey_metadata_without_granting_answer_access(self):
         sid = create_survey(self.database, self.owner, "可见名称")
         import_version(self.database, sid, self.owner, self.v1)
-        share_item(self.database, self.iid, self.owner, "other")
         private_sid = create_survey(self.database, self.other, "其他用户的引用问卷")
+        share_item(self.database, self.iid, self.owner, "other", survey_id=private_sid, version_id=self.v1)
         import_version(self.database, private_sid, self.other, self.v1)
         result = usage(self.database, self.iid, self.owner)
         self.assertEqual([s["title"] for s in result["surveys"]], ["可见名称"])
@@ -155,9 +154,10 @@ class LibraryTests(StageTwoFixture):
         bid = create_bank(self.database, self.other, "共享题库")
         rev = bank_revision(get_bank(self.database, bid, self.other))
         with self.assertRaises(LibraryError):change_bank(self.database, bid, self.other, "put", self.v1, rev)
-        share_item(self.database, self.iid, self.owner, "other")
+        sid = create_survey(self.database, self.other, "授权问卷")
+        share_item(self.database, self.iid, self.owner, "other", survey_id=sid, version_id=self.v1)
         change_bank(self.database, bid, self.other, "put", self.v1, rev)
-        share_item(self.database, self.iid, self.owner, "other", revoke=True)
+        share_item(self.database, self.iid, self.owner, "other", survey_id=sid, version_id=self.v1, revoke=True)
         change_bank(self.database, bid, self.other, "remove", self.v1, bank_revision(get_bank(self.database, bid, self.other)))
 
     def test_known_phase_one_validator_upgrade_preserves_documents_and_hashes(self):

@@ -34,11 +34,14 @@ class PhaseTwoAcceptanceTests(StageTwoFixture):
         self.assertEqual(self.post(f'/library/versions/{v2}/use',survey_id=str(bid_survey)).status_code,303)
         self.assertEqual(self.post(b_manage+'/publish').status_code,303)
         self.assertEqual(self.database.surveys.find_one({'_id':sid}),frozen)
-        self.assertEqual(self.post(f'/library/items/{iid}/share',action='share',username='other').status_code,303)
         self.login(self.other)
-        self.assertEqual(self.client.get(f'/library/items/{iid}').status_code,200)
         own=self.post('/surveys/new',title='共享接收者问卷').location
         other_sid=ObjectId(own.rsplit('/',1)[1])
+        self.login(self.owner)
+        self.assertEqual(self.post(f'/library/items/{iid}/share',action='share',username='other',
+                                  survey_id=str(other_sid),version_id=str(v1)).status_code,303)
+        self.login(self.other)
+        self.assertEqual(self.client.get(f'/library/items/{iid}').status_code,200)
         self.assertEqual(self.post(f'/library/versions/{v1}/use',survey_id=str(other_sid)).status_code,303)
         self.assertEqual(self.post(own+'/publish').status_code,303)
         self.assertEqual(self.post(f'/library/versions/{v1}/restore').status_code,404)

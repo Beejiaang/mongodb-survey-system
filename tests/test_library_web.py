@@ -81,21 +81,22 @@ class LibraryWebTests(StageTwoFixture):
         self.assertEqual(result.status_code, 303)
         self.assertEqual(self.database.surveys.find_one({"_id": self.sid}), original)
 
-    def test_share_recipient_can_use_and_fork_but_not_modify_original(self):
+    def test_share_recipient_can_use_target_survey_but_not_fork_or_modify_original(self):
         path = f"/library/items/{self.iid}"
-        self.assertEqual(self.post(path+"/share", action="share", username="other").status_code, 303)
+        sid = create_survey(self.database, self.other, "授权问卷")
+        self.assertEqual(self.post(path+"/share", action="share", username="other", survey_id=str(sid), version_id=str(self.v1)).status_code, 303)
         self.login(self.other)
         html = self.client.get(path).get_data(as_text=True)
-        self.assertIn("派生为自己的题目", html)
+        self.assertNotIn("派生为自己的题目", html)
         self.assertNotIn("共享使用权</button>", html)
         self.assertEqual(self.client.get(path+"/versions/new").status_code, 404)
         self.assertEqual(self.post(f"/library/versions/{self.v1}/restore").status_code, 404)
-        self.assertEqual(self.post(f"/library/versions/{self.v1}/fork").status_code, 303)
+        self.assertEqual(self.post(f"/library/versions/{self.v1}/fork").status_code, 403)
         self.assertEqual(self.client.get(f"/library/items/{ObjectId()}").status_code, 404)
 
     def test_usage_shows_reference_metadata_without_management_links_or_answers(self):
-        share_item(self.database, self.iid, self.owner, "other")
         other_sid = create_survey(self.database, self.other, "引用问卷标题")
+        share_item(self.database, self.iid, self.owner, "other", survey_id=other_sid, version_id=self.v1)
         import_version(self.database, other_sid, self.other, self.v1)
         html = self.client.get(f"/library/items/{self.iid}/usage").get_data(as_text=True)
         self.assertIn("1份", html)
@@ -117,11 +118,12 @@ class LibraryWebTests(StageTwoFixture):
         self.assertEqual(self.client.get(f"/library/select/{self.sid}").status_code, 404)
 
     def test_revoked_bank_entry_is_unavailable_without_disclosing_content(self):
-        share_item(self.database, self.iid, self.owner, "other")
+        sid = create_survey(self.database, self.other, "授权问卷")
+        share_item(self.database, self.iid, self.owner, "other", survey_id=sid, version_id=self.v1)
         self.login(self.other)
         bid = create_bank(self.database, self.other, "接收题库")
         self.post(f"/library/banks/{bid}", action="put", version_id=str(self.v1), revision=bank_revision(get_bank(self.database, bid, self.other)))
-        share_item(self.database, self.iid, self.owner, "other", revoke=True)
+        share_item(self.database, self.iid, self.owner, "other", survey_id=sid, version_id=self.v1, revoke=True)
         html = self.client.get(f"/library/banks/{bid}").get_data(as_text=True)
         self.assertIn("该条目当前未获授权", html)
         self.assertNotIn("<h2>年龄 ·", html)

@@ -1,0 +1,41 @@
+{
+  "database": "survey_system_test_lan_7e2b56ae441e4aab9c0dd3f80d05978e",
+  "before": {
+    "users": {
+      "count": 3,
+      "sha256": "21fb4b5d605b51278a966cd1289d169a7f9887975b765084efa98d725769ad17"
+    },
+    "surveys": {
+      "count": 4,
+      "sha256": "189c7ef7ff36981e768eefcb2ffabf433507edac1a13a655cc4caa470c262b62"
+    },
+    "responses": {
+      "count": 4,
+      "sha256": "eaef49e95c2efe7169a715c07e94489b8b0f14eae49d7fed13338de265fe132f"
+    }
+  },
+  "after": {
+    "users": {
+      "count": 3,
+      "sha256": "21fb4b5d605b51278a966cd1289d169a7f9887975b765084efa98d725769ad17"
+    },
+    "surveys": {
+      "count": 4,
+      "sha256": "189c7ef7ff36981e768eefcb2ffabf433507edac1a13a655cc4caa470c262b62"
+    },
+    "responses": {
+      "count": 4,
+      "sha256": "eaef49e95c2efe7169a715c07e94489b8b0f14eae49d7fed13338de265fe132f"
+    }
+  },
+  "unchanged": true,
+  "collections": [
+    "question_banks",
+    "question_items",
+    "question_shares",
+    "question_versions",
+    "responses",
+    "surveys",
+    "users"
+  ]
+}
