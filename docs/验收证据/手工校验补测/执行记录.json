@@ -1,7 +1,7 @@
 {
   "survey_id": "6ad9a33c49019d3ec4ad775b",
   "execution_date": "2026-10-22",
-  "status": "进行中",
+  "status": "完成（本轮计划的补测检查）",
   "account": "ceshi2",
   "numeric_validation": {
     "min_value": 0,
@@ -184,9 +184,7 @@
       }
     }
   ],
-  "remaining": [
-    "手机型号及打开问卷的应用或浏览器名称待补充"
-  ],
+  "remaining": [],
   "validation_status": "数字及文本限制10项检查通过；补测回答正式提交成功",
   "submission": {
     "result": "通过",
@@ -234,5 +232,17 @@
     "evidence_source": "用户文字确认，未提供粘贴截图或按钮提示原文；AI未读取手机剪贴板",
     "button_message": null
   },
-  "functional_test_status": "数字及文本限制、正式提交、回执刷新和手机复制已通过；测试环境信息待补充"
+  "functional_test_status": "数字及文本限制、正式提交、回执刷新和手机复制已通过；手机型号及浏览器名称已由用户补充",
+  "device": {
+    "model": "小米15 Ultra",
+    "browser": "手机自带浏览器（用户描述）",
+    "os_version": null,
+    "browser_version": null,
+    "source": "用户本轮文字补充，不据此推断此前所有操作均使用同一浏览器"
+  },
+  "not_collected": [
+    "系统及浏览器具体版本",
+    "除已归档四张数字负例截图外的其他补测截图",
+    "复制按钮提示原文"
+  ]
 }
