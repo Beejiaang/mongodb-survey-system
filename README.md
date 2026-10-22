@@ -173,7 +173,7 @@ git diff --cached --check
 git commit -m "说明本次改动"
 ```
 
-已创建私有仓库 [Beejiaang/mongodb-survey-system](https://github.com/Beejiaang/mongodb-survey-system)，本地远程名称 `origin` 已关联到该仓库，主分支已跟踪 `origin/main`。本地提交后执行：
+仓库已设为公开 [Beejiaang/mongodb-survey-system](https://github.com/Beejiaang/mongodb-survey-system)，本地远程名称 `origin` 已关联到该仓库，主分支已跟踪 `origin/main`。本地提交后执行：
 
 ```powershell
 git push
@@ -185,4 +185,4 @@ git push
 
 最终提交应包含可运行代码、MongoDB 数据结构说明、配置说明、API 与关键逻辑说明、测试用例和项目完成报告。AI 使用过程见 [AI 使用日志](docs/AI使用日志.md)，后续开发应持续补充真实记录。
 
-“七、提交内容／2.文档”的四份材料已整理为 [系统说明](docs/系统说明.md)、[数据库设计](docs/数据库设计.md)、[API说明](docs/API说明.md)、[关键逻辑说明](docs/关键逻辑说明.md)。四份文档可从系统说明进入，也可单独阅读。项目完成报告及最终个人贡献总结仍作为后续提交步骤。
+“七、提交内容／2.文档”的四份材料已整理为 [系统说明](docs/系统说明.md)、[数据库设计](docs/数据库设计.md)、[API说明](docs/API说明.md)、[关键逻辑说明](docs/关键逻辑说明.md)。四份文档可从系统说明进入，也可单独阅读。[项目完成报告](docs/项目完成报告.md)全文和[AI使用日志](docs/AI使用日志.md)均已上传，可直接在GitHub查看。报告第6.6节仍标为个人反思初稿，待本人最终确认；N01真实跨设备测试仍待执行。
