@@ -93,10 +93,26 @@
         "saved_numeric_value": 0,
         "current_question_number": 2
       }
+    },
+    {
+      "name": "数字上限边界接受",
+      "input": "120",
+      "expected": "返回第一题修改为120，保存并再次进入第二题",
+      "actual": "用户确认手机再次进入第2题；数据库数值由0更新为120，草稿version=3，仅保留第一题答案",
+      "result": "通过",
+      "evidence_source": "用户文字确认及数据库只读复核，未提供本项截图",
+      "response_id": "6ad9a3f3dfdb95973f12de0e",
+      "database_check": {
+        "state": "draft",
+        "version": 3,
+        "answer_count": 1,
+        "path_length": 1,
+        "saved_numeric_value": 120,
+        "current_question_number": 2
+      }
     }
   ],
   "remaining": [
-    "数字120上限边界接受",
     "文本最少2及最多20字的限制",
     "手机复制实际效果及设备信息待确认"
   ]
