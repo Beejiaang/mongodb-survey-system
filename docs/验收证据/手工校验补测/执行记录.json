@@ -205,5 +205,20 @@
       "anonymous_user_id": null,
       "submitted_count": 1
     }
+  },
+  "receipt_refresh": {
+    "result": "通过",
+    "action": "手机刷新提交成功页面一次",
+    "actual": "用户确认与预期一致，仍显示提交成功且回执不变；数据库正式回答仍为1份",
+    "evidence_source": "用户文字确认及数据库只读复核，未提供本项截图",
+    "response_id": "6ad9a3f3dfdb95973f12de0e",
+    "database_check": {
+      "submitted_count_before": 1,
+      "submitted_count_after": 1,
+      "state": "submitted",
+      "version": 7,
+      "answers_unchanged": true,
+      "submitted_at_unchanged": true
+    }
   }
 }
