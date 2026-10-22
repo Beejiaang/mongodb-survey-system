@@ -2,6 +2,6 @@
 {%- set hint = '请使用阿拉伯数字回答' -%}
 {%- set display = title|replace('（' ~ hint ~ '）', hint)|replace('(' ~ hint ~ ')', hint) -%}
 {%- for part in display.split(hint) -%}
-{{ part }}{% if not loop.last %}<span class="numeric-hint">{{ hint }}</span>{% endif %}
+{{ part }}{% if not loop.last %}<span class="numeric-hint">（{{ hint }}）</span>{% endif %}
 {%- endfor -%}
 {%- endmacro %}
