@@ -44,10 +44,26 @@
         "answer_count": 0,
         "path_length": 0
       }
+    },
+    {
+      "name": "数字低于下限拒绝",
+      "input": "-1",
+      "expected": "提示低于最小限制0，停留第一题且不保存答案",
+      "actual": "截图显示“答案低于最小限制。”，输入-1保留，仍为第1题；数据库进度未推进",
+      "result": "通过",
+      "screenshot": "数字低于下限拦截.jpg",
+      "screenshot_sha256": "25ddaa9cda2fb44eebe05b991299a03a441b0e598d47d4b6d20480c020e67022",
+      "response_id": "6ad9a3f3dfdb95973f12de0e",
+      "database_check": {
+        "state": "draft",
+        "version": 0,
+        "answer_count": 0,
+        "path_length": 0
+      }
     }
   ],
   "remaining": [
-    "数字低于0和高于120时拒绝",
+    "数字高于120时拒绝",
     "数字0和120边界接受",
     "文本最少2及最多20字的限制",
     "手机复制实际效果及设备信息待确认"
