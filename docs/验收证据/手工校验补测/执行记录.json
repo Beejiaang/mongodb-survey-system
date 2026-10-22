@@ -146,10 +146,28 @@
         "text_answer_saved": false,
         "current_question_number": 2
       }
+    },
+    {
+      "name": "文本最少字数边界接受",
+      "input": "你好",
+      "expected": "恰好2字时保存并进入答案确认页，尚未正式提交",
+      "actual": "用户确认成功进入确认页；数据库保存“你好”，草稿version=4、2条答案及2题路径，current_question_id为空",
+      "result": "通过",
+      "evidence_source": "用户文字确认及数据库只读复核，未提供本项截图",
+      "response_id": "6ad9a3f3dfdb95973f12de0e",
+      "database_check": {
+        "state": "draft",
+        "version": 4,
+        "answer_count": 2,
+        "path_length": 2,
+        "saved_numeric_value": 120,
+        "saved_text_value": "你好",
+        "current_question_id": null
+      }
     }
   ],
   "remaining": [
-    "文本2字、20字边界接受",
+    "文本20字上限边界接受",
     "手机复制实际效果及设备信息待确认"
   ]
 }
