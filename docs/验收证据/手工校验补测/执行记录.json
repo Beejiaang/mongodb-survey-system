@@ -76,10 +76,27 @@
         "answer_count": 0,
         "path_length": 0
       }
+    },
+    {
+      "name": "数字下限边界接受",
+      "input": "0",
+      "expected": "保存数字0并进入第二题",
+      "actual": "用户确认手机进入下一题；数据库保存数值0，草稿version=1，当前题为第二题",
+      "result": "通过",
+      "evidence_source": "用户文字确认及数据库只读复核，未提供本项截图",
+      "response_id": "6ad9a3f3dfdb95973f12de0e",
+      "database_check": {
+        "state": "draft",
+        "version": 1,
+        "answer_count": 1,
+        "path_length": 1,
+        "saved_numeric_value": 0,
+        "current_question_number": 2
+      }
     }
   ],
   "remaining": [
-    "数字0和120边界接受",
+    "数字120上限边界接受",
     "文本最少2及最多20字的限制",
     "手机复制实际效果及设备信息待确认"
   ]
