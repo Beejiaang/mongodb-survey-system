@@ -7,11 +7,12 @@ from flask import current_app, g
 from pymongo import MongoClient
 from pymongo.errors import CollectionInvalid, PyMongoError
 
-from survey_schema import SURVEY_VALIDATOR, PRE_JUMP_SURVEY_VALIDATOR
+from survey_schema import SURVEY_VALIDATOR, PRE_JUMP_SURVEY_VALIDATOR, PRE_LIBRARY_SURVEY_VALIDATOR
 from response_schema import RESPONSE_VALIDATOR
+from library_schema import LIBRARY_VALIDATORS
 
 
-COLLECTION_NAMES = ("users", "surveys", "responses")
+COLLECTION_NAMES = ("users", "surveys", "responses", *LIBRARY_VALIDATORS)
 USER_VALIDATOR = {
     "$jsonSchema": {
         "bsonType": "object",
@@ -65,7 +66,8 @@ def initialize_database(database):
     """创建集合和索引；只为无规则的空问卷集合补上校验，不覆盖旧数据。"""
     for name in COLLECTION_NAMES:
         options = {}
-        validator = {"users": USER_VALIDATOR, "surveys": SURVEY_VALIDATOR, "responses": RESPONSE_VALIDATOR}.get(name)
+        validator = {"users": USER_VALIDATOR, "surveys": SURVEY_VALIDATOR,
+                     "responses": RESPONSE_VALIDATOR, **LIBRARY_VALIDATORS}.get(name)
         if validator is not None:
             options = {
                 "validator": validator,
@@ -77,7 +79,7 @@ def initialize_database(database):
         except CollectionInvalid:
             if validator is not None:
                 existing = database[name].options()
-                if (name == "surveys" and existing.get("validator") == PRE_JUMP_SURVEY_VALIDATOR
+                if (name == "surveys" and existing.get("validator") in (PRE_JUMP_SURVEY_VALIDATOR, PRE_LIBRARY_SURVEY_VALIDATOR)
                         and existing.get("validationLevel", "strict") == "strict"
                         and existing.get("validationAction", "error") == "error"):
                     database.command("collMod", name, **options)
@@ -113,9 +115,16 @@ def initialize_database(database):
     )
 
 
+    database.surveys.create_index([("owner_id", 1), ("questions.source.version_id", 1)], name="owner_version_uses")
+    database.question_items.create_index([("owner_id", 1), ("created_at", -1)], name="item_owner_created")
+    database.question_items.create_index([("shared_with", 1), ("created_at", -1)], name="item_shared_created")
+    database.question_versions.create_index([("question_id", 1), ("number", 1)], unique=True, name="question_version_unique")
+    database.question_banks.create_index([("owner_id", 1), ("created_at", -1)], name="bank_owner_created")
+
+
 @click.command("init-db")
 def init_db_command():
-    """创建问卷数据库的三个集合、数据约束和查询索引。"""
+    """创建问卷和题库集合、数据约束和查询索引。"""
     try:
         with create_client() as client:
             client.admin.command("ping")

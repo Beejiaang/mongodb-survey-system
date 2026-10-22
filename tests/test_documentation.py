@@ -14,6 +14,7 @@ from jumps import allowed_operators
 from questions import validate_question
 from response_schema import RESPONSE_VALIDATOR
 from survey_schema import SURVEY_VALIDATOR
+from library_schema import LIBRARY_VALIDATORS
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -116,7 +117,8 @@ class DocumentationTests(unittest.TestCase):
         source = (DOCS / "数据库设计.md").read_text(encoding="utf-8")
         schemas = {"users": USER_VALIDATOR["$jsonSchema"],
                    "surveys": SURVEY_VALIDATOR["$jsonSchema"],
-                   "responses": RESPONSE_VALIDATOR["$and"][0]["$jsonSchema"]}
+                   "responses": RESPONSE_VALIDATOR["$and"][0]["$jsonSchema"],
+                   **{name: validator["$jsonSchema"] for name, validator in LIBRARY_VALIDATORS.items()}}
         for name, schema in schemas.items():
             with self.subTest(collection=name):
                 section = re.search(rf"^## {name} 字段\n(.*?)(?=^## |\Z)", source, re.M | re.S)
@@ -129,9 +131,9 @@ class DocumentationTests(unittest.TestCase):
     def test_documented_index_names_and_order_match_initializer(self):
         source = (DOCS / "数据库设计.md").read_text(encoding="utf-8")
         documented = {}
-        for name, index, keys in re.findall(r"^\| (users|surveys|responses) \| ([a-z_]+) \| ([^|]+) \|", source, re.M):
+        for name, index, keys in re.findall(r"^\| (users|surveys|responses|question_items|question_versions|question_banks) \| ([a-z_]+) \| ([^|]+) \|", source, re.M):
             documented[name, index] = [(field, 1 if direction == "↑" else -1)
-                                       for field, direction in re.findall(r"([a-z_]+)([↑↓])", keys)]
+                                       for field, direction in re.findall(r"([a-z_.]+)([↑↓])", keys)]
         # 捕获真实初始化函数声明的索引，不连接或修改业务数据库。
         database = MagicMock()
         database.__getitem__.side_effect = lambda name: getattr(database, name)

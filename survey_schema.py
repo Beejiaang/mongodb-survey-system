@@ -83,7 +83,7 @@ SURVEY_VALIDATOR = {
     },
 }
 
-# 唯一允许自动升级的上一版：所有 jump_rules 都被要求为空。
+# 已知可自动升级的上一版：所有 jump_rules 都被要求为空。
 # 新版接受上一版全部合法文档，升级只放宽并细化该字段，不修改数据。
 PRE_JUMP_SURVEY_VALIDATOR = deepcopy(SURVEY_VALIDATOR)
 
@@ -113,3 +113,13 @@ for _variant, _rule_condition in zip(QUESTION_SCHEMA["oneOf"], _CONDITIONS):
                 "properties": {"condition": _rule_condition, "target_question_id": _TEXT},
             },
         }
+
+# Phase two provenance is optional; all phase-one documents remain valid.
+PRE_LIBRARY_SURVEY_VALIDATOR = deepcopy(SURVEY_VALIDATOR)
+SOURCE_SCHEMA = {
+    "bsonType": "object", "required": ["question_id", "version_id"],
+    "additionalProperties": False,
+    "properties": {"question_id": {"bsonType": "objectId"}, "version_id": {"bsonType": "objectId"}},
+}
+for _variant in QUESTION_SCHEMA["oneOf"]:
+    _variant["properties"]["source"] = deepcopy(SOURCE_SCHEMA)

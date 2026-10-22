@@ -3,6 +3,7 @@
 from copy import deepcopy
 from math import ceil, floor, isfinite
 from uuid import uuid4
+from bson import ObjectId
 
 
 CHOICE_TYPES = ("single_choice", "multiple_choice")
@@ -84,6 +85,12 @@ def validate_question(question):
         raise ValueError("不支持的题型。")
     fields = {"id", "type", "title", "required", "validation", "jump_rules"}
     fields.add("options" if kind in CHOICE_TYPES else "input_type")
+    if "source" in q:
+        source = q["source"]
+        if (not isinstance(source, dict) or set(source) != {"question_id", "version_id"}
+                or any(not isinstance(value, ObjectId) for value in source.values())):
+            raise ValueError("题目来源必须包含有效的题目和版本编号。")
+        fields.add("source")
     if set(q) != fields:
         raise ValueError("题目字段缺失或包含不支持的字段。")
     q["id"] = _text(q["id"], "题目编号")

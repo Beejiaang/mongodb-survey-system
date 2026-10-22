@@ -135,5 +135,5 @@ def evaluate_path(questions, answers, *, require_complete=False):
 
 
 def question_revision(questions):
-    return sha256(json.dumps(questions, sort_keys=True, ensure_ascii=True,
+    return sha256(json.dumps(questions, sort_keys=True, ensure_ascii=True, default=str,
                              separators=(",", ":")).encode()).hexdigest()
