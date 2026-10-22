@@ -1,0 +1,232 @@
+{
+  "case": "N01",
+  "execution_date": "2026-10-22",
+  "conclusion": "实际样本的跨设备核心流程通过",
+  "environment": {
+    "server_os": "Windows",
+    "network": "手机热点，电脑连接SSID bejiang",
+    "server_ipv4": "10.131.37.121",
+    "port": 5002,
+    "database": "survey_system_test_lan_7e2b56ae441e4aab9c0dd3f80d05978e",
+    "phone_model": "未提供",
+    "phone_browser": "未提供"
+  },
+  "survey": {
+    "id": "6ad998516198d179c61c7d19",
+    "status": "closed",
+    "anonymous": true,
+    "allow_repeat": false,
+    "deadline": null,
+    "question_config": [
+      {
+        "title": "单选",
+        "type": "single_choice",
+        "input_type": null,
+        "required": true,
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "validation": {}
+      },
+      {
+        "title": "多选题",
+        "type": "multiple_choice",
+        "input_type": null,
+        "required": true,
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "validation": {
+          "min_choices": 2,
+          "max_choices": 3
+        }
+      },
+      {
+        "title": "文本填空",
+        "type": "fill_blank",
+        "input_type": "text",
+        "required": true,
+        "options": [],
+        "validation": {
+          "min_length": null,
+          "max_length": null
+        }
+      },
+      {
+        "title": "请使用阿拉伯数字回答",
+        "type": "fill_blank",
+        "input_type": "number",
+        "required": true,
+        "options": [],
+        "validation": {
+          "min_value": null,
+          "max_value": null,
+          "integer_only": false
+        }
+      }
+    ]
+  },
+  "physical_phone_evidence": {
+    "source": "用户在本对话逐步操作并确认；AI未直接操作手机",
+    "confirmed": [
+      "手机成功打开入口",
+      "ceshi注册并完成回答",
+      "刷新回执后仍显示原样，数据库仍1份正式提交",
+      "ceshi2第二份提交",
+      "汇总数字与核对表一致",
+      "文本内容正确",
+      "关闭后手机入口显示关闭"
+    ]
+  },
+  "submissions": [
+    {
+      "account": "ceshi",
+      "receipt_id": "6ad999c36198d179c61c7d32",
+      "state": "submitted",
+      "submitted_at_beijing": "2026-10-22T13:06:42.726000+08:00",
+      "anonymous_user_id_is_null": true,
+      "path_length": 4,
+      "answers": [
+        {
+          "question": "单选",
+          "value": "1"
+        },
+        {
+          "question": "多选题",
+          "value": [
+            "2",
+            "3"
+          ]
+        },
+        {
+          "question": "文本填空",
+          "value": "哈哈哈"
+        },
+        {
+          "question": "请使用阿拉伯数字回答",
+          "value": 6
+        }
+      ]
+    },
+    {
+      "account": "ceshi2",
+      "receipt_id": "6ad99afd6198d179c61c7d4b",
+      "state": "submitted",
+      "submitted_at_beijing": "2026-10-22T13:11:39.448000+08:00",
+      "anonymous_user_id_is_null": true,
+      "path_length": 4,
+      "answers": [
+        {
+          "question": "单选",
+          "value": "2"
+        },
+        {
+          "question": "多选题",
+          "value": [
+            "1",
+            "4"
+          ]
+        },
+        {
+          "question": "文本填空",
+          "value": "嘿嘿嘿"
+        },
+        {
+          "question": "请使用阿拉伯数字回答",
+          "value": 9
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "questions": [
+      {
+        "title": "单选",
+        "answered": 2,
+        "respondents": 2,
+        "option_counts": [
+          {
+            "text": "1",
+            "count": 1
+          },
+          {
+            "text": "2",
+            "count": 1
+          },
+          {
+            "text": "3",
+            "count": 0
+          },
+          {
+            "text": "4",
+            "count": 0
+          }
+        ],
+        "average": null
+      },
+      {
+        "title": "多选题",
+        "answered": 2,
+        "respondents": null,
+        "option_counts": [
+          {
+            "text": "1",
+            "count": 1
+          },
+          {
+            "text": "2",
+            "count": 1
+          },
+          {
+            "text": "3",
+            "count": 1
+          },
+          {
+            "text": "4",
+            "count": 1
+          }
+        ],
+        "average": null
+      },
+      {
+        "title": "文本填空",
+        "answered": 2,
+        "respondents": null,
+        "option_counts": [],
+        "average": null
+      },
+      {
+        "title": "请使用阿拉伯数字回答",
+        "answered": 2,
+        "respondents": null,
+        "option_counts": [],
+        "average": "7.50"
+      }
+    ]
+  },
+  "post_close_server_checks": {
+    "entry_get_http": 410,
+    "start_post_http_with_valid_csrf": 410,
+    "creator_stats_http": 200,
+    "entry_has_start_form": false,
+    "mean_7_50_preserved": true,
+    "records_before_and_after": [
+      2,
+      2
+    ]
+  },
+  "not_executed_or_not_collected": [
+    "原计划非法数字十八的手机端负例未执行",
+    "实际文本及数字题未设置上下限，因此本轮不算上下限手工验证",
+    "手机型号、浏览器名称及截图未归档",
+    "复制按钮在手机上的实际效果未确认；电脑已粘贴分享链接",
+    "保留测试服务和专用库供复核，未执行清理"
+  ]
+}

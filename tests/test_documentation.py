@@ -73,7 +73,22 @@ class DocumentationTests(unittest.TestCase):
                 self.assertTrue(all(columns))
                 self.assertIn("①", columns[0], "需要有序可复现步骤")
                 if case_id.startswith("N"):
-                    self.assertEqual(columns[2], "待执行：尚无第二台真实设备的访问证据")
+                    self.assertIn("通过（实际样本的核心流程）", columns[2])
+                    self.assertIn("原计划负例未执行", columns[2])
+                    evidence = json.loads((DOCS / "验收证据" / "N01-跨设备实测.json").read_text(encoding="utf-8"))
+                    self.assertEqual(evidence["case"], case_id)
+                    self.assertEqual(evidence["summary"]["total"], len(evidence["submissions"]))
+                    self.assertEqual(len({item["receipt_id"] for item in evidence["submissions"]}), 2)
+                    self.assertEqual({item["account"] for item in evidence["submissions"]}, {"ceshi", "ceshi2"})
+                    self.assertTrue(all(item["state"] == "submitted" and item["anonymous_user_id_is_null"]
+                                        and item["path_length"] == 4 for item in evidence["submissions"]))
+                    checks = evidence["post_close_server_checks"]
+                    self.assertEqual(checks["entry_get_http"], 410)
+                    self.assertEqual(checks["start_post_http_with_valid_csrf"], 410)
+                    self.assertEqual(checks["creator_stats_http"], 200)
+                    self.assertEqual(checks["records_before_and_after"], [2, 2])
+                    self.assertTrue(evidence["physical_phone_evidence"]["confirmed"])
+                    self.assertTrue(evidence["not_executed_or_not_collected"])
                     for step in ("另一台设备", "数据库", "统计"):
                         self.assertIn(step, columns[0])
                     self.assertIn("手工", columns[-1])
