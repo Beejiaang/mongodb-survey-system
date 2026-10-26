@@ -1,0 +1,12 @@
+test_all_business_routes_and_methods_are_documented (test_documentation.DocumentationTests.test_all_business_routes_and_methods_are_documented) ... ok
+test_collection_field_tables_match_current_validators (test_documentation.DocumentationTests.test_collection_field_tables_match_current_validators) ... ok
+test_completion_report_covers_assignment_and_personal_ai_review (test_documentation.DocumentationTests.test_completion_report_covers_assignment_and_personal_ai_review) ... ok
+test_database_question_example_passes_real_configuration_validation (test_documentation.DocumentationTests.test_database_question_example_passes_real_configuration_validation) ... ok
+test_documented_index_names_and_order_match_initializer (test_documentation.DocumentationTests.test_documented_index_names_and_order_match_initializer) ... ok
+test_local_markdown_links_resolve_within_submission (test_documentation.DocumentationTests.test_local_markdown_links_resolve_within_submission) ... ok
+test_test_case_catalog_has_complete_rows_and_valid_references (test_documentation.DocumentationTests.test_test_case_catalog_has_complete_rows_and_valid_references) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.946s
+
+OK

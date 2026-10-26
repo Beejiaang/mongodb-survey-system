@@ -1,0 +1,18 @@
+{
+  "change": "AI使用日志按阶段拆分",
+  "date": "2026-10-26",
+  "split_marker": "## 第二阶段启动",
+  "original_sha256_normalized": "5dbbe1c9717f2dc189a25ed63f6dcf6aca1771e777f4e1a081c887b83d50e433",
+  "preserved_stage_one_body_sha256": "d536bbc86d79677de04a10569899446c975a0904e712fb37c328ce2c9788ee95",
+  "preserved_stage_two_body_sha256": "6b5ab5b2afddf395ee36b6c0d3a5a3f68c34a21d6f4e392219dd73d457e38682",
+  "original_record_bodies_preserved": true,
+  "personal_reflection_changed": false,
+  "business_code_changed": false,
+  "documentation_tests": {
+    "count": 7,
+    "exit_code": 0,
+    "log": "AI日志分阶段-文档测试.txt",
+    "sha256": "8bb1b58a24a45cb952534c532611b6358128b463fa37c2571513043ab0db1be3"
+  },
+  "full_business_suite_rerun": false
+}

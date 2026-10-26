@@ -37,6 +37,20 @@ class DocumentationTests(unittest.TestCase):
             self.assertIn(topic, source)
         for evidence in ("测试用例.md", "AI使用日志.md", "关键逻辑说明.md", "数据库设计.md"):
             self.assertIn(f"]({evidence})", source)
+        ai_index = (DOCS / "AI使用日志.md").read_text(encoding="utf-8")
+        first_ai = (DOCS / "第一阶段AI使用日志.md").read_text(encoding="utf-8")
+        second_ai = (DOCS / "第二阶段AI使用日志.md").read_text(encoding="utf-8")
+        for name in ("第一阶段AI使用日志.md", "第二阶段AI使用日志.md"):
+            self.assertIn(f"]({name})", ai_index)
+        self.assertTrue(first_ai.startswith("# 第一阶段 AI 使用日志\n"))
+        self.assertTrue(second_ai.startswith("# 第二阶段 AI 使用日志\n"))
+        self.assertIn("## 2026年10月22日 保存项目完成报告为PDF", first_ai)
+        self.assertNotIn("## 第二阶段启动", first_ai)
+        self.assertIn("## 第二阶段启动", second_ai)
+        self.assertIn("### 第二点需求确认：授权限定目标问卷", second_ai)
+        self.assertNotIn("## 2026年10月15日 接续项目并修正首页", second_ai)
+        second_report = (DOCS / "第二阶段项目完成报告.md").read_text(encoding="utf-8")
+        self.assertIn("](第二阶段AI使用日志.md)", second_report)
         numeric_row = re.search(r"^\| 数字填空 \| ([a-z_、]+) \|", source, re.M)
         self.assertIsNotNone(numeric_row)
         self.assertEqual(tuple(numeric_row.group(1).split("、")),
