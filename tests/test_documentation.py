@@ -75,6 +75,27 @@ class DocumentationTests(unittest.TestCase):
         self.assertEqual(int(report_count.group(1)), case_count, "报告中的场景数未随用例同步")
         self.assertEqual(int(readme_count.group(1)), case_count, "README中的场景数未随用例同步")
 
+        review = DOCS / "审批稿"
+        draft = (review / "第二阶段项目完成报告.md").read_text(encoding="utf-8")
+        for heading in required:
+            match = re.search(rf"^## {re.escape(heading)}\n(.*?)(?=^## |\Z)", draft, re.M | re.S)
+            self.assertIsNotNone(match, f"审批稿缺少作业要求：{heading}")
+            self.assertGreater(len(match.group(1).strip()), 100)
+        original_cases = (DOCS / "第二阶段测试用例.md").read_text(encoding="utf-8")
+        draft_cases = (review / "第二阶段测试用例.md").read_text(encoding="utf-8")
+        case_pattern = r"^\| P2-\d{2} \|.*$"
+        self.assertEqual(re.findall(case_pattern, draft_cases, re.M),
+                         re.findall(case_pattern, original_cases, re.M),
+                         "审批稿必须保留已验证用例及代码定位")
+        explanation = (review / "第二阶段测试说明.md").read_text(encoding="utf-8")
+        for step in execution["checks"]:
+            self.assertIn(step["id"], explanation)
+        for category in ("创建问卷", "添加题目", "跳转", "校验", "提交", "统计"):
+            self.assertIn(category, explanation)
+        manifest = json.loads((review / "核对结果.json").read_text(encoding="utf-8"))
+        self.assertEqual({row["id"]: row["status"] for row in manifest["manual_status_at_review"]},
+                         {row["id"]: row["status"] for row in execution["checks"]})
+
     def test_test_case_catalog_has_complete_rows_and_valid_references(self):
         source = (DOCS / "测试用例.md").read_text(encoding="utf-8")
         rows = re.findall(r"^\| ([CQJVRSEFAN]\d{2}) \| (.+) \|$", source, re.M)

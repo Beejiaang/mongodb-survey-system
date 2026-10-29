@@ -1,0 +1,103 @@
+{
+  "date": "2026-10-29",
+  "status": "待审批",
+  "protected_sha256": {
+    "docs/AI使用日志.md": "48e5c3cf3babea75cac20bdf3601368fb6af539d4ae9a9df6a1a17c52083173f",
+    "docs/第一阶段AI使用日志.md": "244a84a727aa3c4c6e36dd85e1237d69359139fba9a06452e4e0e4328d8bc2e9",
+    "docs/第二阶段AI使用日志.md": "f7eb0bfdc30b8f600e2102135c355c4b603bbb4f762d44fd6bc42ad569a11cdf",
+    "docs/项目完成报告.md": "69b83c67b18665d6cd390b21eeb10b3b3a65c5e4e2aa4485a0f152f22cf890b8",
+    "docs/第二阶段项目完成报告.md": "a4c95f6fe817c5744a44b22c9e31b3f86365b1037099f3a97b5bcf5da6767c4c",
+    "docs/测试说明.md": "ea0dc6665417745a7a5ee2c92d85ad5b10884045aa687b1abe5323bc95de9681",
+    "docs/第二阶段测试用例.md": "c3a86287d7eae7e9fdc3c6d7f35dd940396cec69035c23365d7025ae0575d1e0",
+    "docs/第二阶段手工验收.md": "bb8c1aa7854da7d23170f462ecce2a80ec58cddde793e3d13c4df9a75fd13a3d",
+    "docs/验收证据/第二阶段/手工验收-执行记录.json": "f95375931d7c7cd658aec6a5b95dac53146936396f0efc28f5a7220c12931532",
+    "output/pdf/2026_ECNU_PJ1_1_高顾翔.pdf": "3f62faba89ecaede3d6967e0555d76d84cdbd9d65c354f5c27debc408ace97da"
+  },
+  "manual_status_at_review": [
+    {
+      "id": "M2-01",
+      "name": "手机连通",
+      "status": "通过"
+    },
+    {
+      "id": "M2-02",
+      "name": "双账号注册登录",
+      "status": "通过"
+    },
+    {
+      "id": "M2-03",
+      "name": "常用题与个人题库复用",
+      "status": "通过"
+    },
+    {
+      "id": "M2-04",
+      "name": "原题版本选择、历史恢复与发布固定",
+      "status": "通过"
+    },
+    {
+      "id": "M2-05",
+      "name": "用户级申请审批",
+      "status": "进行中"
+    },
+    {
+      "id": "M2-06",
+      "name": "部分问卷范围及未授权拒绝",
+      "status": "通过"
+    },
+    {
+      "id": "M2-07",
+      "name": "用户名修改分支与编号独立",
+      "status": "通过"
+    },
+    {
+      "id": "M2-08",
+      "name": "草稿替换、调序和跳转清空",
+      "status": "进行中"
+    },
+    {
+      "id": "M2-09",
+      "name": "跨问卷按版本统计及所有者数据隔离",
+      "status": "通过"
+    },
+    {
+      "id": "M2-10",
+      "name": "原作者只读开放引用问卷",
+      "status": "通过"
+    },
+    {
+      "id": "M2-11",
+      "name": "撤销及已有问卷/回答保留",
+      "status": "通过"
+    },
+    {
+      "id": "M2-12",
+      "name": "手机填写与页面交互",
+      "status": "通过"
+    }
+  ],
+  "scope_decisions": [
+    {
+      "id": "M2-08",
+      "user_quote": "这些都是第一阶段的内容吧，我们不测了",
+      "decision": "仅草稿替换手工通过；调序/删除本轮不继续手工验收，引用自动测试P2-01至P2-05，不记手工通过。"
+    },
+    {
+      "id": "M2-12",
+      "decision": "基础校验和复制沿用第一阶段实测，第二阶段新增流程已有手工记录；未重新确认手机型号/浏览器。"
+    },
+    {
+      "id": "M2-05",
+      "decision": "用户级申请批准及未来问卷取用已手工验证；用户级待审批拒绝仅自动测试P2-54，本轮实测待审批拒绝为部分问卷授权M2-06。"
+    }
+  ],
+  "verification": {
+    "document_tests": 7,
+    "result": "通过",
+    "command": ".venv/Scripts/python.exe -W error::ResourceWarning -m unittest discover -s tests -p test_documentation.py -q",
+    "python_test_methods_by_ast": 277,
+    "phase2_cases": 63,
+    "protected_files_unchanged": 10,
+    "full_business_suite_rerun": false,
+    "github_pushed": false
+  }
+}
