@@ -127,6 +127,21 @@
           "description": "A卷已发布并固定年龄题v1，B卷仍为草稿。已记录发布后题目BSON哈希，供后续原题v2和恢复操作核对。",
           "survey_id": "6ae2c8e385ebe82b69f840bf",
           "questions_sha256": "6e185e9a27f672c5ee46bf50e1d85a505900255b42ae25790b9e85049cd25455"
+        },
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "已保存",
+          "description": "原题v2保存为上限100，来源v1及默认指针正确；v1仍上限120，发布A卷题目BSON哈希未变，B卷与题库仍固定v1。尚待用户页面复核及恢复旧版。",
+          "v2_id": "6ae2cabf85ebe82b69f840d8",
+          "v2_number": 2,
+          "parent_version_id": "6ae2c6b698dabeb179606a74",
+          "max_value": 100,
+          "v1_max_value": 120,
+          "a_questions_hash_unchanged": true,
+          "a_max_value": 120,
+          "b_max_value": 120,
+          "bank_still_v1": true
         }
       ]
     },
@@ -180,7 +195,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "M2-01/02/03通过；A卷已发布且发布题目快照已记录，B卷仍草稿。M2-04继续，下一步将原题上限120改100生成v2，不更新题库或问卷。",
+  "notes": "原题v2已保存，数据库复核A卷发布题目哈希不变、A/B仍上限120且题库仍v1；当前等待用户从页面确认A卷仍显示120，然后继续恢复验收。M2-04仍进行中。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -391,6 +406,17 @@
           }
         }
       ]
+    },
+    "author_question_v2": {
+      "v2_id": "6ae2cabf85ebe82b69f840d8",
+      "v2_number": 2,
+      "parent_version_id": "6ae2c6b698dabeb179606a74",
+      "max_value": 100,
+      "v1_max_value": 120,
+      "a_questions_hash_unchanged": true,
+      "a_max_value": 120,
+      "b_max_value": 120,
+      "bank_still_v1": true
     }
   }
 }
