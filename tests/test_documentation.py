@@ -80,6 +80,13 @@ class DocumentationTests(unittest.TestCase):
         for report in (second_report, draft):
             self.assertEqual(report.splitlines()[0],
                              "GitHub仓库：https://github.com/Beejiaang/mongodb-survey-system")
+        for number in ("6.4", "6.5", "6.6"):
+            section = re.search(rf"^### {re.escape(number)} .*?\n(.*?)(?=^### |^## |\Z)",
+                                draft, re.M | re.S)
+            self.assertIsNotNone(section)
+            self.assertIn("我", section.group(1))
+            self.assertNotIn("此节由本人补充", section.group(1))
+            self.assertNotIn("此节待本人确认并改为", section.group(1))
         for heading in required:
             match = re.search(rf"^## {re.escape(heading)}\n(.*?)(?=^## |\Z)", draft, re.M | re.S)
             self.assertIsNotNone(match, f"审批稿缺少作业要求：{heading}")
