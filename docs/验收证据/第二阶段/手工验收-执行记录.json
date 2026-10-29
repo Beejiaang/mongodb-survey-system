@@ -91,6 +91,13 @@
           "description": "常用信息题库已固定保存年龄题v1，归属p2_author。当前0问卷、0回答，多卷复用尚未执行。",
           "bank_id": "6ae2c79098dabeb179606a7d",
           "version_id": "6ae2c6b698dabeb179606a74"
+        },
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "已加入",
+          "description": "作者问卷A草稿包含且仅包含年龄题v1；确切版本来源、必答、0～120整数、匿名和允许重复均与计划一致。尚待B卷复用验证。",
+          "survey_id": "6ae2c8e385ebe82b69f840bf"
         }
       ]
     },
@@ -150,7 +157,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "M2-01/02通过；作者年龄题v1及常用信息题库已实际保存并复核。M2-03继续验证两份问卷复用，当前先创建作者问卷A并从题库选入v1。",
+  "notes": "M2-01/02通过；v1和题库已核对，作者A卷草稿选入v1成功。M2-03仍进行中，下一步创建作者B卷并从同一题库选入v1。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -302,6 +309,23 @@
           "version_id": "6ae2c6b698dabeb179606a74"
         }
       ]
+    },
+    "author_survey_a": {
+      "survey_id": "6ae2c8e385ebe82b69f840bf",
+      "title": "作者问卷A（v1）",
+      "status_at_check": "draft",
+      "is_anonymous": true,
+      "allow_repeat": true,
+      "question_id": "b5686c3da3a240c2bfd8ce4bbb8ba5dd",
+      "source": {
+        "question_id": "6ae2c6b698dabeb179606a73",
+        "version_id": "6ae2c6b698dabeb179606a74"
+      },
+      "validation": {
+        "min_value": 0,
+        "max_value": 120,
+        "integer_only": true
+      }
     }
   }
 }
