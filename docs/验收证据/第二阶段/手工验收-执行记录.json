@@ -193,7 +193,15 @@
       "id": "M2-06",
       "name": "部分问卷范围及未授权拒绝",
       "status": "进行中",
-      "evidence": []
+      "evidence": [
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "已提交",
+          "description": "E/F均为空白草稿。新增申请仅指定E卷、原题v2、p2_user需求者、p2_author出题者，状态pending且未审批；F无申请，旧v1用户级授权仍revoked。待审批拒绝及批准后范围区别尚待用户操作。",
+          "share_id": "6ae2d78d85ebe82b69f8416c"
+        }
+      ]
     },
     {
       "id": "M2-07",
@@ -347,7 +355,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "撤销用户级授权后的分支修改拒绝及D卷答案/统计保留已由用户确认并复核。下一步手机新建E/F空白草稿，用原题v2验证待审批及只授权指定问卷；不得提前认定部分授权通过。",
+  "notes": "E卷原题v2单卷申请已确认pending，F无申请，旧v1用户级授权已撤销。下一步手机打开原v2详情及E选题页检查待审批拒绝，不提前批准。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -715,6 +723,30 @@
       "d_submissions": 1,
       "d_average": "10.00",
       "branch_version_count": 2
+    },
+    "recipient_scope_drafts": {
+      "e": {
+        "survey_id": "6ae2d74e85ebe82b69f84162",
+        "title": "范围测试E",
+        "status_at_check": "draft",
+        "question_count": 0
+      },
+      "f": {
+        "survey_id": "6ae2d75985ebe82b69f84167",
+        "title": "范围测试F",
+        "status_at_check": "draft",
+        "question_count": 0
+      }
+    },
+    "selected_survey_request": {
+      "share_id": "6ae2d78d85ebe82b69f8416c",
+      "item_id": "6ae2c6b698dabeb179606a73",
+      "version_id": "6ae2cabf85ebe82b69f840d8",
+      "number": 2,
+      "survey_id": "6ae2d74e85ebe82b69f84162",
+      "status_at_check": "pending",
+      "requester": "p2_user",
+      "author": "p2_author"
     }
   },
   "execution_priority": "用户要求加快跨设备操作，先完成手机/电脑配合项，M2-04本地恢复v1暂后置，未记通过",
