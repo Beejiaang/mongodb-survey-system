@@ -149,13 +149,25 @@
           "quote": "A卷仍是120",
           "survey_id": "6ae2c8e385ebe82b69f840bf",
           "description": "用户确认页面中A卷最大值仍为120，与此前发布题目BSON哈希未变的数据库复核一致；未提供截图，未以浏览器当前地址代替用户实际确认。"
+        },
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "已生成",
+          "description": "新v3确实生成，但实际恢复自v2且上限100，与本次计划恢复v1不符；不记恢复v1通过。旧A卷快照未变，历史保留，恢复v1留待后续。",
+          "version_id": "6ae2cbaf85ebe82b69f840e0",
+          "number": 3,
+          "restored_from": "6ae2cabf85ebe82b69f840d8",
+          "max_value": 100,
+          "note": "恢复自v2",
+          "matches_planned_restore_v1": false
         }
       ]
     },
     {
       "id": "M2-05",
       "name": "用户级申请审批",
-      "status": "待执行",
+      "status": "进行中",
       "evidence": []
     },
     {
@@ -202,7 +214,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "原题v2上限100已保存，旧A卷仍上限120已通过用户页面确认及数据库快照复核；当前继续M2-04，待将v1恢复为新v3并检查完整历史及旧卷不变。",
+  "notes": "M2-01～03通过；M2-04仍进行中（实际v3恢复自v2，恢复v1待补）。优先M2-05，手机申请原题v1用户级范围、电脑批准、手机核对可见。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -424,6 +436,15 @@
       "a_max_value": 120,
       "b_max_value": 120,
       "bank_still_v1": true
+    },
+    "author_question_v3_actual": {
+      "version_id": "6ae2cbaf85ebe82b69f840e0",
+      "number": 3,
+      "restored_from": "6ae2cabf85ebe82b69f840d8",
+      "max_value": 100,
+      "note": "恢复自v2",
+      "matches_planned_restore_v1": false
     }
-  }
+  },
+  "execution_priority": "用户要求加快跨设备操作，先完成手机/电脑配合项，M2-04本地恢复v1暂后置，未记通过"
 }
