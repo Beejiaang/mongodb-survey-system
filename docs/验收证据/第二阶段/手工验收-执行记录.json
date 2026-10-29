@@ -119,7 +119,7 @@
     {
       "id": "M2-04",
       "name": "原题版本选择、历史恢复与发布固定",
-      "status": "进行中",
+      "status": "通过",
       "evidence": [
         {
           "kind": "用户文字确认＋数据库只读复核",
@@ -162,6 +162,34 @@
           "max_value": 100,
           "note": "恢复自v2",
           "matches_planned_restore_v1": false
+        },
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "v4已生成",
+          "description": "原题v4完整复制v1内容，上限120，恢复源及派生源为v1、先前默认版为v3，v1～v4完整保留。作者A/B、接收者C/D均固定原选版本，A发布哈希和题库v1条目未变。此前v3恢复自v2的实际历史保留。",
+          "version_id": "6ae2dd1a85ebe82b69f841c7",
+          "number": 4,
+          "max_value": 120,
+          "restored_from_version_id": "6ae2c6b698dabeb179606a74",
+          "parent_version_id": "6ae2c6b698dabeb179606a74",
+          "previous_version_id": "6ae2cbaf85ebe82b69f840e0",
+          "content_equal_v1": true,
+          "history_numbers": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "history_max_values": [
+            120,
+            100,
+            100,
+            120
+          ],
+          "published_a_hash_unchanged": true,
+          "bank_pinned_v1": true,
+          "existing_surveys_pinned": true
         }
       ]
     },
@@ -476,7 +504,7 @@
     {
       "id": "M2-12",
       "name": "手机填写与页面交互",
-      "status": "进行中",
+      "status": "通过",
       "evidence": [
         {
           "kind": "用户文字确认＋数据库/统计函数只读复核",
@@ -493,12 +521,26 @@
           "date": "2026-10-29",
           "quote": "都符合",
           "description": "手机撤销后再次填写旧D卷并提交20成功，正式提交与时间已核对；本阶段非法输入、复制等交互仍待验。"
+        },
+        {
+          "kind": "用户明确要求沿用第一阶段证据",
+          "date": "2026-10-29",
+          "quote": "这些之前都测过了，不用在测了",
+          "description": "按用户要求，本阶段不重复中文数字、小数整数、上下限和手机复制检查；沿用第一阶段2026-10-22手工校验补测证据，含数字/文本限制、回执刷新、手机复制，设备为当时小米15 Ultra自带浏览器。本阶段已实际完成选题、分支编辑、申请及多次跨设备填写提交。此状态表示本轮约定范围完成，不声称本阶段重新执行基础交互或确认当前设备。",
+          "inherited_evidence": "docs/验收证据/手工校验补测/执行记录.json",
+          "inherited_stage": "第一阶段",
+          "not_repeated_in_phase2": [
+            "非法数字格式",
+            "整数及上下限边界",
+            "文本长度边界",
+            "复制链接"
+          ]
         }
       ]
     }
   ],
   "phone_confirmed": true,
-  "notes": "M2-09通过：真实双端页面确认同版跨卷汇总与所有者/版本隔离。手机待补当前阶段非法数字输入与复制交互、设备环境；本地恢复v1及草稿替换/调序/跳转清空仍待验。",
+  "notes": "M2-04恢复v1生成v4已通过；M2-12新增流程本阶段实测，基础校验/复制按用户要求沿用第一阶段、不重测。M2-08草稿替换/调序/删除跳转清空仍待实际执行。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -967,6 +1009,30 @@
         "answered": 2,
         "average": "15.00"
       }
+    },
+    "author_restored_v4": {
+      "version_id": "6ae2dd1a85ebe82b69f841c7",
+      "number": 4,
+      "max_value": 120,
+      "restored_from_version_id": "6ae2c6b698dabeb179606a74",
+      "parent_version_id": "6ae2c6b698dabeb179606a74",
+      "previous_version_id": "6ae2cbaf85ebe82b69f840e0",
+      "content_equal_v1": true,
+      "history_numbers": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "history_max_values": [
+        120,
+        100,
+        100,
+        120
+      ],
+      "published_a_hash_unchanged": true,
+      "bank_pinned_v1": true,
+      "existing_surveys_pinned": true
     }
   },
   "execution_priority": "用户要求加快跨设备操作，先完成手机/电脑配合项，M2-04本地恢复v1暂后置，未记通过",
@@ -979,5 +1045,11 @@
       "user_feedback": "好的分支已保存",
       "description": "用户在提供新地址后确认手机分支已保存；未独立读取手机地址或会话。"
     }
-  ]
+  ],
+  "scope_adjustment": {
+    "user_quote": "这些之前都测过了，不用在测了",
+    "date": "2026-10-29",
+    "decision": "基础输入校验和复制沿用第一阶段实测，本阶段不重测，新增共享/分支流程保留本阶段证据",
+    "inherited_evidence": "docs/验收证据/手工校验补测/执行记录.json"
+  }
 }
