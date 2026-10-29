@@ -322,7 +322,7 @@
     {
       "id": "M2-10",
       "name": "原作者只读开放引用问卷",
-      "status": "进行中",
+      "status": "通过",
       "evidence": [
         {
           "kind": "用户电脑页面文字确认",
@@ -352,6 +352,18 @@
           "status": "closed",
           "submitted_count": 2,
           "average": "15.00"
+        },
+        {
+          "kind": "用户双端页面文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "都符合",
+          "description": "用户确认E卷发布且设置短截止时间后，作者截止前可只读预览题目，截止后刷新拒绝全文；数据库核对仍published但截止已到、有效状态非开放。结合开放C/D可读、E草稿与D关闭拒绝、C结果页拒绝，M2-10通过。",
+          "survey_id": "6ae2d74e85ebe82b69f84162",
+          "stored_status": "published",
+          "availability": "expired",
+          "deadline_utc": "2026-10-29T05:33:00+00:00",
+          "checked_at_utc": "2026-10-29T05:33:47.813948+00:00",
+          "question_source_version_id": "6ae2cabf85ebe82b69f840d8"
         }
       ]
     },
@@ -427,7 +439,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "D卷已关闭，作者预览拒绝且手机已有统计保留，用户确认并只读核对。M2-10尚待截止状态；下一步在仍为草稿且已有原v2题的E卷设置短截止时间并发布。",
+  "notes": "M2-10通过：原作者开放引用卷只读可访，草稿/关闭/截止均拒绝，接收者回答不开放。下一步作者发布B，手机填写作者A=20、B=40，以核对作者原v1跨卷均值30及接收者统计独立。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -854,6 +866,14 @@
       "status": "closed",
       "submitted_count": 2,
       "average": "15.00"
+    },
+    "expired_e": {
+      "survey_id": "6ae2d74e85ebe82b69f84162",
+      "stored_status": "published",
+      "availability": "expired",
+      "deadline_utc": "2026-10-29T05:33:00+00:00",
+      "checked_at_utc": "2026-10-29T05:33:47.813948+00:00",
+      "question_source_version_id": "6ae2cabf85ebe82b69f840d8"
     }
   },
   "execution_priority": "用户要求加快跨设备操作，先完成手机/电脑配合项，M2-04本地恢复v1暂后置，未记通过",
