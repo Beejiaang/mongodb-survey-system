@@ -39,7 +39,7 @@
     {
       "id": "M2-02",
       "name": "双账号注册登录",
-      "status": "进行中",
+      "status": "通过",
       "evidence": [
         {
           "kind": "用户文字确认＋数据库只读复核",
@@ -54,13 +54,27 @@
             "surveys": 0,
             "responses": 0
           }
+        },
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "登录好了",
+          "account": "p2_user",
+          "user_id": "6ae2c5ef98dabeb179606a67",
+          "database_counts": {
+            "users": 2,
+            "surveys": 0,
+            "responses": 0,
+            "question_items": 0
+          },
+          "description": "用户确认按指引手机登录接收者；结合此前电脑p2_author确认及两账号数据库记录，双账号步骤通过。无截图，不声称独立读取了两端会话。"
         }
       ]
     },
     {
       "id": "M2-03",
       "name": "常用题与个人题库复用",
-      "status": "待执行",
+      "status": "进行中",
       "evidence": []
     },
     {
@@ -119,7 +133,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "新网络手机连通及电脑p2_author登录已由用户确认；M2-02仍进行中，待手机接收者p2_user注册/登录，其余业务项待执行。",
+  "notes": "新网络手机连通和两端账号已由用户分别确认，数据库验证两账号存在；M2-03进行中，先创建作者常用数字题，其他业务待执行。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -235,5 +249,17 @@
     "users": 1,
     "surveys": 0,
     "responses": 0
+  },
+  "role_accounts": {
+    "author": {
+      "username": "p2_author",
+      "user_id": "6ae2bd1598dabeb179606a61",
+      "device": "电脑"
+    },
+    "recipient": {
+      "username": "p2_user",
+      "user_id": "6ae2c5ef98dabeb179606a67",
+      "device": "手机"
+    }
   }
 }
