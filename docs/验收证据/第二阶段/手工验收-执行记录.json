@@ -198,7 +198,7 @@
     {
       "id": "M2-07",
       "name": "用户名修改分支与编号独立",
-      "status": "进行中",
+      "status": "通过",
       "evidence": [
         {
           "kind": "用户文字确认＋数据库只读复核",
@@ -229,6 +229,26 @@
             "6ae2d26d85ebe82b69f84103",
             "6ae2d2aa85ebe82b69f8410e"
           ]
+        },
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "已保存",
+          "description": "手机继续修改个人分支新增v3上限70，父版本及先前默认版均为分支v2；v2上限80与已发布D卷来源及上限保留，原作者v1/v2/v3及A卷不变，D卷原答案和平均10.00保留。原作者和p2_user分支分别计数，M2-07通过。",
+          "item_id": "6ae2d18985ebe82b69f840fa",
+          "version_id": "6ae2d5de85ebe82b69f8414b",
+          "number": 3,
+          "max_value": 70,
+          "parent_version_id": "6ae2d18985ebe82b69f840fb",
+          "previous_version_id": "6ae2d18985ebe82b69f840fb",
+          "change_note": "新版本",
+          "v2_max_value": 80,
+          "published_d_source_version": "6ae2d18985ebe82b69f840fb",
+          "published_d_max_value": 80,
+          "d_submissions": 1,
+          "d_average": "10.00",
+          "original_versions_unchanged": true,
+          "published_a_hash_unchanged": true
         }
       ]
     },
@@ -311,7 +331,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "作者只读预览开放C/D成功，直接访问C卷结果被拒绝，用户文字确认。M2-10仍待非开放状态验证；下一步手机分支v2继续生成为v3，核对已发布D卷仍固定v2。",
+  "notes": "M2-07通过：手机分支v2→v3，原版独立编号，旧D卷仍v2且统计保留。接下来验证撤销用户级授权后拒绝新修改/导入，已发布问卷和已有回答保留。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -652,6 +672,22 @@
         "average": null
       },
       "scope": "只读数据库与实际统计函数核对；两端统计页面人工核对及作者自有答案样本尚待执行。"
+    },
+    "recipient_branch_v3": {
+      "item_id": "6ae2d18985ebe82b69f840fa",
+      "version_id": "6ae2d5de85ebe82b69f8414b",
+      "number": 3,
+      "max_value": 70,
+      "parent_version_id": "6ae2d18985ebe82b69f840fb",
+      "previous_version_id": "6ae2d18985ebe82b69f840fb",
+      "change_note": "新版本",
+      "v2_max_value": 80,
+      "published_d_source_version": "6ae2d18985ebe82b69f840fb",
+      "published_d_max_value": 80,
+      "d_submissions": 1,
+      "d_average": "10.00",
+      "original_versions_unchanged": true,
+      "published_a_hash_unchanged": true
     }
   },
   "execution_priority": "用户要求加快跨设备操作，先完成手机/电脑配合项，M2-04本地恢复v1暂后置，未记通过",
