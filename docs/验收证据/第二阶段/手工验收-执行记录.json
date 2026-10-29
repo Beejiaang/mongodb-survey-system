@@ -192,7 +192,7 @@
     {
       "id": "M2-06",
       "name": "部分问卷范围及未授权拒绝",
-      "status": "进行中",
+      "status": "通过",
       "evidence": [
         {
           "kind": "用户文字确认＋数据库只读复核",
@@ -206,6 +206,24 @@
           "date": "2026-10-29",
           "quote": "待审批不可用",
           "description": "用户确认手机直接访问原题v2详情被拒绝，E卷选题页无法选入原题v2。数据库复核申请仍pending，E卷仍为空。未提供截图；批准后仅E可用及禁止分支仍待验证。"
+        },
+        {
+          "kind": "用户双端页面文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "符合的",
+          "description": "用户确认作者批准仅E范围后，手机E成功选入原v2上限100，F不能选入，直接派生原v2分支被拒绝。数据库核对单卷approved、E确切v2且仍草稿、F空白草稿、未产生v2分支，旧v1用户授权仍revoked；结合此前待审批负例，M2-06通过。",
+          "share_id": "6ae2d78d85ebe82b69f8416c",
+          "status": "approved",
+          "survey_id": "6ae2d74e85ebe82b69f84162",
+          "version_id": "6ae2cabf85ebe82b69f840d8",
+          "e_question_id": "e5e9c3b5c38a4ef9b0d908d07b100513",
+          "e_source_version_id": "6ae2cabf85ebe82b69f840d8",
+          "e_max_value": 100,
+          "e_status": "draft",
+          "f_status": "draft",
+          "f_question_count": 0,
+          "old_user_grant_status": "revoked",
+          "source_v2_branch_count": 0
         }
       ]
     },
@@ -339,6 +357,12 @@
           "d_submissions": 1,
           "d_average": "10.00",
           "branch_version_count": 2
+        },
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "符合的",
+          "description": "旧v1用户级授权已撤销时，独立原v2单卷授权仍可用于E，不能用于F或派生分支。旧卷继续填写与撤销后新导入拒绝仍待补验。"
         }
       ]
     },
@@ -361,7 +385,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "原题v2仅E申请仍pending；用户确认待审详情拒绝及选题不可用。下一步作者批准仅E范围，手机比较E可选、F不可选及部分授权不可派生分支。",
+  "notes": "M2-06通过：原v2仅E可选、F不可选、不可派生分支，待审批与批准后范围均完成用户核对。接下来电脑作者验证E草稿拒绝预览；仍有作者跨卷样本、关闭/截止、旧卷继续填写及本地恢复等待验。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -753,6 +777,20 @@
       "status_at_check": "pending",
       "requester": "p2_user",
       "author": "p2_author"
+    },
+    "selected_survey_approval": {
+      "share_id": "6ae2d78d85ebe82b69f8416c",
+      "status": "approved",
+      "survey_id": "6ae2d74e85ebe82b69f84162",
+      "version_id": "6ae2cabf85ebe82b69f840d8",
+      "e_question_id": "e5e9c3b5c38a4ef9b0d908d07b100513",
+      "e_source_version_id": "6ae2cabf85ebe82b69f840d8",
+      "e_max_value": 100,
+      "e_status": "draft",
+      "f_status": "draft",
+      "f_question_count": 0,
+      "old_user_grant_status": "revoked",
+      "source_v2_branch_count": 0
     }
   },
   "execution_priority": "用户要求加快跨设备操作，先完成手机/电脑配合项，M2-04本地恢复v1暂后置，未记通过",
