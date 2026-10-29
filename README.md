@@ -191,6 +191,12 @@ git push
 
 ### 保存报告为PDF
 
+第二阶段最新报告PDF见[第二阶段项目完成报告](output/pdf/第二阶段项目完成报告.pdf)，导出来源为[最新报告正文](docs/审批稿/第二阶段项目完成报告.md)。该来源已清理定稿提示，目录名保留以兼容已有链接。共8页，中文、分页、表格和链接检查见[第二阶段PDF检查记录](docs/验收证据/第二阶段/报告PDF验证.json)。重新导出时执行：
+
+```powershell
+.\.venv\Scripts\python.exe tools/export_report_pdf.py --source "docs/审批稿/第二阶段项目完成报告.md" --output "output/pdf/第二阶段项目完成报告.pdf"
+```
+
 已提供[项目完成报告PDF](output/pdf/2026_ECNU_PJ1_1_高顾翔.pdf)，包含中文字体、表格、架构图、页码及指向GitHub材料的链接。Markdown是编辑源文件，修改后需重新导出PDF。
 
 Windows项目目录中可运行：

@@ -1,6 +1,7 @@
 """提交文档与实际路由、schema、索引和示例保持一致。"""
 
 import ast
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -77,6 +78,10 @@ class DocumentationTests(unittest.TestCase):
 
         review = DOCS / "审批稿"
         draft = (review / "第二阶段项目完成报告.md").read_text(encoding="utf-8")
+        pdf_check = json.loads((DOCS / "验收证据/第二阶段/报告PDF验证.json").read_text(encoding="utf-8"))
+        for key in ("source", "pdf"):
+            self.assertEqual(hashlib.sha256((ROOT / pdf_check[key]).read_bytes()).hexdigest(),
+                             pdf_check[key + "_sha256"], "PDF与源报告需重新导出并核验")
         for placeholder in ("待用户审批", "待本人确认", "获批后", "审批前保留"):
             self.assertNotIn(placeholder, draft)
         self.assertIn("用户级待审批负例仅有自动P2-54", draft)

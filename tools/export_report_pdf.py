@@ -30,7 +30,7 @@ GRAY = colors.HexColor("#63706a")
 WIDTH = A4[0] - 92
 
 
-def inline(text):
+def inline(text, base_url=REPO + "docs/"):
     """Escape source text and support only the inline forms used by this report."""
     parts = []
     pattern = r"(`[^`]+`|\[[^\]]+\]\([^)]+\)|\*\*[^*]+\*\*)"
@@ -40,7 +40,7 @@ def inline(text):
         elif token.startswith("[") and (match := re.fullmatch(r"\[([^\]]+)\]\(([^)]+)\)", token)):
             label, target = match.groups()
             if not target.startswith(("https://", "http://", "#")):
-                target = urljoin(REPO + "docs/", quote(target, safe="/"))
+                target = urljoin(base_url, quote(target, safe="/"))
             parts.append('<a color="#25574b" href="' + escape(target, quote=True) + '">' + escape(label) + "</a>")
         elif token.startswith("**") and token.endswith("**"):
             parts.append('<font name="ReportHeading">' + escape(token[2:-2]) + "</font>")
@@ -95,6 +95,9 @@ def architecture(source):
 
 
 def export(source, output, font, heading_font):
+    source = source.resolve()
+    base_url = REPO + quote(source.parent.relative_to(ROOT).as_posix(), safe="/") + "/"
+    render_inline = lambda text: inline(text, base_url)
     pdfmetrics.registerFont(TTFont("ReportText", str(font), subfontIndex=0))
     pdfmetrics.registerFont(TTFont("ReportHeading", str(heading_font), subfontIndex=0))
     styles = {
@@ -138,7 +141,7 @@ def export(source, output, font, heading_font):
                 raise ValueError("Inconsistent Markdown table columns")
             proportions={2:[0.25,0.75],3:[0.22,0.36,0.42],4:[0.19,0.25,0.30,0.26]}
             widths=[WIDTH*x for x in proportions.get(n,[1/n]*n)]
-            table=Table([[Paragraph(inline(x),styles["header" if ri==0 else "cell"])
+            table=Table([[Paragraph(render_inline(x),styles["header" if ri==0 else "cell"])
                           for x in row] for ri,row in enumerate(rows)],colWidths=widths,repeatRows=1,hAlign="LEFT")
             table.setStyle(TableStyle([
                 ("VALIGN",(0,0),(-1,-1),"TOP"),
@@ -151,18 +154,20 @@ def export(source, output, font, heading_font):
             ]))
             story.extend([table,Spacer(1,9)]); continue
         if match:=re.match(r"^(#{1,3})\s+(.+)$",line):
-            level=len(match[1]); story.append(Paragraph(inline(match[2]),styles[{1:"title",2:"h2",3:"h3"}[level]]))
+            level=len(match[1]); story.append(Paragraph(render_inline(match[2]),styles[{1:"title",2:"h2",3:"h3"}[level]]))
             i+=1; continue
         if re.match(r"^(?:[-*] |\d+\. |>|#{4})",line):
             raise ValueError("Unsupported Markdown block: "+line)
         paragraph=[line]; i+=1
         while i<len(lines) and lines[i].strip() and not lines[i].lstrip().startswith(("#","|","```")):
             paragraph.append(lines[i].strip()); i+=1
-        story.append(Paragraph(inline(" ".join(paragraph)),styles["body"]))
+        story.append(Paragraph(render_inline(" ".join(paragraph)),styles["body"]))
     output.parent.mkdir(parents=True,exist_ok=True)
+    title = next(line[2:].strip() for line in lines if line.startswith("# "))
+    stage = "第二阶段" if "第二阶段" in title else "第一阶段"
     doc=SimpleDocTemplate(str(output),pagesize=A4,rightMargin=46,leftMargin=46,
-                          topMargin=48,bottomMargin=45,title="基于MongoDB的问卷系统：项目完成报告",
-                          author="",subject="当代数据管理系统第一次大作业，第一阶段项目完成报告")
+                          topMargin=48,bottomMargin=45,title=title,
+                          author="",subject=f"当代数据管理系统第一次大作业，{stage}项目完成报告")
     def page(canvas,doc):
         canvas.saveState()
         canvas.setFont("ReportText",8); canvas.setFillColor(GRAY)

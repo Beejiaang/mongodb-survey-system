@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-29",
+  "source": "docs/审批稿/第二阶段项目完成报告.md",
+  "pdf": "output/pdf/第二阶段项目完成报告.pdf",
+  "source_sha256": "8513c1325413e24f7f48168b8f9608a1deee9f9f8324ad7e7ed21974e8a5f433",
+  "pdf_sha256": "ec8871b29a3a023365af19507ddd190c45bf7e7d2bf74e155557fe8dfc387d11",
+  "pages": 8,
+  "checks": {
+    "required_headings": true,
+    "repository_url": true,
+    "no_review_placeholders": true,
+    "stage_metadata": true,
+    "all_markdown_links_in_pdf": true,
+    "link_count": 19,
+    "legacy_and_nested_link_resolution": true,
+    "visual_review_all_pages": "通过：中文、表格、分页、页码无截断或重叠",
+    "documentation_tests": 7
+  },
+  "business_suite_rerun": false
+}
