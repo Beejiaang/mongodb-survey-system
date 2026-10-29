@@ -3,13 +3,13 @@
   "status": "进行中",
   "mode": "电脑＋手机真实跨设备",
   "database": "survey_manual_p2_20261029_113e12f7bb87489caf581621c02bbb39",
-  "url": "http://10.131.37.121:5002/",
+  "url": "http://192.168.31.94:5002/",
   "phone_model": "待确认",
   "phone_browser": "待确认",
   "server_http_checks": {
     "http://127.0.0.1:5002/": 200,
-    "http://10.131.37.121:5002/": 200,
-    "http://10.131.37.121:5002/register": 200
+    "http://192.168.31.94:5002/": 200,
+    "http://192.168.31.94:5002/register": 200
   },
   "initial_collection_counts": {
     "users": 0,
@@ -25,35 +25,14 @@
     {
       "id": "M2-01",
       "name": "手机连通",
-      "status": "通过",
-      "evidence": [
-        {
-          "kind": "用户文字确认",
-          "date": "2026-10-29",
-          "quote": "可打开",
-          "description": "用户确认手机可以打开验收地址；未提供截图，不声称已完成登录或业务操作"
-        }
-      ]
+      "status": "进行中",
+      "evidence": []
     },
     {
       "id": "M2-02",
       "name": "双账号注册登录",
-      "status": "进行中",
-      "evidence": [
-        {
-          "kind": "用户文字确认＋数据库只读复核",
-          "date": "2026-10-29",
-          "quote": "已登录",
-          "account": "p2_author",
-          "user_id": "6ae2bd1598dabeb179606a61",
-          "database_observed": {
-            "user_count": 1,
-            "survey_count": 0,
-            "response_count": 0
-          },
-          "description": "用户确认按指引在电脑登录；数据库证明作者账号存在，不将数据库存在视为独立浏览器登录证据。手机接收者尚待注册登录。"
-        }
-      ]
+      "status": "待执行",
+      "evidence": []
     },
     {
       "id": "M2-03",
@@ -116,6 +95,122 @@
       "evidence": []
     }
   ],
-  "phone_confirmed": true,
-  "notes": "手机连通通过；用户确认电脑作者p2_author已登录，数据库已核对注册；M2-02仍进行中，待手机接收者账号。"
+  "phone_confirmed": false,
+  "notes": "服务仍监听0.0.0.0:5002，新LAN地址本机HTTP200；手机在新网络连通待确认，之后重登现有账号。",
+  "network_history": [
+    {
+      "url": "http://10.131.37.121:5002/",
+      "phone_confirmed": true,
+      "checks": [
+        {
+          "id": "M2-01",
+          "name": "手机连通",
+          "status": "通过",
+          "evidence": [
+            {
+              "kind": "用户文字确认",
+              "date": "2026-10-29",
+              "quote": "可打开",
+              "description": "用户确认手机可以打开验收地址；未提供截图，不声称已完成登录或业务操作"
+            }
+          ]
+        },
+        {
+          "id": "M2-02",
+          "name": "双账号注册登录",
+          "status": "进行中",
+          "evidence": [
+            {
+              "kind": "用户文字确认＋数据库只读复核",
+              "date": "2026-10-29",
+              "quote": "已登录",
+              "account": "p2_author",
+              "user_id": "6ae2bd1598dabeb179606a61",
+              "database_observed": {
+                "user_count": 1,
+                "survey_count": 0,
+                "response_count": 0
+              },
+              "description": "用户确认按指引在电脑登录；数据库证明作者账号存在，不将数据库存在视为独立浏览器登录证据。手机接收者尚待注册登录。"
+            }
+          ]
+        },
+        {
+          "id": "M2-03",
+          "name": "常用题与个人题库复用",
+          "status": "待执行",
+          "evidence": []
+        },
+        {
+          "id": "M2-04",
+          "name": "原题版本选择、历史恢复与发布固定",
+          "status": "待执行",
+          "evidence": []
+        },
+        {
+          "id": "M2-05",
+          "name": "用户级申请审批",
+          "status": "待执行",
+          "evidence": []
+        },
+        {
+          "id": "M2-06",
+          "name": "部分问卷范围及未授权拒绝",
+          "status": "待执行",
+          "evidence": []
+        },
+        {
+          "id": "M2-07",
+          "name": "用户名修改分支与编号独立",
+          "status": "待执行",
+          "evidence": []
+        },
+        {
+          "id": "M2-08",
+          "name": "草稿替换、调序和跳转清空",
+          "status": "待执行",
+          "evidence": []
+        },
+        {
+          "id": "M2-09",
+          "name": "跨问卷按版本统计及所有者数据隔离",
+          "status": "待执行",
+          "evidence": []
+        },
+        {
+          "id": "M2-10",
+          "name": "原作者只读开放引用问卷",
+          "status": "待执行",
+          "evidence": []
+        },
+        {
+          "id": "M2-11",
+          "name": "撤销及已有问卷/回答保留",
+          "status": "待执行",
+          "evidence": []
+        },
+        {
+          "id": "M2-12",
+          "name": "手机填写与页面交互",
+          "status": "待执行",
+          "evidence": []
+        }
+      ],
+      "server_http_checks": {
+        "http://127.0.0.1:5002/": 200,
+        "http://10.131.37.121:5002/": 200,
+        "http://10.131.37.121:5002/register": 200
+      },
+      "description": "用户切换网络前的历史结果保留，不作为新网络通过证据"
+    }
+  ],
+  "restart_reason": "用户换网后要求从连通检查重新开始；保留已有账号和旧证据，不清空数据库",
+  "restart_database_observed": {
+    "accounts": [
+      "p2_author"
+    ],
+    "users": 1,
+    "surveys": 0,
+    "responses": 0
+  }
 }
