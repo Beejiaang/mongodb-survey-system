@@ -75,7 +75,16 @@
       "id": "M2-03",
       "name": "常用题与个人题库复用",
       "status": "进行中",
-      "evidence": []
+      "evidence": [
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "已保存",
+          "description": "p2_author已创建常用数字题v1，标题、必答、0～120整数限制与计划一致。当前尚无题库和问卷，入库及多卷复用未执行。",
+          "item_id": "6ae2c6b698dabeb179606a73",
+          "version_id": "6ae2c6b698dabeb179606a74"
+        }
+      ]
     },
     {
       "id": "M2-04",
@@ -133,7 +142,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "新网络手机连通和两端账号已由用户分别确认，数据库验证两账号存在；M2-03进行中，先创建作者常用数字题，其他业务待执行。",
+  "notes": "M2-01/02通过；作者常用数字题v1已保存且配置经数据库核对。M2-03仍进行中，待创建题库、固定v1并验证多卷复用。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -260,6 +269,21 @@
       "username": "p2_user",
       "user_id": "6ae2c5ef98dabeb179606a67",
       "device": "手机"
+    }
+  },
+  "assets": {
+    "author_question": {
+      "item_id": "6ae2c6b698dabeb179606a73",
+      "version_id": "6ae2c6b698dabeb179606a74",
+      "number": 1,
+      "title": "年龄（请使用阿拉伯数字回答）",
+      "required": true,
+      "input_type": "number",
+      "validation": {
+        "min_value": 0,
+        "max_value": 120,
+        "integer_only": true
+      }
     }
   }
 }
