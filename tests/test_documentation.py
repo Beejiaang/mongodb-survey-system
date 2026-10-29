@@ -51,6 +51,17 @@ class DocumentationTests(unittest.TestCase):
         self.assertNotIn("## 2026年10月15日 接续项目并修正首页", second_ai)
         second_report = (DOCS / "第二阶段项目完成报告.md").read_text(encoding="utf-8")
         self.assertIn("](第二阶段AI使用日志.md)", second_report)
+        manual = (DOCS / "第二阶段手工验收.md").read_text(encoding="utf-8")
+        execution = json.loads((DOCS / "验收证据" / "第二阶段" / "手工验收-执行记录.json").read_text(encoding="utf-8"))
+        rows = dict(re.findall(r"^\| (M2-\d{2}) \| (.+) \|$", manual, re.M))
+        self.assertEqual(set(rows), {step["id"] for step in execution["checks"]})
+        self.assertEqual(len(rows), 12)
+        self.assertEqual(execution["mode"], "电脑＋手机真实跨设备")
+        for step in execution["checks"]:
+            self.assertIn(step["status"], ("待执行", "进行中", "通过", "失败", "阻塞"))
+            self.assertIn(step["status"], rows[step["id"]])
+            if step["status"] == "通过":
+                self.assertTrue(step["evidence"], "手工通过必须保留实际证据说明")
         numeric_row = re.search(r"^\| 数字填空 \| ([a-z_、]+) \|", source, re.M)
         self.assertIsNotNone(numeric_row)
         self.assertEqual(tuple(numeric_row.group(1).split("、")),
