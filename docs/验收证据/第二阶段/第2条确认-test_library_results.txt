@@ -1,0 +1,13 @@
+test_choice_counts_and_html_chart_payload_follow_the_pinned_options (test_library_results.LibraryResultTests.test_choice_counts_and_html_chart_payload_follow_the_pinned_options) ... ok
+test_invalid_pages_versions_and_private_versions_are_rejected (test_library_results.LibraryResultTests.test_invalid_pages_versions_and_private_versions_are_rejected) ... ok
+test_numeric_cross_survey_totals_exclude_other_versions_owners_and_drafts (test_library_results.LibraryResultTests.test_numeric_cross_survey_totals_exclude_other_versions_owners_and_drafts) ... ok
+test_repeated_instances_count_answers_but_not_duplicate_submission_totals (test_library_results.LibraryResultTests.test_repeated_instances_count_answers_but_not_duplicate_submission_totals) ... ok
+test_revocation_preserves_own_statistics_and_never_opens_other_answers (test_library_results.LibraryResultTests.test_revocation_preserves_own_statistics_and_never_opens_other_answers) ... ok
+test_saved_legacy_question_includes_original_answers_without_changing_revision (test_library_results.LibraryResultTests.test_saved_legacy_question_includes_original_answers_without_changing_revision) ... ok
+test_skipped_and_optional_blank_are_separate_and_do_not_enter_average (test_library_results.LibraryResultTests.test_skipped_and_optional_blank_are_separate_and_do_not_enter_average) ... ok
+test_text_pagination_preserves_all_values_without_charts_or_identities (test_library_results.LibraryResultTests.test_text_pagination_preserves_all_values_without_charts_or_identities) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 3.554s
+
+OK

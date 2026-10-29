@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-29",
+  "status": "通过",
+  "scope": "共享同题双方答案与统计隔离、撤销保留及继续填写、文档一致性",
+  "results": [
+    {
+      "pattern": "test_library_results.py",
+      "tests": 8,
+      "exit_code": 0,
+      "log": "第2条确认-test_library_results.txt",
+      "sha256": "1a088c9bfb938aeefea1fc6c308d5c91a35e938474c8de009b5b0e53b2717111"
+    },
+    {
+      "pattern": "test_sharing.py",
+      "tests": 12,
+      "exit_code": 0,
+      "log": "第2条确认-test_sharing.txt",
+      "sha256": "a719322dcaa042824177fe76768b8ca9469b66f12227ed0492e655c2031c4dc8"
+    },
+    {
+      "pattern": "test_documentation.py",
+      "tests": 7,
+      "exit_code": 0,
+      "log": "第2条确认-test_documentation.txt",
+      "sha256": "72547a595f71274db5554d510c4dbc37a604f0eb40cc675d3db5698ae34b1b52"
+    }
+  ],
+  "business_code_changed": false,
+  "full_suite_rerun": false,
+  "phone_test": "未执行",
+  "initial_connection_failure": "第2条确认-首次连接失败.txt",
+  "recovery": "使用原start-mongod.ps1 -Background启动本机MongoDB后重跑"
+}

@@ -42,7 +42,8 @@ class LibraryResultTests(StageTwoFixture):
         self.submit(a, [0]);self.submit(a, [10]);self.submit(b, [20])
         v2 = create_version(self.database, iid, self.owner, v1, dict(q, title="新版年龄"))
         self.submit(self.survey(v2), [90])
-        self.submit(self.survey(v1, self.other), [1000])
+        shared_sid = self.survey(v1, self.other)
+        self.submit(shared_sid, [1000])
         rid = start_response(self.database, a, self.third, self.secret)
         update_progress(self.database, a, rid, self.third, self.secret, 0, "next", 100)
         result = summarize_version(self.database, v1, self.owner)
@@ -50,6 +51,20 @@ class LibraryResultTests(StageTwoFixture):
         self.assertEqual(result["average"], "10.00")
         self.assertEqual(sum(x["count"] for x in result["chart"]["series"]), 3)
         self.assertEqual(summarize_version(self.database, v2, self.owner)["average"], "90.00")
+        # Both directions stay private even when the exact same version is shared.
+        other_result = summarize_version(self.database, v1, self.other)
+        self.assertEqual((other_result["survey_count"], other_result["answered"], other_result["average"]),
+                         (1, 1, "1000.00"))
+        self.assertEqual([a["value"] for a in other_result["answers"]], [1000])
+        self.assertEqual(sorted(a["value"] for a in result["answers"]), [0, 10, 20])
+        shared_qid = self.database.surveys.find_one({"_id": shared_sid})["questions"][0]["id"]
+        self.assertEqual(self.client.get(f"/surveys/{shared_sid}/results").status_code, 404)
+        self.assertEqual(self.client.get(f"/surveys/{shared_sid}/results/questions/{shared_qid}").status_code, 404)
+        self.login(self.other)
+        own_qid = self.database.surveys.find_one({"_id": a})["questions"][0]["id"]
+        self.assertEqual(self.client.get(f"/surveys/{a}/results").status_code, 404)
+        self.assertEqual(self.client.get(f"/surveys/{a}/results/questions/{own_qid}").status_code, 404)
+        self.assertIn("1000.00", self.client.get(f"/library/versions/{v1}/results").get_data(as_text=True))
 
     def test_choice_counts_and_html_chart_payload_follow_the_pinned_options(self):
         options = [{"id":"a","text":"<script>甲</script>"},{"id":"b","text":"乙"}]
@@ -120,6 +135,12 @@ class LibraryResultTests(StageTwoFixture):
         self.assertIn("7.00",response.get_data(as_text=True))
         self.assertEqual(self.client.get(f"/library/items/{iid}").status_code,404)
         self.assertEqual(self.client.get(f"/surveys/{sid}/results").status_code,200)
+        frozen_questions = deepcopy(self.database.surveys.find_one({"_id":sid})["questions"])
+        self.submit(sid,[9])  # Revocation does not stop the existing survey collecting answers.
+        result = summarize_version(self.database,vid,self.other)
+        self.assertEqual((result["answered"],result["average"]),(2,"8.00"))
+        self.assertEqual(self.database.surveys.find_one({"_id":sid})["questions"],frozen_questions)
+        self.assertEqual(summarize_version(self.database,vid,self.owner)["answered"],0)
 
     def test_invalid_pages_versions_and_private_versions_are_rejected(self):
         _,vid=self.item(build_question("fill_blank","数字",input_type="number"))

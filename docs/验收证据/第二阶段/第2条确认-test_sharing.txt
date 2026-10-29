@@ -1,0 +1,17 @@
+test_concurrent_duplicate_requests_and_direct_grants_have_one_active_record (test_sharing.SharingTests.test_concurrent_duplicate_requests_and_direct_grants_have_one_active_record) ... ok
+test_direct_grant_validates_recipient_survey_version_and_draft (test_sharing.SharingTests.test_direct_grant_validates_recipient_survey_version_and_draft) ... ok
+test_grant_does_not_cover_other_surveys_or_future_versions (test_sharing.SharingTests.test_grant_does_not_cover_other_surveys_or_future_versions) ... ok
+test_old_user_wide_grants_no_longer_authorize_any_import (test_sharing.SharingTests.test_old_user_wide_grants_no_longer_authorize_any_import) ... ok
+test_participants_only_and_grants_never_open_answers (test_sharing.SharingTests.test_participants_only_and_grants_never_open_answers) ... ok
+test_pending_request_denies_content_use_and_only_owner_can_approve (test_sharing.SharingTests.test_pending_request_denies_content_use_and_only_owner_can_approve) ... ok
+test_reject_reapply_and_stale_decision_preserve_history (test_sharing.SharingTests.test_reject_reapply_and_stale_decision_preserve_history) ... ok
+test_request_validation_rejects_foreign_survey_self_missing_and_bad_inputs (test_sharing.SharingTests.test_request_validation_rejects_foreign_survey_self_missing_and_bad_inputs) ... ok
+test_revocation_blocks_new_imports_preserves_snapshot_and_other_grants (test_sharing.SharingTests.test_revocation_blocks_new_imports_preserves_snapshot_and_other_grants) ... ok
+test_share_schema_unique_active_index_and_published_pending_approval (test_sharing.SharingTests.test_share_schema_unique_active_index_and_published_pending_approval) ... ok
+test_shared_question_cannot_be_forked_saved_or_reshared (test_sharing.SharingTests.test_shared_question_cannot_be_forked_saved_or_reshared) ... ok
+test_web_request_approval_rejection_revocation_csrf_login_and_escaping (test_sharing.SharingTests.test_web_request_approval_rejection_revocation_csrf_login_and_escaping) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 3.842s
+
+OK
