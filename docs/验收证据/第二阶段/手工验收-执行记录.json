@@ -316,6 +316,44 @@
           "date": "2026-10-29",
           "quote": "对的",
           "description": "作者直接访问接收者C卷结果页被拒绝，与双端统计页隔离确认一致。作者A/B同版本跨卷样本仍待补。"
+        },
+        {
+          "kind": "用户手机提交文字确认＋数据库/统计函数只读复核",
+          "date": "2026-10-29",
+          "quote": "都提交了",
+          "description": "作者A/B均发布且各有1份正式回答20/40，实际作者原v1跨卷汇总2卷2份平均30.00；接收者原v1仍1卷1份平均60.00，分支v2仍1卷2份平均15.00。等待用户最终双端页面核对，不据函数结果提前标整项手工通过。",
+          "author_samples": [
+            {
+              "survey_id": "6ae2c8e385ebe82b69f840bf",
+              "response_id": "6ae2db2585ebe82b69f841ab",
+              "value": 20,
+              "submitted_at": "2026-10-29T05:35:37.213000Z"
+            },
+            {
+              "survey_id": "6ae2c9e485ebe82b69f840ca",
+              "response_id": "6ae2db5285ebe82b69f841be",
+              "value": 40,
+              "submitted_at": "2026-10-29T05:36:21.259000Z"
+            }
+          ],
+          "author_v1": {
+            "survey_count": 2,
+            "submission_count": 2,
+            "answered": 2,
+            "average": "30.00"
+          },
+          "recipient_v1": {
+            "survey_count": 1,
+            "submission_count": 1,
+            "answered": 1,
+            "average": "60.00"
+          },
+          "recipient_branch_v2": {
+            "survey_count": 1,
+            "submission_count": 2,
+            "answered": 2,
+            "average": "15.00"
+          }
         }
       ]
     },
@@ -439,7 +477,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "M2-10通过：原作者开放引用卷只读可访，草稿/关闭/截止均拒绝，接收者回答不开放。下一步作者发布B，手机填写作者A=20、B=40，以核对作者原v1跨卷均值30及接收者统计独立。",
+  "notes": "作者A=20/B=40已真实提交；实际同版跨卷平均30.00，接收者原v1平均60.00、分支v2平均15.00独立。M2-09等待最终双端统计页面文字确认；后续仍有本地恢复v1与草稿调序/跳转清空、手机交互等项。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -874,6 +912,40 @@
       "deadline_utc": "2026-10-29T05:33:00+00:00",
       "checked_at_utc": "2026-10-29T05:33:47.813948+00:00",
       "question_source_version_id": "6ae2cabf85ebe82b69f840d8"
+    },
+    "author_cross_survey_samples": {
+      "author_samples": [
+        {
+          "survey_id": "6ae2c8e385ebe82b69f840bf",
+          "response_id": "6ae2db2585ebe82b69f841ab",
+          "value": 20,
+          "submitted_at": "2026-10-29T05:35:37.213000Z"
+        },
+        {
+          "survey_id": "6ae2c9e485ebe82b69f840ca",
+          "response_id": "6ae2db5285ebe82b69f841be",
+          "value": 40,
+          "submitted_at": "2026-10-29T05:36:21.259000Z"
+        }
+      ],
+      "author_v1": {
+        "survey_count": 2,
+        "submission_count": 2,
+        "answered": 2,
+        "average": "30.00"
+      },
+      "recipient_v1": {
+        "survey_count": 1,
+        "submission_count": 1,
+        "answered": 1,
+        "average": "60.00"
+      },
+      "recipient_branch_v2": {
+        "survey_count": 1,
+        "submission_count": 2,
+        "answered": 2,
+        "average": "15.00"
+      }
     }
   },
   "execution_priority": "用户要求加快跨设备操作，先完成手机/电脑配合项，M2-04本地恢复v1暂后置，未记通过",
