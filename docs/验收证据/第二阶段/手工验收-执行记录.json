@@ -39,7 +39,21 @@
       "id": "M2-02",
       "name": "双账号注册登录",
       "status": "进行中",
-      "evidence": []
+      "evidence": [
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "已登录",
+          "account": "p2_author",
+          "user_id": "6ae2bd1598dabeb179606a61",
+          "database_observed": {
+            "user_count": 1,
+            "survey_count": 0,
+            "response_count": 0
+          },
+          "description": "用户确认按指引在电脑登录；数据库证明作者账号存在，不将数据库存在视为独立浏览器登录证据。手机接收者尚待注册登录。"
+        }
+      ]
     },
     {
       "id": "M2-03",
@@ -103,5 +117,5 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "手机连通已由用户文字确认；双账号注册登录进行中，其余项目仍待执行。未把HTTP成功或自动测试替代手机业务验收。"
+  "notes": "手机连通通过；用户确认电脑作者p2_author已登录，数据库已核对注册；M2-02仍进行中，待手机接收者账号。"
 }
