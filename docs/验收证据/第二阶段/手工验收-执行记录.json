@@ -176,6 +176,16 @@
           "quote": "能看到了",
           "description": "手机可见获准v1；数据库核对需求者申请、原作者批准、版本v1、survey_id=null的用户级范围。待审批访问负例本轮未手工执行，未来问卷导入待后续实际验证。",
           "share_id": "6ae2cd0485ebe82b69f840e7"
+        },
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "两份已加入",
+          "description": "批准后的新建C卷成功选入确切原题v1，上限120；D卷选入本人修改分支v2，上限80，两份均晚于用户级审批创建。待审批访问负例本轮仍未手工执行，整项暂不标通过。",
+          "survey_ids": [
+            "6ae2d26d85ebe82b69f84103",
+            "6ae2d2aa85ebe82b69f8410e"
+          ]
         }
       ]
     },
@@ -209,6 +219,16 @@
           "original_v1_max": 120,
           "original_v2_max": 100,
           "published_a_hash_unchanged": true
+        },
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "两份已加入",
+          "description": "分支v2已引用到本人D卷，来源为独立分支版本，C卷保留原v1；两份本地题号不同，匿名且允许重复。继续修改分支及独立递增编号尚待执行。",
+          "survey_ids": [
+            "6ae2d26d85ebe82b69f84103",
+            "6ae2d2aa85ebe82b69f8410e"
+          ]
         }
       ]
     },
@@ -244,7 +264,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "手机分支v2已保存并复核来源v1、上限80及原题/旧卷不变。M2-07待继续版本编号检查；下一步手机创建接收者原v1与分支v2两份问卷。恢复v1仍待补做。",
+  "notes": "C卷原v1上限120、D卷分支v2上限80均已正确引用到审批后新建草稿；匿名及允许重复设置已核对。下一步手机发布并分别提交60、10作为预定统计样本，尚未记录为实际回答。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -504,6 +524,44 @@
       "original_v1_max": 120,
       "original_v2_max": 100,
       "published_a_hash_unchanged": true
+    },
+    "recipient_survey_c": {
+      "survey_id": "6ae2d26d85ebe82b69f84103",
+      "title": "接受者问卷C（原版v1）",
+      "owner": "p2_user",
+      "status_at_check": "draft",
+      "is_anonymous": true,
+      "allow_repeat": true,
+      "question_id": "099d705b101a4009b71cf718b6e61997",
+      "source": {
+        "question_id": "6ae2c6b698dabeb179606a73",
+        "version_id": "6ae2c6b698dabeb179606a74"
+      },
+      "validation": {
+        "min_value": 0,
+        "max_value": 120,
+        "integer_only": true
+      },
+      "created_after_approval": true
+    },
+    "recipient_survey_d": {
+      "survey_id": "6ae2d2aa85ebe82b69f8410e",
+      "title": "接受者问卷D（分支v2）",
+      "owner": "p2_user",
+      "status_at_check": "draft",
+      "is_anonymous": true,
+      "allow_repeat": true,
+      "question_id": "12d0fc8a78e24361881dd19baacccc38",
+      "source": {
+        "question_id": "6ae2d18985ebe82b69f840fa",
+        "version_id": "6ae2d18985ebe82b69f840fb"
+      },
+      "validation": {
+        "min_value": 0,
+        "max_value": 80,
+        "integer_only": true
+      },
+      "created_after_approval": true
     }
   },
   "execution_priority": "用户要求加快跨设备操作，先完成手机/电脑配合项，M2-04本地恢复v1暂后置，未记通过",
