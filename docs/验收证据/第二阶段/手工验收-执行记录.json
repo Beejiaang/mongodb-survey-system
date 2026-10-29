@@ -40,7 +40,22 @@
       "id": "M2-02",
       "name": "双账号注册登录",
       "status": "进行中",
-      "evidence": []
+      "evidence": [
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "是的",
+          "url": "http://192.168.31.94:5002/",
+          "account": "p2_author",
+          "user_id": "6ae2bd1598dabeb179606a61",
+          "description": "用户确认新网络电脑右上账号为p2_author；数据库核对账号存在，尚未确认手机接收者登录。",
+          "database_counts": {
+            "users": 1,
+            "surveys": 0,
+            "responses": 0
+          }
+        }
+      ]
     },
     {
       "id": "M2-03",
@@ -104,7 +119,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "新网络192.168.31.94手机连通已获用户确认；接下来确认电脑p2_author登录，再注册手机接收者。原网络历史证据保留。",
+  "notes": "新网络手机连通及电脑p2_author登录已由用户确认；M2-02仍进行中，待手机接收者p2_user注册/登录，其余业务项待执行。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
