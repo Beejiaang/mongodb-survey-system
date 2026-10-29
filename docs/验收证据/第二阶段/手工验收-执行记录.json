@@ -293,7 +293,7 @@
     {
       "id": "M2-09",
       "name": "跨问卷按版本统计及所有者数据隔离",
-      "status": "进行中",
+      "status": "通过",
       "evidence": [
         {
           "kind": "用户文字确认＋数据库/统计函数只读复核",
@@ -352,6 +352,27 @@
             "survey_count": 1,
             "submission_count": 2,
             "answered": 2,
+            "average": "15.00"
+          }
+        },
+        {
+          "kind": "用户双端统计页面文字确认",
+          "date": "2026-10-29",
+          "quote": "符合",
+          "description": "用户确认最终电脑p2_author原v1为2卷2份平均30.00；手机p2_user原v1为1卷1份平均60.00、个人分支v2为1卷2份平均15.00。结合实际提交样本和只读核算，M2-09通过。无本项截图。",
+          "author_v1": {
+            "survey_count": 2,
+            "submission_count": 2,
+            "average": "30.00"
+          },
+          "recipient_v1": {
+            "survey_count": 1,
+            "submission_count": 1,
+            "average": "60.00"
+          },
+          "recipient_branch_v2": {
+            "survey_count": 1,
+            "submission_count": 2,
             "average": "15.00"
           }
         }
@@ -477,7 +498,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "作者A=20/B=40已真实提交；实际同版跨卷平均30.00，接收者原v1平均60.00、分支v2平均15.00独立。M2-09等待最终双端统计页面文字确认；后续仍有本地恢复v1与草稿调序/跳转清空、手机交互等项。",
+  "notes": "M2-09通过：真实双端页面确认同版跨卷汇总与所有者/版本隔离。手机待补当前阶段非法数字输入与复制交互、设备环境；本地恢复v1及草稿替换/调序/跳转清空仍待验。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
