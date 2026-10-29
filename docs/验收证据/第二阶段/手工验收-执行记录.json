@@ -336,6 +336,32 @@
             },
             "target_question_id": "5856918922f045e09b853393c99d0257"
           }
+        },
+        {
+          "kind": "用户页面文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "符合",
+          "description": "G卷显式替换原v1为v2后仍三题、题号及顺序不变，年龄上限100、来源确切v2，全卷规则清空。用户确认页面提示与预期一致；A发布快照及B/C原v1均未变。调序和删除尚待执行。",
+          "survey_id": "6ae2ddb685ebe82b69f841cb",
+          "question_ids": [
+            "a9da41936fee4538afd2ad729223e2f7",
+            "a3bbb1667cba4916b108687eb0e1426f",
+            "5856918922f045e09b853393c99d0257"
+          ],
+          "titles": [
+            "年龄（请使用阿拉伯数字回答）",
+            "是否继续",
+            "补充说明"
+          ],
+          "source_version_id": "6ae2cabf85ebe82b69f840d8",
+          "max_value": 100,
+          "rule_counts": [
+            0,
+            0,
+            0
+          ],
+          "published_a_hash_unchanged": true,
+          "other_v1_surveys_unchanged": true
         }
       ]
     },
@@ -561,7 +587,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "G卷替换前基线确认：年龄原v1上限120，eq18跳至补充说明，三题题号已记录。下一步在原题v2详情的已有草稿替换区域明确替换G年龄题，核对同一本地题号、上限100且全卷跳转清空。",
+  "notes": "G卷显式替换v2及全卷跳转清空已确认，原题号/顺序与其他问卷不变。下一步重建eq18→补充说明规则，再把补充说明上移，核对调序清空跳转。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -1134,6 +1160,28 @@
         }
       ],
       "target_title": "补充说明"
+    },
+    "draft_g_after_replacement": {
+      "survey_id": "6ae2ddb685ebe82b69f841cb",
+      "question_ids": [
+        "a9da41936fee4538afd2ad729223e2f7",
+        "a3bbb1667cba4916b108687eb0e1426f",
+        "5856918922f045e09b853393c99d0257"
+      ],
+      "titles": [
+        "年龄（请使用阿拉伯数字回答）",
+        "是否继续",
+        "补充说明"
+      ],
+      "source_version_id": "6ae2cabf85ebe82b69f840d8",
+      "max_value": 100,
+      "rule_counts": [
+        0,
+        0,
+        0
+      ],
+      "published_a_hash_unchanged": true,
+      "other_v1_surveys_unchanged": true
     }
   },
   "execution_priority": "用户要求加快跨设备操作，先完成手机/电脑配合项，M2-04本地恢复v1暂后置，未记通过",
