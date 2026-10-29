@@ -3,13 +3,14 @@
   "status": "进行中",
   "mode": "电脑＋手机真实跨设备",
   "database": "survey_manual_p2_20261029_113e12f7bb87489caf581621c02bbb39",
-  "url": "http://192.168.31.94:5002/",
+  "url": "http://10.131.37.121:5002/",
   "phone_model": "待确认",
   "phone_browser": "待确认",
   "server_http_checks": {
     "http://127.0.0.1:5002/": 200,
     "http://192.168.31.94:5002/": 200,
-    "http://192.168.31.94:5002/register": 200
+    "http://192.168.31.94:5002/register": 200,
+    "http://10.131.37.121:5002/library/sharing": 200
   },
   "initial_collection_counts": {
     "users": 0,
@@ -188,7 +189,28 @@
       "id": "M2-07",
       "name": "用户名修改分支与编号独立",
       "status": "进行中",
-      "evidence": []
+      "evidence": [
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "好的分支已保存",
+          "description": "手机用户确认保存；p2_user分支v2基于作者v1，范围0～80整数。实际修改说明为“从共享版本派生”。原v1、原v2及发布A卷快照未变；分支继续新增版本及问卷引用尚待执行。",
+          "item_id": "6ae2d18985ebe82b69f840fa",
+          "version_id": "6ae2d18985ebe82b69f840fb",
+          "owner": "p2_user",
+          "number": 2,
+          "source_version_id": "6ae2c6b698dabeb179606a74",
+          "validation": {
+            "min_value": 0,
+            "max_value": 80,
+            "integer_only": true
+          },
+          "change_note": "从共享版本派生",
+          "original_v1_max": 120,
+          "original_v2_max": 100,
+          "published_a_hash_unchanged": true
+        }
+      ]
     },
     {
       "id": "M2-08",
@@ -222,7 +244,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "手机可见v1且用户级申请审批记录已核对。优先继续手机创建修改分支及接收者原版/分支问卷，补验未来问卷取用和后续统计隔离；恢复v1仍待本地补做。",
+  "notes": "手机分支v2已保存并复核来源v1、上限80及原题/旧卷不变。M2-07待继续版本编号检查；下一步手机创建接收者原v1与分支v2两份问卷。恢复v1仍待补做。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -328,6 +350,11 @@
         "http://10.131.37.121:5002/register": 200
       },
       "description": "用户切换网络前的历史结果保留，不作为新网络通过证据"
+    },
+    {
+      "url": "http://192.168.31.94:5002/",
+      "description": "再次换网前的执行环境；已有业务和验收证据保留，不重新创建账号或题目。",
+      "phone_confirmed": true
     }
   ],
   "restart_reason": "用户换网后要求从连通检查重新开始；保留已有账号和旧证据，不清空数据库",
@@ -461,7 +488,33 @@
       "status": "approved",
       "origin": "request",
       "decided_by": "p2_author"
+    },
+    "recipient_branch_v2": {
+      "item_id": "6ae2d18985ebe82b69f840fa",
+      "version_id": "6ae2d18985ebe82b69f840fb",
+      "owner": "p2_user",
+      "number": 2,
+      "source_version_id": "6ae2c6b698dabeb179606a74",
+      "validation": {
+        "min_value": 0,
+        "max_value": 80,
+        "integer_only": true
+      },
+      "change_note": "从共享版本派生",
+      "original_v1_max": 120,
+      "original_v2_max": 100,
+      "published_a_hash_unchanged": true
     }
   },
-  "execution_priority": "用户要求加快跨设备操作，先完成手机/电脑配合项，M2-04本地恢复v1暂后置，未记通过"
+  "execution_priority": "用户要求加快跨设备操作，先完成手机/电脑配合项，M2-04本地恢复v1暂后置，未记通过",
+  "network_changes": [
+    {
+      "date": "2026-10-29",
+      "from": "http://192.168.31.94:5002/",
+      "to": "http://10.131.37.121:5002/",
+      "server_check": "0.0.0.0:5002监听；新IP共享页请求最终登录页HTTP200",
+      "user_feedback": "好的分支已保存",
+      "description": "用户在提供新地址后确认手机分支已保存；未独立读取手机地址或会话。"
+    }
+  ]
 }
