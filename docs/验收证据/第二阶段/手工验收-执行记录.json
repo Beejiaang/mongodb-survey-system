@@ -241,8 +241,19 @@
     {
       "id": "M2-09",
       "name": "跨问卷按版本统计及所有者数据隔离",
-      "status": "待执行",
-      "evidence": []
+      "status": "进行中",
+      "evidence": [
+        {
+          "kind": "用户文字确认＋数据库/统计函数只读复核",
+          "date": "2026-10-29",
+          "quote": "提交好了",
+          "description": "C/D均已正式提交，分别60与10；实际统计函数对p2_user原v1与分支v2分别1份、平均60.00与10.00。作者原v1当前0回答，未混入接收者60。双端页面核对及作者自有样本待执行，整项仍进行中。",
+          "response_ids": [
+            "6ae2d3f585ebe82b69f8412d",
+            "6ae2d3fd85ebe82b69f84136"
+          ]
+        }
+      ]
     },
     {
       "id": "M2-10",
@@ -259,12 +270,23 @@
     {
       "id": "M2-12",
       "name": "手机填写与页面交互",
-      "status": "待执行",
-      "evidence": []
+      "status": "进行中",
+      "evidence": [
+        {
+          "kind": "用户文字确认＋数据库/统计函数只读复核",
+          "date": "2026-10-29",
+          "quote": "提交好了",
+          "description": "用户在手机按指引完成两份问卷提交；数据库state=submitted、实际路径和60/10答案均已复核。其他手机控件、非法输入与复制操作本轮尚未验证。",
+          "response_ids": [
+            "6ae2d3f585ebe82b69f8412d",
+            "6ae2d3fd85ebe82b69f84136"
+          ]
+        }
+      ]
     }
   ],
   "phone_confirmed": true,
-  "notes": "C卷原v1上限120、D卷分支v2上限80均已正确引用到审批后新建草稿；匿名及允许重复设置已核对。下一步手机发布并分别提交60、10作为预定统计样本，尚未记录为实际回答。",
+  "notes": "手机C=60、D=10各正式提交一次；原v1与分支v2分别统计正确，原作者当前0回答未混入他人样本。下一步两端人工查看统计页并补作者A/B样本；完整隔离及手机交互仍待验。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -562,6 +584,49 @@
         "integer_only": true
       },
       "created_after_approval": true
+    },
+    "recipient_submission_samples": {
+      "recipient_submissions": [
+        {
+          "survey_id": "6ae2d26d85ebe82b69f84103",
+          "response_id": "6ae2d3f585ebe82b69f8412d",
+          "state": "submitted",
+          "value": 60,
+          "submitted_at": "2026-10-29T05:04:56.754000Z",
+          "version_id": "6ae2c6b698dabeb179606a74",
+          "owner_summary": {
+            "survey_count": 1,
+            "submission_count": 1,
+            "answered": 1,
+            "blank": 0,
+            "skipped": 0,
+            "average": "60.00"
+          }
+        },
+        {
+          "survey_id": "6ae2d2aa85ebe82b69f8410e",
+          "response_id": "6ae2d3fd85ebe82b69f84136",
+          "state": "submitted",
+          "value": 10,
+          "submitted_at": "2026-10-29T05:05:03.908000Z",
+          "version_id": "6ae2d18985ebe82b69f840fb",
+          "owner_summary": {
+            "survey_count": 1,
+            "submission_count": 1,
+            "answered": 1,
+            "blank": 0,
+            "skipped": 0,
+            "average": "10.00"
+          }
+        }
+      ],
+      "original_author_v1_summary": {
+        "survey_count": 2,
+        "submission_count": 0,
+        "answered": 0,
+        "average": null
+      },
+      "scope": "只读数据库与实际统计函数核对；两端统计页面人工核对及作者自有答案样本尚待执行。"
     }
   },
   "execution_priority": "用户要求加快跨设备操作，先完成手机/电脑配合项，M2-04本地恢复v1暂后置，未记通过",
