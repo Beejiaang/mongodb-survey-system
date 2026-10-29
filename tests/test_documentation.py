@@ -77,6 +77,9 @@ class DocumentationTests(unittest.TestCase):
 
         review = DOCS / "审批稿"
         draft = (review / "第二阶段项目完成报告.md").read_text(encoding="utf-8")
+        for report in (second_report, draft):
+            self.assertEqual(report.splitlines()[0],
+                             "GitHub仓库：https://github.com/Beejiaang/mongodb-survey-system")
         for heading in required:
             match = re.search(rf"^## {re.escape(heading)}\n(.*?)(?=^## |\Z)", draft, re.M | re.S)
             self.assertIsNotNone(match, f"审批稿缺少作业要求：{heading}")
