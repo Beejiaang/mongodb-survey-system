@@ -74,7 +74,7 @@
     {
       "id": "M2-03",
       "name": "常用题与个人题库复用",
-      "status": "进行中",
+      "status": "通过",
       "evidence": [
         {
           "kind": "用户文字确认＋数据库只读复核",
@@ -98,13 +98,27 @@
           "quote": "已加入",
           "description": "作者问卷A草稿包含且仅包含年龄题v1；确切版本来源、必答、0～120整数、匿名和允许重复均与计划一致。尚待B卷复用验证。",
           "survey_id": "6ae2c8e385ebe82b69f840bf"
+        },
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "已加入",
+          "description": "B卷也已选入v1；A/B独立题号、相同完整内容与来源，题库固定v1，匿名及重复填写设置正确。",
+          "a_survey_id": "6ae2c8e385ebe82b69f840bf",
+          "b_survey_id": "6ae2c9e485ebe82b69f840ca",
+          "a_question_id": "b5686c3da3a240c2bfd8ce4bbb8ba5dd",
+          "b_question_id": "7ffb0389d28945dabf5fa6f89e2a2d1a",
+          "same_source": true,
+          "independent_instances": true,
+          "same_content": true,
+          "bank_pinned_v1": true
         }
       ]
     },
     {
       "id": "M2-04",
       "name": "原题版本选择、历史恢复与发布固定",
-      "status": "待执行",
+      "status": "进行中",
       "evidence": []
     },
     {
@@ -157,7 +171,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "M2-01/02通过；v1和题库已核对，作者A卷草稿选入v1成功。M2-03仍进行中，下一步创建作者B卷并从同一题库选入v1。",
+  "notes": "M2-01/02/03通过。A/B两份作者草稿独立复用v1且题库固定v1已复核；当前进入M2-04，先发布A卷以验证后续改题不影响发布内容。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -317,6 +331,23 @@
       "is_anonymous": true,
       "allow_repeat": true,
       "question_id": "b5686c3da3a240c2bfd8ce4bbb8ba5dd",
+      "source": {
+        "question_id": "6ae2c6b698dabeb179606a73",
+        "version_id": "6ae2c6b698dabeb179606a74"
+      },
+      "validation": {
+        "min_value": 0,
+        "max_value": 120,
+        "integer_only": true
+      }
+    },
+    "author_survey_b": {
+      "survey_id": "6ae2c9e485ebe82b69f840ca",
+      "title": "作者问卷B（v1）",
+      "status_at_check": "draft",
+      "is_anonymous": true,
+      "allow_repeat": true,
+      "question_id": "7ffb0389d28945dabf5fa6f89e2a2d1a",
       "source": {
         "question_id": "6ae2c6b698dabeb179606a73",
         "version_id": "6ae2c6b698dabeb179606a74"
