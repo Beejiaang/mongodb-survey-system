@@ -192,7 +192,7 @@
     {
       "id": "M2-06",
       "name": "部分问卷范围及未授权拒绝",
-      "status": "待执行",
+      "status": "进行中",
       "evidence": []
     },
     {
@@ -309,8 +309,24 @@
     {
       "id": "M2-11",
       "name": "撤销及已有问卷/回答保留",
-      "status": "待执行",
-      "evidence": []
+      "status": "进行中",
+      "evidence": [
+        {
+          "kind": "用户双端页面文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "和预期一致",
+          "description": "用户确认作者撤销后，接收者继续修改分支v3被拒绝，D卷结果仍1份/平均10.00；数据库核对用户级授权revoked，分支历史两版保留，发布D卷来源和上限未变。新导入拒绝、旧卷继续填写及部分授权独立性仍待补验。",
+          "share_id": "6ae2cd0485ebe82b69f840e7",
+          "status": "revoked",
+          "survey_id": null,
+          "d_status": "published",
+          "d_source_version_id": "6ae2d18985ebe82b69f840fb",
+          "d_max_value": 80,
+          "d_submissions": 1,
+          "d_average": "10.00",
+          "branch_version_count": 2
+        }
+      ]
     },
     {
       "id": "M2-12",
@@ -331,7 +347,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "M2-07通过：手机分支v2→v3，原版独立编号，旧D卷仍v2且统计保留。接下来验证撤销用户级授权后拒绝新修改/导入，已发布问卷和已有回答保留。",
+  "notes": "撤销用户级授权后的分支修改拒绝及D卷答案/统计保留已由用户确认并复核。下一步手机新建E/F空白草稿，用原题v2验证待审批及只授权指定问卷；不得提前认定部分授权通过。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -688,6 +704,17 @@
       "d_average": "10.00",
       "original_versions_unchanged": true,
       "published_a_hash_unchanged": true
+    },
+    "user_wide_revocation": {
+      "share_id": "6ae2cd0485ebe82b69f840e7",
+      "status": "revoked",
+      "survey_id": null,
+      "d_status": "published",
+      "d_source_version_id": "6ae2d18985ebe82b69f840fb",
+      "d_max_value": 80,
+      "d_submissions": 1,
+      "d_average": "10.00",
+      "branch_version_count": 2
     }
   },
   "execution_priority": "用户要求加快跨设备操作，先完成手机/电脑配合项，M2-04本地恢复v1暂后置，未记通过",
