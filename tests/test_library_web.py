@@ -36,6 +36,8 @@ class LibraryWebTests(StageTwoFixture):
         self.assertEqual(self.database.question_versions.count_documents({}), before)
 
     def test_library_editor_option_add_and_numeric_hint_do_not_save(self):
+        text_form = self.client.get("/library/new?kind=text").get_data(as_text=True)
+        self.assertIn('改为数字填空并添加“（请使用阿拉伯数字回答）”', text_form)
         html = self.client.get("/library/new").get_data(as_text=True)
         self.assertEqual(html.count('name="option_text"'), 2)
         count = self.database.question_versions.count_documents({})
@@ -44,6 +46,7 @@ class LibraryWebTests(StageTwoFixture):
         self.assertEqual(response.get_data(as_text=True).count('name="option_text"'), 3)
         html = self.post("/library/new", kind="text", title="年龄", action="number_hint").get_data(as_text=True)
         self.assertIn('name="title" value="年龄（请使用阿拉伯数字回答）"', html)
+        self.assertIn('一键添加“（请使用阿拉伯数字回答）”', html)
         self.assertEqual(self.database.question_versions.count_documents({}), count)
 
     def test_version_editor_compare_restore_and_history_are_visible(self):

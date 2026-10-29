@@ -87,12 +87,14 @@ class SurveyRouteTests(unittest.TestCase):
         path = f"/surveys/{survey['_id']}/questions/new"
         html = self.client.get(path + "?kind=text").get_data(as_text=True)
         self.assertIn("若本题仅回答数字", html)
+        self.assertIn('改为数字填空并添加“（请使用阿拉伯数字回答）”', html)
         data = {"csrf_token": self.token(path + "?kind=text"), "kind": "text",
                 "title": "你的年龄", "required": "on", "action": "number_hint", "min_length": "10"}
         response = self.client.post(path, data=data)
         self.assertEqual(response.status_code, 200)
         html = response.get_data(as_text=True)
         title = "你的年龄（请使用阿拉伯数字回答）"
+        self.assertIn('一键添加“（请使用阿拉伯数字回答）”', html)
         self.assertIn(f'name="title" value="{title}"', html)
         self.assertIn('name="kind" value="number"', html)
         self.assertIn('name="required" type="checkbox" checked', html)

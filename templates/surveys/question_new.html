@@ -10,7 +10,7 @@
 <form method="post" class="account-form">
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="kind" value="{{ kind }}">
 <div class="field"><label for="title">题目内容 <span class="required-mark">必填</span></label><input id="title" name="title" value="{{ values.get('title', '') }}" required></div>
-{% if kind in ['text', 'number'] %}<div><p class="field-help">若本题仅回答数字，请使用数字填空：填写时强制检查阿拉伯数字，结果中可查看平均值。</p><button class="nav-button" type="submit" name="action" value="number_hint" formnovalidate>{{ '改为数字填空并' if kind == 'text' else '一键' }}添加“请使用阿拉伯数字回答”</button><p class="field-help">保留题目内容和必答设置，提示不会重复添加；确认后点击“保存题目”。</p></div>{% endif %}
+{% if kind in ['text', 'number'] %}<div><p class="field-help">若本题仅回答数字，请使用数字填空：填写时强制检查阿拉伯数字，结果中可查看平均值。</p><button class="nav-button" type="submit" name="action" value="number_hint" formnovalidate>{{ '改为数字填空并' if kind == 'text' else '一键' }}添加“（请使用阿拉伯数字回答）”</button><p class="field-help">保留题目内容和必答设置，提示不会重复添加；确认后点击“保存题目”。</p></div>{% endif %}
 <label class="check-field"><input name="required" type="checkbox" {% if values.get('required') == 'on' %}checked{% endif %}>设为必答题</label>
 {% if kind in ['single_choice', 'multiple_choice'] %}
 <div class="field"><span id="options-label">选项</span><div data-option-editor role="group" aria-labelledby="options-label">

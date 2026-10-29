@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-29",
+  "status": "通过",
+  "change": "一键添加按钮中的提示加中文括号；按钮行为和已保存数据不变",
+  "results": [
+    {
+      "module": "test_survey_routes.py",
+      "tests": 21,
+      "exit_code": 0,
+      "log": "数字提示按钮-test_survey_routes.txt",
+      "sha256": "8b796adecb6ee92a2e5ec980f4f84bb706a2edf716da300ca560022a65827024"
+    },
+    {
+      "module": "test_library_web.py",
+      "tests": 11,
+      "exit_code": 0,
+      "log": "数字提示按钮-test_library_web.txt",
+      "sha256": "e949d30d9a0be37f2df0f71835ec6c2ef1de35965c02a9431470a6a27bc513d5"
+    },
+    {
+      "module": "test_documentation.py",
+      "tests": 7,
+      "exit_code": 0,
+      "log": "数字提示按钮-test_documentation.txt",
+      "sha256": "29517486a8668cb2faa94cdee30b901622de087eb907b1a4009066b390005ebe"
+    }
+  ],
+  "full_suite_rerun": false,
+  "test_method_count": 277,
+  "manual_acceptance": "M2-03仍进行中，等待题库步骤，不因UI调整标记通过",
+  "live_http": {
+    "status": 200,
+    "new_button_label_present": true,
+    "method": "本机开发应用签名测试会话只读GET，不代表用户手工点击",
+    "data_unchanged": true,
+    "after": {
+      "users": {
+        "count": 2,
+        "sha256": "b26a1c9b6fda758c0dd9e4dcbd1ad59918b4dc14bd07c9dfe2a548211c448021"
+      },
+      "surveys": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "responses": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "question_items": {
+        "count": 1,
+        "sha256": "599f786134d98a95eccff652f2b0ef7b0f06dd1ce6d599f88f79cb74e9d549d3"
+      },
+      "question_versions": {
+        "count": 1,
+        "sha256": "6c818a810b2ac915c46789fe7e8209ce8366bead462251b4df4481f321d846d2"
+      },
+      "question_banks": {
+        "count": 1,
+        "sha256": "3420c0975302010f819e1f5a9909cd73cdf27fbe4c2af7095539f7a914164510"
+      },
+      "question_shares": {
+        "count": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  }
+}
