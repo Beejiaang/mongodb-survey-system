@@ -77,6 +77,9 @@ class DocumentationTests(unittest.TestCase):
 
         review = DOCS / "审批稿"
         draft = (review / "第二阶段项目完成报告.md").read_text(encoding="utf-8")
+        for placeholder in ("待用户审批", "待本人确认", "获批后", "审批前保留"):
+            self.assertNotIn(placeholder, draft)
+        self.assertIn("用户级待审批负例仅有自动P2-54", draft)
         for report in (second_report, draft):
             self.assertEqual(report.splitlines()[0],
                              "GitHub仓库：https://github.com/Beejiaang/mongodb-survey-system")
