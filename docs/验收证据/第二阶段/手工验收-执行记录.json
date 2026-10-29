@@ -342,6 +342,16 @@
           "quote": "都符合",
           "description": "用户确认作者访问E卷只读预览被拒绝，数据库核对E仍草稿且引用原v2。此前开放C/D可读，关闭及截止状态仍待验证。",
           "survey_id": "6ae2d74e85ebe82b69f84162"
+        },
+        {
+          "kind": "用户双端页面文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "符合",
+          "description": "用户确认手机关闭D卷后，电脑作者只读预览拒绝全文访问，手机结果仍2份/平均15.00；数据库核对closed与统计。此前开放C/D、草稿E均已核对；截止状态仍待验。",
+          "survey_id": "6ae2d2aa85ebe82b69f8410e",
+          "status": "closed",
+          "submitted_count": 2,
+          "average": "15.00"
         }
       ]
     },
@@ -417,7 +427,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "M2-11通过：撤销后新修改/取用拒绝，旧D卷仍能提交且回答10/20平均15.00，部分问卷授权独立有效。作者E草稿预览拒绝已确认；M2-10待关闭/截止状态，下一步手机关闭D卷再由作者刷新只读预览。",
+  "notes": "D卷已关闭，作者预览拒绝且手机已有统计保留，用户确认并只读核对。M2-10尚待截止状态；下一步在仍为草稿且已有原v2题的E卷设置短截止时间并发布。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -838,6 +848,12 @@
       "latest_submission_after_revocation": true,
       "f_question_count": 0,
       "e_status": "draft"
+    },
+    "closed_d": {
+      "survey_id": "6ae2d2aa85ebe82b69f8410e",
+      "status": "closed",
+      "submitted_count": 2,
+      "average": "15.00"
     }
   },
   "execution_priority": "用户要求加快跨设备操作，先完成手机/电脑配合项，M2-04本地恢复v1暂后置，未记通过",
