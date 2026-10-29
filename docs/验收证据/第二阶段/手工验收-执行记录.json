@@ -25,13 +25,21 @@
     {
       "id": "M2-01",
       "name": "手机连通",
-      "status": "进行中",
-      "evidence": []
+      "status": "通过",
+      "evidence": [
+        {
+          "kind": "用户文字确认",
+          "date": "2026-10-29",
+          "quote": "keyi",
+          "url": "http://192.168.31.94:5002/",
+          "description": "用户确认换网后的手机页面可以打开；未提供截图，未据浏览器account地址推断已登录账号。"
+        }
+      ]
     },
     {
       "id": "M2-02",
       "name": "双账号注册登录",
-      "status": "待执行",
+      "status": "进行中",
       "evidence": []
     },
     {
@@ -95,8 +103,8 @@
       "evidence": []
     }
   ],
-  "phone_confirmed": false,
-  "notes": "服务仍监听0.0.0.0:5002，新LAN地址本机HTTP200；手机在新网络连通待确认，之后重登现有账号。",
+  "phone_confirmed": true,
+  "notes": "新网络192.168.31.94手机连通已获用户确认；接下来确认电脑p2_author登录，再注册手机接收者。原网络历史证据保留。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
