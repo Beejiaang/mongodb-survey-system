@@ -25,13 +25,20 @@
     {
       "id": "M2-01",
       "name": "手机连通",
-      "status": "进行中",
-      "evidence": []
+      "status": "通过",
+      "evidence": [
+        {
+          "kind": "用户文字确认",
+          "date": "2026-10-29",
+          "quote": "可打开",
+          "description": "用户确认手机可以打开验收地址；未提供截图，不声称已完成登录或业务操作"
+        }
+      ]
     },
     {
       "id": "M2-02",
       "name": "双账号注册登录",
-      "status": "待执行",
+      "status": "进行中",
       "evidence": []
     },
     {
@@ -95,6 +102,6 @@
       "evidence": []
     }
   ],
-  "phone_confirmed": false,
-  "notes": "本机HTTP成功不等于手机连通；未把待执行项目记为通过；使用独立验收库保留原第一阶段数据"
+  "phone_confirmed": true,
+  "notes": "手机连通已由用户文字确认；双账号注册登录进行中，其余项目仍待执行。未把HTTP成功或自动测试替代手机业务验收。"
 }
