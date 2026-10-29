@@ -10,7 +10,7 @@ from jumps import question_revision
 from questions import build_question, validate_question
 from question_library import (LibraryError, bank_revision, change_bank, create_bank, create_item,
     create_version, fork_version, get_bank, get_item, get_version, import_version, list_items,
-    list_versions, save_survey_question, share_item, usage, version_difference)
+    list_versions, save_survey_question, share_item, usage, version_difference, preview_referenced_survey)
 from survey_schema import PRE_LIBRARY_SURVEY_VALIDATOR
 from surveys import add_question, create_survey, publish_survey
 
@@ -111,6 +111,10 @@ class LibraryTests(StageTwoFixture):
         self.assertIsNotNone(get_item(self.database, iid, self.owner))
         self.assertEqual(self.database.surveys.find_one({"_id": sid}), old)
         with self.assertRaises(LibraryError):save_survey_question(self.database, sid, self.other, self.question["id"])
+        # First-phase source mapping is also a valid reference, without rewriting its questions.
+        with self.assertRaises(LibraryError):preview_referenced_survey(self.database,iid,self.owner,sid)
+        publish_survey(self.database,sid,self.owner)
+        self.assertEqual(preview_referenced_survey(self.database,iid,self.owner,sid)["questions"],old["questions"])
         # Legacy question bodies have no 200-character cap; the short library name is only a label.
         long_question = dict(self.question, title="较长的题目内容" * 40)
         long_item = create_item(self.database, self.owner, long_question)
@@ -135,7 +139,7 @@ class LibraryTests(StageTwoFixture):
         result = usage(self.database, self.iid, self.owner)
         self.assertEqual([s["title"] for s in result["surveys"]], ["可见名称"])
         self.assertEqual(result["other_count"], 1)
-        self.assertEqual(result["other_surveys"], [{"_id":private_sid,"title":"其他用户的引用问卷","status":"draft"}])
+        self.assertEqual(result["other_surveys"], [{"_id":private_sid,"title":"其他用户的引用问卷","status":"draft","deadline":None}])
 
     def test_bank_pins_versions_and_requires_explicit_update(self):
         bid = create_bank(self.database, self.owner, "常用题")

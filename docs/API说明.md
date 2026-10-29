@@ -12,7 +12,7 @@
 
 ## 全部业务路由
 
-本表覆盖35个业务路径，未列Flask自动生成的HEAD、OPTIONS以及静态资源GET接口。
+本表覆盖36个业务路径，未列Flask自动生成的HEAD、OPTIONS以及静态资源GET接口。
 
 | 方法 | 路径 | 身份与用途 | 正常结果 |
 | --- | --- | --- | --- |
@@ -47,6 +47,7 @@
 | POST | /library/versions/<version_id>/use | 将确切版本加入本人草稿 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
 | POST | /library/from-survey/<survey_id>/<question_id> | 本人问卷题目保存为常用题，旧卷不变 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
 | GET | /library/items/<item_id>/usage | 使用情况，本人问卷详情及作者可见的其他引用名称、编号、状态 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| GET | /library/items/<item_id>/surveys/<survey_id>/preview | 原题作者只读查看实际引用该题且正在开放的问卷全部题目 | 成功200且Cache-Control: no-store；未登录302；非作者、无引用或草稿404；截止或关闭410；POST不支持 |
 | GET, POST | /library/banks | 创建和列出本人题库 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
 | GET, POST | /library/banks/<bank_id> | 本人题库查看、条目增删、手动更新、名称修改和删除 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
 | GET, POST | /library/select/<survey_id> | 本人草稿从题库或可用题目选择版本 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
@@ -152,3 +153,6 @@ share带username、survey_id、version_id和action=share/revoke，仅原作者�
 
 
 共享申请POST字段为item_id、version_number（ASCII正整数，至多9位）、survey_id及可选message（至多500字符）。申请者须拥有目标草稿；不能向自己的题目申请。申请页不开放未获准源题正文。decision带action=approve/reject/revoke，仅出题者可处理；审批匹配原状态。所有写入仍需CSRF。GET sharing仅列出本人参与的记录。共享派生请求403；保存共享来源为常用题或转授仍拒绝。旧shared_with不再授权。完整操作见[共享说明](题目共享与审批说明.md)。
+
+
+第6条访问补充：使用清单仍列出全部引用记录及实时状态，只对published且未截止的引用问卷提供只读预览入口。预览逐请求验证作者身份、真实引用关系和开放状态，不创建responses，不授予管理或统计权限；其他共享接收者不能凭授权访问此作者专用入口。普通填写链接的先登录、介绍页和逐题填写行为保持不变。

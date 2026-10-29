@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-29",
+  "status": "通过",
+  "python_tests": 265,
+  "javascript_tests": 16,
+  "phase_two_cases": 51,
+  "business_routes": 36,
+  "results": [
+    {
+      "log": "第6条确认-完整python.txt",
+      "exit_code": 0,
+      "elapsed_seconds": 113.55,
+      "sha256": "1f64c2db2f706fa573a2db849c24559ac6fc0a13f54c08fc3b1c8249872e2d80"
+    },
+    {
+      "log": "第6条确认-javascript.tap",
+      "exit_code": 0,
+      "elapsed_seconds": 0.606,
+      "sha256": "0127ec3b6b63d99592df06ee94c66dddbc0d32e9a67fcfcd80fae8fc886c74c8"
+    },
+    {
+      "log": "第6条确认-依赖.txt",
+      "exit_code": 0,
+      "elapsed_seconds": 4.161,
+      "sha256": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf"
+    }
+  ],
+  "scope": "原作者核对全部引用、仅开放引用问卷的只读全文预览、无答案或编辑权",
+  "phone_test": "未执行",
+  "database_scope": "随机隔离数据库，仅清理fixture创建的库",
+  "limitation": "关闭禁止后续预览请求，不撤回此前已阅读或保存的内容",
+  "final_usage_page_recheck": {
+    "tests": 1,
+    "exit_code": 0,
+    "log": "第6条确认-页面复核.txt",
+    "sha256": "444f5f7ba63411a378cc14b03f9c812b6be19a05e24eb2dab2f55033e410bda6"
+  },
+  "final_documentation_recheck": {
+    "tests": 7,
+    "passed": true,
+    "seconds": 0.536
+  }
+}

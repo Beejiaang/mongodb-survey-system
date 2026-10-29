@@ -8,7 +8,7 @@ from pymongo.errors import DuplicateKeyError
 
 from jumps import question_revision
 from questions import validate_question
-from surveys import _object_id, add_question, get_owned_survey, utcnow
+from surveys import _object_id, add_question, availability, get_owned_survey, utcnow
 from users import find_user_by_username
 
 
@@ -289,11 +289,30 @@ def usage(database, item_id, user_id, version_id=None):
         if instance and version and _content(instance) == version["content"]:
             query = {"$or": [query, {"_id": original["survey_id"]}]}
     own = list(database.surveys.find({**query, "owner_id": user_id},
-                                    {"title": 1, "status": 1, "questions": 1}).sort("created_at", -1))
+                                    {"title": 1, "status": 1, "deadline": 1, "questions": 1}).sort("created_at", -1))
     others = list(database.surveys.find({**query, "owner_id": {"$ne": user_id}},
-                                       {"title": 1, "status": 1}).sort("created_at", -1)) if item["owner_id"] == user_id else []
+                                       {"title": 1, "status": 1, "deadline": 1}).sort("created_at", -1)) if item["owner_id"] == user_id else []
     return {"surveys": own, "other_surveys": others,
             "other_count": len(others) if item["owner_id"] == user_id else None}
+
+
+def preview_referenced_survey(database, item_id, user_id, survey_id):
+    """Authors may read an actual reference only while its survey is open."""
+    item = get_item(database, item_id, user_id, owner_only=True)
+    survey = database.surveys.find_one({"_id": _object_id(survey_id)})
+    if survey is None:
+        raise LibraryError("引用问卷不存在或不可访问。", 404)
+    referenced = any(q.get("source", {}).get("question_id") == item["_id"] for q in survey["questions"])
+    original = item["original_use"]
+    if not referenced and original and original["survey_id"] == survey["_id"]:
+        instance = next((q for q in survey["questions"] if q["id"] == original["instance_id"]), None)
+        version = database.question_versions.find_one({"_id": original["version_id"]})
+        referenced = bool(instance and version and _content(instance) == version["content"])
+    if not referenced or survey["status"] == "draft":
+        raise LibraryError("引用问卷不存在或不可访问。", 404)
+    if availability(survey) != "published":
+        raise LibraryError("引用问卷已截止或关闭，不能查看内容。", 410)
+    return survey
 
 
 def create_bank(database, owner_id, name, description=""):

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <a href="{{ url_for('surveys.detail', survey_id=survey._id) }}">← 返回问卷</a><section class="account-heading"><p class="eyebrow">{{ survey.title }} / 选入题目</p><h1>选择题目与确切版本</h1><p class="field-help">先查看版本内容及差异，再选入。题库后续更新不会自动替换本问卷的版本。</p></section>
-<p class="field-help">使用共享题目后，题目作者能查看引用问卷的名称、编号和状态，不能因此查看回答或管理问卷。</p>
+<p class="field-help">使用共享题目后，题目作者能查看引用问卷的名称、编号和状态，并只读查看正在开放的引用问卷全部题目；草稿、已截止及已关闭问卷内容不开放，回答和管理权限仍归问卷所有者。</p>
 <a class="nav-button" href="{{ url_for('library.sharing') }}">申请题目使用权</a><form method="get" class="account-form"><div class="field"><label for="bank">筛选题库</label><select name="bank" id="bank"><option value="">全部可用题目</option>{% for b in banks %}<option value="{{ b._id }}" {% if bank_id == b._id|string %}selected{% endif %}>{{ b.name }}</option>{% endfor %}</select></div><button class="nav-button">筛选</button></form>
 {% for row in rows %}<article class="editor-panel"><h2>{{ row.item.name }}</h2><a class="text-link" href="{{ url_for('library.item', item_id=row.item._id) }}">查看各版本内容与差异</a><form method="post" class="account-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="field"><label for="version-{{ loop.index }}">选择版本</label><select name="version_id" id="version-{{ loop.index }}">{% for v in row.versions %}<option value="{{ v._id }}">v{{ v.number }} · {{ v.content.title }} · {{ v.change_note }}</option>{% endfor %}</select></div><button class="button">将此版本加入问卷</button></form></article>{% else %}<p class="notice">暂无可用条目。请先创建题目，或为本问卷申请共享授权。</p>{% endfor %}
 {% endblock %}

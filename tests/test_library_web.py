@@ -1,10 +1,13 @@
 from bson import ObjectId
+from datetime import timedelta
+from unittest.mock import patch
 
 from stage2_support import StageTwoFixture
 from question_library import (bank_revision, create_bank, create_item, create_version, get_bank,
                               get_item, import_version, share_item)
 from questions import build_question
-from surveys import add_question, create_survey, publish_survey
+from surveys import (add_question, close_survey, create_survey, publish_survey,
+                     set_survey_deadline, utcnow)
 
 
 class LibraryWebTests(StageTwoFixture):
@@ -104,6 +107,68 @@ class LibraryWebTests(StageTwoFixture):
         self.assertIn(str(other_sid), html)
         self.assertNotIn(f'href="/surveys/{other_sid}', html)
         self.assertEqual(self.client.get(f"/surveys/{other_sid}/results").status_code,404)
+        entry = f"/survey/{other_sid}"
+        preview = f"/library/items/{self.iid}/surveys/{other_sid}/preview"
+        usage_path = f"/library/items/{self.iid}/usage"
+        self.assertNotIn(f'href="{preview}"',html)
+        self.assertEqual(self.client.get(entry).status_code,404)
+        self.assertEqual(self.client.get(preview).status_code,404)
+        add_question(self.database,other_sid,self.other,build_question("fill_blank","其他题目<script>只读检查</script>",input_type="text"))
+        publish_survey(self.database,other_sid,self.other)
+        html = self.client.get(usage_path).get_data(as_text=True)
+        self.assertIn(f'href="{preview}"',html)
+        self.assertEqual(self.client.get(entry).status_code,200)
+        page = self.client.get(preview)
+        self.assertEqual(page.status_code,200)
+        self.assertEqual(page.headers["Cache-Control"],"no-store")
+        content = page.get_data(as_text=True)
+        self.assertIn("年龄",content)
+        self.assertIn("其他题目&lt;script&gt;只读检查&lt;/script&gt;",content)
+        self.assertNotIn("其他题目<script>",content)
+        self.assertNotIn("查看统计",content)
+        self.assertNotIn("保存为常用题目",content)
+        self.assertNotIn("发布问卷",content)
+        self.assertEqual(self.client.post(preview,data={"csrf_token":"phase-two-csrf"}).status_code,405)
+        add_question(self.database,self.sid,self.owner,self.q)
+        publish_survey(self.database,self.sid,self.owner)
+        self.assertEqual(self.client.get(f"/library/items/{self.iid}/surveys/{self.sid}/preview").status_code,404)
+        self.assertEqual(self.database.responses.count_documents({"survey_id":other_sid}),0)
+        self.assertEqual(self.client.get(f"/surveys/{other_sid}").status_code,404)
+        self.assertEqual(self.client.get(f"/surveys/{other_sid}/results").status_code,404)
+        deadline = utcnow().replace(microsecond=0)+timedelta(hours=1)
+        set_survey_deadline(self.database,other_sid,self.other,deadline)
+        with patch("surveys.utcnow",return_value=deadline):
+            html = self.client.get(usage_path).get_data(as_text=True)
+            self.assertIn("已截止",html)
+            self.assertNotIn(f'href="{preview}"',html)
+            self.assertEqual(self.client.get(entry).status_code,410)
+            expired_page = self.client.get(preview)
+            self.assertEqual(expired_page.status_code,410)
+            self.assertNotIn("只读检查",expired_page.get_data(as_text=True))
+            self.assertEqual(self.post(entry+"/start").status_code,410)
+        # Extending the deadline reopens access without changing the reference or grants.
+        set_survey_deadline(self.database,other_sid,self.other,deadline+timedelta(hours=1))
+        self.assertIn(f'href="{preview}"',self.client.get(usage_path).get_data(as_text=True))
+        self.assertEqual(self.client.get(preview).status_code,200)
+        share_item(self.database,self.iid,self.owner,"other",survey_id=other_sid,version_id=self.v1,revoke=True)
+        self.assertEqual(self.client.get(preview).status_code,200)
+        close_survey(self.database,other_sid,self.other)
+        html = self.client.get(usage_path).get_data(as_text=True)
+        self.assertIn("引用问卷标题",html)
+        self.assertIn("已关闭",html)
+        self.assertNotIn(f'href="{preview}"',html)
+        self.assertEqual(self.client.get(entry).status_code,410)
+        self.assertEqual(self.client.get(preview).status_code,410)
+        self.assertEqual(self.post(entry+"/start").status_code,410)
+        self.assertEqual(self.database.responses.count_documents({"survey_id":other_sid}),0)
+        # Recipients see their own usage only; authorship does not propagate through sharing.
+        self.login(self.other)
+        self.assertEqual(self.client.get(preview).status_code,404)
+        self.login(self.third)
+        self.assertEqual(self.client.get(usage_path).status_code,404)
+        self.assertEqual(self.client.get(preview).status_code,404)
+        with self.client.session_transaction() as state:state.clear()
+        self.assertEqual(self.client.get(preview).status_code,302)
 
     def test_banks_and_picker_pin_versions_and_reject_stale_or_foreign_bank(self):
         response = self.post("/library/banks", name="年龄题库", description="常用")

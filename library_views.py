@@ -1,14 +1,14 @@
 """Phase two HTML forms; reuse the existing question editor and auth stack."""
-from flask import Blueprint, abort, flash, g, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, g, make_response, redirect, render_template, request, url_for
 
 from auth import login_required
 from database import get_request_database
 from question_library import (LibraryError, bank_revision, change_bank, create_bank, create_item,
     create_version, fork_version, get_bank, get_item, get_version, import_version, list_items,
     list_versions, save_survey_question, share_item, usage, version_difference,
-    request_share, decide_share, share_records)
+    request_share, decide_share, share_records, preview_referenced_survey)
 from survey_views import KINDS, STATUS_LABELS, _question_from_form, _render_question
-from surveys import get_owned_survey, list_owned_surveys
+from surveys import availability, get_owned_survey, list_owned_surveys
 
 library = Blueprint("library", __name__, url_prefix="/library")
 
@@ -196,7 +196,17 @@ def item_usage(item_id):
     entry = get_item(_db(), item_id, g.user["_id"])
     result = usage(_db(), item_id, g.user["_id"], request.args.get("version"))
     return render_template("library/usage.html", title="题目使用情况", item=entry, usage=result,
-                           status_labels=STATUS_LABELS)
+                           status_labels=STATUS_LABELS, availability=availability)
+
+
+@library.get("/items/<item_id>/surveys/<survey_id>/preview")
+@login_required
+def survey_preview(item_id, survey_id):
+    survey = preview_referenced_survey(_db(), item_id, g.user["_id"], survey_id)
+    response = make_response(render_template("library/survey_preview.html", title="只读查看引用问卷",
+                                             survey=survey, item_id=item_id, kinds=KINDS))
+    response.headers["Cache-Control"] = "no-store"
+    return response
 
 
 @library.route("/banks", methods=("GET", "POST"))
