@@ -29,6 +29,43 @@ def _user(database, user_id):
         raise LibraryError("请重新登录。", 401)
 
 
+def _grant_query(user_id, *, version_id=None, survey_id=None, user_wide=False):
+    query = {"requester_id": user_id, "status": "approved"}
+    if version_id is not None:
+        query["version_id"] = _object_id(version_id)
+    if user_wide:
+        query["survey_id"] = None
+    elif survey_id is not None:
+        query["survey_id"] = {"$in": [None, _object_id(survey_id)]}
+    return query
+
+
+def branch_origin(database, item):
+    source = database.question_versions.find_one({"_id": item["forked_from_version_id"]}) if item["forked_from_version_id"] else None
+    if source:
+        original = database.question_items.find_one({"_id": source["question_id"]})
+        if original and original["owner_id"] != item["owner_id"]:
+            return original, source
+    return None
+
+
+def require_branch_permission(database, item):
+    origin = branch_origin(database, item)
+    if origin and not database.question_shares.find_one(_grant_query(
+            item["owner_id"], version_id=origin[1]["_id"], user_wide=True)):
+        raise LibraryError("修改分支需要来源版本的有效面向用户授权。", 403)
+
+
+def require_fork_permission(database, version_id, user_id):
+    item, version = get_version(database, version_id, user_id)
+    if branch_origin(database, item):
+        raise LibraryError("请在当前分支内新增版本，不能复制分支或转授。", 403)
+    if item["owner_id"] != user_id and not database.question_shares.find_one(
+            _grant_query(user_id, version_id=version["_id"], user_wide=True)):
+        raise LibraryError("修改分支需要面向用户授权；部分问卷授权仅允许复用原版。", 403)
+    return item, version
+
+
 def get_item(database, item_id, user_id, *, owner_only=False):
     oid = _object_id(item_id)
     item = database.question_items.find_one({"_id": oid}) if oid else None
@@ -45,30 +82,34 @@ def get_version(database, version_id, user_id, *, survey_id=None):
         raise LibraryError("版本不存在或未获授权。", 404)
     item = get_item(database, version["question_id"], user_id)
     if item["owner_id"] != user_id:
-        query = {"version_id": oid, "requester_id": user_id, "status": "approved"}
-        if survey_id is not None:
-            query["survey_id"] = _object_id(survey_id)
+        query = _grant_query(user_id, version_id=oid, survey_id=survey_id)
         if not database.question_shares.find_one(query):
             raise LibraryError("此版本未获目标问卷的使用授权。", 404)
     return item, version
 
 
 def list_items(database, user_id, *, survey_id=None):
-    query = {"requester_id": user_id, "status": "approved"}
-    if survey_id is not None:
-        query["survey_id"] = _object_id(survey_id)
+    query = _grant_query(user_id, survey_id=survey_id)
     ids = database.question_shares.distinct("question_id", query)
-    return list(database.question_items.find({"$or": [{"owner_id": user_id}, {"_id": {"$in": ids}}]}).sort([
+    items = list(database.question_items.find({"$or": [{"owner_id": user_id}, {"_id": {"$in": ids}}]}).sort([
         ("updated_at", -1), ("_id", -1)]))
+    if survey_id is not None:
+        allowed = []
+        for item in items:
+            try:
+                require_branch_permission(database, item)
+                allowed.append(item)
+            except LibraryError:
+                pass
+        return allowed
+    return items
 
 
 def list_versions(database, item_id, user_id, *, survey_id=None):
     item = get_item(database, item_id, user_id)
     query = {"question_id": item["_id"]}
     if item["owner_id"] != user_id:
-        grants = {"question_id": item["_id"], "requester_id": user_id, "status": "approved"}
-        if survey_id is not None:
-            grants["survey_id"] = _object_id(survey_id)
+        grants = {**_grant_query(user_id, survey_id=survey_id), "question_id": item["_id"]}
         query["_id"] = {"$in": database.question_shares.distinct("version_id", grants)}
     return list(database.question_versions.find(query).sort("number", -1))
 
@@ -82,21 +123,32 @@ def _content(question):
     return validate_question(content)
 
 
-def create_item(database, owner_id, question, *, name=None, forked_from=None, original_use=None):
+def create_item(database, owner_id, question, *, name=None, forked_from=None, original_use=None, initial_note=None):
     _user(database, owner_id)
+    number = 1
+    if forked_from is not None:
+        source_item, source = require_fork_permission(database, forked_from, owner_id)
+        number = source["number"] + 1
+        if source_item["owner_id"] != owner_id and name is None:
+            username = database.users.find_one({"_id": owner_id})["username"]
+            name = (source_item["name"][:150] + " · " + username + "分支")[:200]
+    if isinstance(question, dict) and question.get("source"):
+        source_item = get_item(database, question["source"]["question_id"], owner_id, owner_only=True)
+        if branch_origin(database, source_item):
+            raise LibraryError("修改分支不能另存以移除来源授权。", 403)
     content = _content(question)
     name = _text(content["title"][:200] if name is None else name, "题目名称")
     now = utcnow()
     item_id, version_id = ObjectId(), ObjectId()
-    version = {"_id": version_id, "question_id": item_id, "number": 1, "content": content,
+    version = {"_id": version_id, "question_id": item_id, "number": number, "content": content,
                "parent_version_id": forked_from, "previous_version_id": None,
-               "restored_from_version_id": None, "change_note": "首次保存" if forked_from is None else "从共享版本派生",
+               "restored_from_version_id": None, "change_note": initial_note or ("首次保存" if forked_from is None else "从共享版本派生"),
                "created_by": owner_id, "created_at": now}
     # Never leave a current pointer to a version that has not been inserted.
     database.question_versions.insert_one(version)
     database.question_items.insert_one({
         "_id": item_id, "owner_id": owner_id, "name": name,
-        "current_version_id": version_id, "current_version_number": 1, "next_version": 1,
+        "current_version_id": version_id, "current_version_number": number, "next_version": number,
         "shared_with": [], "forked_from_version_id": forked_from, "created_at": now, "updated_at": now,
         "original_use": {**original_use, "version_id": version_id} if original_use else None,
     })
@@ -105,6 +157,7 @@ def create_item(database, owner_id, question, *, name=None, forked_from=None, or
 
 def create_version(database, item_id, owner_id, base_version_id, question=None, *, note="", restore=False):
     item = get_item(database, item_id, owner_id, owner_only=True)
+    require_branch_permission(database, item)
     _, base = get_version(database, base_version_id, owner_id)
     if base["question_id"] != item["_id"]:
         raise LibraryError("来源版本不属于当前题目。")
@@ -131,11 +184,12 @@ def create_version(database, item_id, owner_id, base_version_id, question=None, 
     return version_id
 
 
-def fork_version(database, version_id, user_id):
-    item, version = get_version(database, version_id, user_id)
-    if item["owner_id"] != user_id:
-        raise LibraryError("授权只供指定问卷使用，不能派生为独立题目。", 403)
-    return create_item(database, user_id, version["content"], forked_from=version["_id"])
+def fork_version(database, version_id, user_id, question=None, *, note=""):
+    _, version = require_fork_permission(database, version_id, user_id)
+    note = _text(note, "修改说明", 500, empty=True)
+    iid = create_item(database, user_id, version["content"] if question is None else question,
+                      forked_from=version["_id"], initial_note=note or None)
+    return iid
 
 
 def save_survey_question(database, survey_id, user_id, question_id):
@@ -144,14 +198,17 @@ def save_survey_question(database, survey_id, user_id, question_id):
     if question is None:
         raise LibraryError("问卷题目不存在。", 404)
     if question.get("source"):
-        get_item(database, question["source"]["question_id"], user_id, owner_only=True)
+        source_item = get_item(database, question["source"]["question_id"], user_id, owner_only=True)
+        if branch_origin(database, source_item):
+            raise LibraryError("修改分支不能另存以移除来源授权。", 403)
     # Do not rewrite legacy surveys or invalidate their existing response revisions.
     return create_item(database, user_id, question,
                        original_use={"survey_id": survey["_id"], "instance_id": question["id"]})
 
 
 def import_version(database, survey_id, user_id, version_id):
-    _, version = get_version(database, version_id, user_id, survey_id=survey_id)
+    item, version = get_version(database, version_id, user_id, survey_id=survey_id)
+    require_branch_permission(database, item)
     survey = get_owned_survey(database, survey_id, user_id)
     if survey is None:
         raise LibraryError("问卷不存在。", 404)
@@ -165,8 +222,41 @@ def import_version(database, survey_id, user_id, version_id):
     return question["id"]
 
 
-def share_item(database, item_id, owner_id, username, *, survey_id, version_id, revoke=False):
+def replace_survey_version(database, survey_id, user_id, question_id, version_id, revision):
+    item, version = get_version(database, version_id, user_id, survey_id=survey_id)
+    require_branch_permission(database, item)
+    survey = _share_survey(database, survey_id, user_id)
+    if question_revision(survey["questions"]) != revision:
+        raise LibraryError("问卷已变化，请刷新后重试。", 409)
+    questions = deepcopy(survey["questions"])
+    old = next((q for q in questions if q["id"] == question_id), None)
+    if old is None:
+        raise LibraryError("问卷题目不存在。", 404)
+    origin = branch_origin(database, item)
+    allowed_items = {item["_id"]}
+    if origin:
+        allowed_items.add(origin[0]["_id"])
+    if old.get("source", {}).get("question_id") not in allowed_items:
+        raise LibraryError("只能替换当前题目或其原题的引用。")
+    replacement = deepcopy(version["content"])
+    replacement["id"] = old["id"]
+    replacement["source"] = {"question_id": item["_id"], "version_id": version["_id"]}
+    questions[questions.index(old)] = replacement
+    # Changed options or question types can invalidate conditions elsewhere in the survey.
+    for q in questions:
+        q["jump_rules"] = []
+    result = database.surveys.update_one({"_id": survey["_id"], "owner_id": user_id,
+        "status": "draft", "questions": survey["questions"]},
+        {"$set": {"questions": questions, "updated_at": utcnow()}})
+    if not result.matched_count:
+        raise LibraryError("问卷已变化或已发布，请刷新后重试。", 409)
+
+
+def share_item(database, item_id, owner_id, username, *, survey_id=None, version_id,
+               scope="surveys", survey_ids=None, revoke=False):
     item = get_item(database, item_id, owner_id, owner_only=True)
+    if branch_origin(database, item):
+        raise LibraryError("修改分支不能转授给其他用户。", 403)
     try:
         target = find_user_by_username(database, username)
     except ValueError as error:
@@ -176,14 +266,33 @@ def share_item(database, item_id, owner_id, username, *, survey_id, version_id, 
     _, version = get_version(database, version_id, owner_id)
     if version["question_id"] != item["_id"]:
         raise LibraryError("版本不属于当前题目。")
-    survey = _share_survey(database, survey_id, target["_id"], draft_only=not revoke)
-    query = {"version_id": version["_id"], "requester_id": target["_id"], "survey_id": survey["_id"]}
+    targets = _share_targets(database, target["_id"], scope, survey_id, survey_ids, draft_only=not revoke)
+    records = []
     if revoke:
-        record = database.question_shares.find_one({**query, "status": "approved"})
-        if record is None:
-            raise LibraryError("有效授权不存在。", 404)
-        return decide_share(database, record["_id"], owner_id, "revoke")
-    return _new_share(database, item, version, target["_id"], survey, approved=True)
+        for survey in targets:
+            row = database.question_shares.find_one({"version_id": version["_id"], "requester_id": target["_id"],
+                "survey_id": survey["_id"] if survey else None, "status": "approved"})
+            if row is None:
+                raise LibraryError("有效授权不存在。", 404)
+            records.append(row)
+        ids = [decide_share(database, row["_id"], owner_id, "revoke") for row in records]
+    else:
+        ids = [_new_share(database, item, version, target["_id"], survey, approved=True) for survey in targets]
+    return ids[0] if len(ids) == 1 else ids
+
+
+def _share_targets(database, requester_id, scope, survey_id=None, survey_ids=None, *, draft_only=True):
+    if scope == "user":
+        return [None]
+    if scope != "surveys":
+        raise LibraryError("请选择面向用户或部分问卷。")
+    ids = survey_ids if survey_ids is not None else [survey_id]
+    if not isinstance(ids, (list, tuple)) or not 1 <= len(ids) <= 50:
+        raise LibraryError("部分问卷授权须选择1～50份问卷。")
+    objects = [_object_id(sid) for sid in ids]
+    if None in objects or len(set(objects)) != len(objects):
+        raise LibraryError("问卷编号无效或重复。")
+    return [_share_survey(database, sid, requester_id, draft_only=draft_only) for sid in objects]
 
 
 def _share_survey(database, survey_id, user_id, *, draft_only=True):
@@ -196,7 +305,7 @@ def _share_survey(database, survey_id, user_id, *, draft_only=True):
 
 
 def _new_share(database, item, version, requester_id, survey, *, approved=False, message=""):
-    query = {"version_id": version["_id"], "requester_id": requester_id, "survey_id": survey["_id"]}
+    query = {"version_id": version["_id"], "requester_id": requester_id, "survey_id": survey["_id"] if survey else None}
     existing = database.question_shares.find_one({**query, "status": {"$in": ["pending", "approved"]}})
     if existing:
         if approved and existing["status"] == "pending":
@@ -215,9 +324,10 @@ def _new_share(database, item, version, requester_id, survey, *, approved=False,
     return record["_id"]
 
 
-def request_share(database, item_id, requester_id, survey_id, *, version_number=1, message=""):
+def request_share(database, item_id, requester_id, survey_id=None, *, version_number=1, message="",
+                  scope="surveys", survey_ids=None):
     _user(database, requester_id)
-    survey = _share_survey(database, survey_id, requester_id)
+    targets = _share_targets(database, requester_id, scope, survey_id, survey_ids)
     if isinstance(version_number, bool) or not isinstance(version_number, int) or version_number < 1:
         raise LibraryError("版本号须为正整数。")
     message = _text(message, "申请说明", 500, empty=True)
@@ -225,7 +335,10 @@ def request_share(database, item_id, requester_id, survey_id, *, version_number=
     version = database.question_versions.find_one({"question_id": _object_id(item_id), "number": version_number})
     if not item or not version or item["owner_id"] == requester_id:
         raise LibraryError("申请的题目版本不存在或属于自己。", 404)
-    return _new_share(database, item, version, requester_id, survey, message=message)
+    if branch_origin(database, item):
+        raise LibraryError("修改分支不能转授给其他用户。", 403)
+    ids = [_new_share(database, item, version, requester_id, survey, message=message) for survey in targets]
+    return ids[0] if len(ids) == 1 else ids
 
 
 def decide_share(database, share_id, owner_id, action):
@@ -238,6 +351,8 @@ def decide_share(database, share_id, owner_id, action):
     get_item(database, record["question_id"], owner_id, owner_only=True)
     before, after = states[action]
     if after == "approved":
+        _user(database, record["requester_id"])
+    if after == "approved" and record["survey_id"] is not None:
         _share_survey(database, record["survey_id"], record["requester_id"])
     now = utcnow()
     if not database.question_shares.update_one({"_id": record["_id"], "owner_id": owner_id, "status": before},
@@ -252,7 +367,7 @@ def share_records(database, user_id):
     for row in rows:
         row["requester"] = database.users.find_one({"_id": row["requester_id"]}, {"username": 1})
         row["author"] = database.users.find_one({"_id": row["owner_id"]}, {"username": 1})
-        row["survey"] = database.surveys.find_one({"_id": row["survey_id"], "owner_id": row["requester_id"]}, {"title": 1})
+        row["survey"] = database.surveys.find_one({"_id": row["survey_id"], "owner_id": row["requester_id"]}, {"title": 1}) if row["survey_id"] is not None else None
         row["version"] = database.question_versions.find_one({"_id": row["version_id"]}, {"number": 1})
     return rows
 
@@ -280,7 +395,10 @@ def usage(database, item_id, user_id, version_id=None):
         if version["question_id"] != item["_id"]:
             raise LibraryError("版本不属于当前题目。")
         match["source.version_id"] = version["_id"]
+    branches = _derived_item_ids(database, item, match.get("source.version_id"))
     query = {"questions": {"$elemMatch": match}}
+    if branches:
+        query = {"$or": [query, {"questions.source.question_id": {"$in": branches}}]}
     original = item["original_use"]
     if original and (version_id is None or original["version_id"] == _object_id(version_id)):
         old = database.surveys.find_one({"_id": original["survey_id"]})
@@ -296,13 +414,19 @@ def usage(database, item_id, user_id, version_id=None):
             "other_count": len(others) if item["owner_id"] == user_id else None}
 
 
+def _derived_item_ids(database, item, version_id=None):
+    versions = [version_id] if version_id else database.question_versions.distinct("_id", {"question_id": item["_id"]})
+    return database.question_items.distinct("_id", {"forked_from_version_id": {"$in": versions}})
+
+
 def preview_referenced_survey(database, item_id, user_id, survey_id):
     """Authors may read an actual reference only while its survey is open."""
     item = get_item(database, item_id, user_id, owner_only=True)
     survey = database.surveys.find_one({"_id": _object_id(survey_id)})
     if survey is None:
         raise LibraryError("引用问卷不存在或不可访问。", 404)
-    referenced = any(q.get("source", {}).get("question_id") == item["_id"] for q in survey["questions"])
+    related_ids = {item["_id"], *_derived_item_ids(database, item)}
+    referenced = any(q.get("source", {}).get("question_id") in related_ids for q in survey["questions"])
     original = item["original_use"]
     if not referenced and original and original["survey_id"] == survey["_id"]:
         instance = next((q for q in survey["questions"] if q["id"] == original["instance_id"]), None)

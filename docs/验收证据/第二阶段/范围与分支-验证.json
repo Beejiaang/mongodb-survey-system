@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-29",
+  "status": "通过",
+  "python_tests": 277,
+  "javascript_tests": 16,
+  "phase_two_cases": 63,
+  "business_routes": 37,
+  "new_branch_tests": 12,
+  "results": [
+    {
+      "log": "范围与分支-完整python.txt",
+      "exit_code": 0,
+      "seconds": 105.355,
+      "sha256": "3ab180994770458897372f135b43635e8c93438228b24a5965c36c9fc1866b94"
+    },
+    {
+      "log": "范围与分支-javascript.tap",
+      "exit_code": 0,
+      "seconds": 0.567,
+      "sha256": "ff84db66812e950412ac5377a3296128f2205a7134d1698a1594bc93b08f0705"
+    },
+    {
+      "log": "范围与分支-依赖.txt",
+      "exit_code": 0,
+      "seconds": 1.609,
+      "sha256": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf"
+    }
+  ],
+  "prior_related_checks": "12项分支、原33项题库统计、12项共享、7项文档通过",
+  "initial_test_failure": "分支网页测试漏传action=share，首次11通过1失败；补齐测试输入后通过，未放宽业务校验",
+  "scope": "用户/部分问卷可选范围；用户范围修改分支；来源授权及撤销；草稿显式替换清空跳转；回答隔离",
+  "phone_test": "未执行",
+  "database_scope": "仅随机独立测试库；不清理保留LAN库",
+  "limitations": "跨集合和批次非事务；撤销前已准入请求可能完成；应用不能阻止手工抄写已看到的内容",
+  "compatibility": "范围与分支-兼容升级.json",
+  "ui_verification": "Flask集成页面检查；本轮未执行真实浏览器或手机端到端验收"
+}

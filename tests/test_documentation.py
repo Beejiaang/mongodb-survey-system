@@ -116,7 +116,7 @@ class DocumentationTests(unittest.TestCase):
 
         phase_two = (DOCS / "第二阶段测试用例.md").read_text(encoding="utf-8")
         phase_rows = re.findall(r"^\| (P2-\d{2}) \| (.+) \|$", phase_two, re.M)
-        self.assertEqual([r[0] for r in phase_rows], [f"P2-{n:02}" for n in range(1, 52)])
+        self.assertEqual([r[0] for r in phase_rows], [f"P2-{n:02}" for n in range(1, 64)])
         documented_methods = set()
         for _, content in phase_rows:
             columns = content.split(" | ")
@@ -125,7 +125,7 @@ class DocumentationTests(unittest.TestCase):
             self.assertIn("通过", columns[2])
             documented_methods.update(re.findall(r"`(test_\w+\.\w+\.test_\w+)`", columns[3]))
         phase_prefixes = ("test_layout.", "test_library.", "test_library_web.",
-                          "test_library_results.", "test_phase2_acceptance.", "test_sharing.")
+                          "test_library_results.", "test_phase2_acceptance.", "test_sharing.", "test_branches.")
         self.assertEqual(documented_methods, {m for m in methods if m.startswith(phase_prefixes)})
         report = (DOCS / "第二阶段项目完成报告.md").read_text(encoding="utf-8")
         self.assertIn(f"完整Python套件{len(methods)}项通过", report)

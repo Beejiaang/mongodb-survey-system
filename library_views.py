@@ -6,7 +6,9 @@ from database import get_request_database
 from question_library import (LibraryError, bank_revision, change_bank, create_bank, create_item,
     create_version, fork_version, get_bank, get_item, get_version, import_version, list_items,
     list_versions, save_survey_question, share_item, usage, version_difference,
-    request_share, decide_share, share_records, preview_referenced_survey)
+    request_share, decide_share, share_records, preview_referenced_survey,
+    branch_origin, require_branch_permission, require_fork_permission, replace_survey_version)
+from jumps import question_revision
 from survey_views import KINDS, STATUS_LABELS, _question_from_form, _render_question
 from surveys import availability, get_owned_survey, list_owned_surveys
 
@@ -25,7 +27,7 @@ def _values(question):
     return values
 
 
-def _editor(item=None, base=None):
+def _editor(item=None, base=None, *, branch_mode=False):
     default = base["content"]["input_type"] if base and base["content"]["type"] == "fill_blank" else base["content"]["type"] if base else "single_choice"
     kind = request.form.get("kind", default) if request.method == "POST" else request.args.get("kind", default)
     if request.method == "POST" and kind in ("text", "number"):
@@ -52,7 +54,11 @@ def _editor(item=None, base=None):
         else:
             try:
                 question = _question_from_form(kind)
-                if item:
+                if branch_mode:
+                    iid = fork_version(_db(), base["_id"], g.user["_id"], question,
+                                       note=request.form.get("change_note", ""))
+                    vid = get_item(_db(), iid, g.user["_id"])["current_version_id"]
+                elif item:
                     vid = create_version(_db(), item["_id"], g.user["_id"], base["_id"], question,
                                          note=request.form.get("change_note", ""))
                     iid = item["_id"]
@@ -65,7 +71,7 @@ def _editor(item=None, base=None):
                 flash("题目版本已保存，已有问卷内容保持固定。", "success")
                 return redirect(url_for("library.item", item_id=iid, version=vid), code=303)
     return _render_question(None, kind, values, error, status, library_mode=True,
-                             library_item=item, base_version=base)
+                             library_item=item, base_version=base, branch_mode=branch_mode)
 
 
 @library.get("")
@@ -93,26 +99,59 @@ def item(item_id):
     if selected["question_id"] != entry["_id"]:
         raise LibraryError("版本不属于当前题目。")
     mapping = {v["_id"]: v for v in versions}
+    origin = branch_origin(_db(), entry)
+    can_modify = entry["owner_id"] == owner
+    if can_modify:
+        try:
+            require_branch_permission(_db(), entry)
+        except LibraryError:
+            can_modify = False
+    if origin and can_modify:
+        mapping[origin[1]["_id"]] = origin[1]
     compare = mapping.get(selected["parent_version_id"])
     if request.args.get("compare"):
         _, compare = get_version(_db(), request.args["compare"], owner)
-        if compare["question_id"] != entry["_id"]:
+        if compare["question_id"] != entry["_id"] and not (origin and compare["_id"] == origin[1]["_id"]):
             raise LibraryError("比较版本不属于当前题目。")
     differences = version_difference(compare["content"], selected["content"]) if compare else []
     drafts = [s for s in list_owned_surveys(_db(), owner) if s["status"] == "draft"]
+    can_fork = False
     if entry["owner_id"] != owner:
-        allowed = _db().question_shares.distinct("survey_id", {
-            "version_id": selected["_id"], "requester_id": owner, "status": "approved"})
-        drafts = [s for s in drafts if s["_id"] in allowed]
+        try:
+            require_fork_permission(_db(), selected["_id"], owner)
+            can_fork = True
+        except LibraryError:
+            pass
+    allowed_drafts = []
+    for s in drafts:
+        try:
+            get_version(_db(), selected["_id"], owner, survey_id=s["_id"])
+            require_branch_permission(_db(), entry)
+            allowed_drafts.append(s)
+        except LibraryError:
+            pass
+    drafts = allowed_drafts
+    replacement_ids = {entry["_id"]}
+    if origin:
+        replacement_ids.add(origin[0]["_id"])
+    replacements = []
+    for draft in drafts:
+        full = get_owned_survey(_db(), draft["_id"], owner)
+        for q in full["questions"]:
+            if q.get("source", {}).get("question_id") in replacement_ids:
+                replacements.append({"survey": full, "question": q, "revision": question_revision(full["questions"])})
+    source_user = _db().users.find_one({"_id": origin[0]["owner_id"]}, {"username": 1}) if origin else None
     return render_template("library/item.html", title=entry["name"], item=entry, versions=versions,
                            selected=selected, compare=compare, differences=differences,
-                           mapping=mapping, drafts=drafts, kinds=KINDS)
+                           mapping=mapping, drafts=drafts, kinds=KINDS, origin=origin,
+                           source_user=source_user, can_modify=can_modify, can_fork=can_fork, replacements=replacements)
 
 
 @library.route("/items/<item_id>/versions/new", methods=("GET", "POST"))
 @login_required
 def new_version(item_id):
     entry = get_item(_db(), item_id, g.user["_id"], owner_only=True)
+    require_branch_permission(_db(), entry)
     _, base = get_version(_db(), request.args.get("base", str(entry["current_version_id"])), g.user["_id"])
     if base["question_id"] != entry["_id"]:
         raise LibraryError("来源版本不属于当前题目。")
@@ -128,12 +167,18 @@ def restore(version_id):
     return redirect(url_for("library.item", item_id=entry["_id"], version=vid), code=303)
 
 
-@library.post("/versions/<version_id>/fork")
+@library.route("/versions/<version_id>/fork", methods=("GET", "POST"))
 @login_required
 def fork(version_id):
-    iid = fork_version(_db(), version_id, g.user["_id"])
-    flash("已派生为自己的独立题目，可以继续创建新版本。", "success")
-    return redirect(url_for("library.item", item_id=iid), code=303)
+    _, base = require_fork_permission(_db(), version_id, g.user["_id"])
+    return _editor(base=base, branch_mode=True)
+
+
+def _scope_form():
+    scope = request.form.get("scope", "surveys")
+    values = request.form.getlist("survey_ids")
+    ids = [part for value in values for part in value.replace(",", " ").split()]
+    return scope, ids or None
 
 
 @library.post("/items/<item_id>/share")
@@ -142,9 +187,10 @@ def share(item_id):
     action = request.form.get("action")
     if action not in ("share", "revoke"):
         raise LibraryError("请选择共享或撤销。")
+    scope, ids = _scope_form()
     share_item(_db(), item_id, g.user["_id"], request.form.get("username", ""),
                survey_id=request.form.get("survey_id"), version_id=request.form.get("version_id"),
-               revoke=action == "revoke")
+               scope=scope, survey_ids=ids, revoke=action == "revoke")
     flash("共享设置已保存。", "success")
     return redirect(url_for("library.item", item_id=item_id), code=303)
 
@@ -156,9 +202,10 @@ def sharing():
         raw_number = request.form.get("version_number", "1")
         if not raw_number.isascii() or not raw_number.isdigit() or len(raw_number) > 9:
             raise LibraryError("版本号须为正整数。")
+        scope, ids = _scope_form()
         request_share(_db(), request.form.get("item_id"), g.user["_id"], request.form.get("survey_id"),
-                      version_number=int(raw_number), message=request.form.get("message", ""))
-        flash("申请已提交；出题者批准后，仅可在指定问卷使用该版本。", "success")
+                      version_number=int(raw_number), message=request.form.get("message", ""), scope=scope, survey_ids=ids)
+        flash("申请已提交；出题者批准后按申请范围使用该版本。", "success")
         return redirect(url_for("library.sharing"), code=303)
     return render_template("library/sharing.html", title="题目共享申请与审批",
                            records=share_records(_db(), g.user["_id"]),
@@ -179,6 +226,16 @@ def use(version_id):
     sid = request.form.get("survey_id", "")
     import_version(_db(), sid, g.user["_id"], version_id)
     flash("已加入指定版本，跳转请在当前问卷配置。", "success")
+    return redirect(url_for("surveys.detail", survey_id=sid), code=303)
+
+
+@library.post("/versions/<version_id>/replace")
+@login_required
+def replace(version_id):
+    sid = request.form.get("survey_id")
+    replace_survey_version(_db(), sid, g.user["_id"], request.form.get("question_id"),
+                           version_id, request.form.get("revision"))
+    flash("已替换草稿题目版本，并清空本问卷全部跳转规则，请重新配置。", "success")
     return redirect(url_for("surveys.detail", survey_id=sid), code=303)
 
 

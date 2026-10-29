@@ -1,23 +1,23 @@
 {% extends 'base.html' %}
 {% block content %}
 <a class="text-link" href="{{ url_for('library.index') }}">← 题目与题库</a>
-<section class="account-heading"><h1>题目共享申请与审批</h1><p class="muted">授权绑定一个题目版本和一份目标问卷。其他问卷或其他版本需要另行获准。</p></section>
-<section class="editor-panel"><h2>申请使用题目</h2><p class="field-help">请向出题者取得题目编号和版本号，选择自己的草稿问卷。待审批时不可查看或导入源题；获准后也不能派生或另存为个人常用题。</p>
-{% if drafts %}<form method="post" class="account-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<section class="account-heading"><h1>题目共享申请与审批</h1><p class="muted">每次授权固定题目版本，可选择面向用户全部问卷，或仅面向该用户的部分问卷。回答数据始终按问卷所有者隔离。</p></section>
+<section class="editor-panel"><h2>申请使用题目</h2><p class="field-help">先向出题者取得题目编号和版本号。面向用户授权可用于自己当前及未来的问卷，并可创建自己的修改分支；部分问卷授权只允许在所选问卷复用原版。待审批时不能取用源题。</p>
+<form method="post" class="account-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 <div class="field"><label for="item-id">出题者提供的题目编号</label><input name="item_id" id="item-id" required maxlength="24"></div>
 <div class="field"><label for="version-number">申请版本号</label><input name="version_number" id="version-number" type="number" min="1" max="999999999" value="1" required></div>
-<div class="field"><label for="survey-id">仅用于这份问卷</label><select name="survey_id" id="survey-id">{% for s in drafts %}<option value="{{ s._id }}">{{ s.title }} · {{ s._id }}</option>{% endfor %}</select></div>
-<div class="field"><label for="message">申请说明（选填）</label><textarea name="message" id="message" maxlength="500"></textarea></div><button class="button">提交申请</button></form>
-{% else %}<a href="{{ url_for('surveys.new') }}">先创建目标问卷草稿</a>{% endif %}</section>
+<div class="field"><label for="scope">申请范围</label><select name="scope" id="scope"><option value="surveys">该用户的部分问卷</option><option value="user">面向用户：我的全部问卷（含以后创建的问卷）</option></select></div>
+<div class="field"><label for="survey-ids">部分问卷范围：选择自己的草稿（可多选）</label><select name="survey_ids" id="survey-ids" multiple size="4">{% for s in drafts %}<option value="{{ s._id }}">{{ s.title }} · {{ s._id }}</option>{% endfor %}</select><p class="field-help">按Ctrl可多选；选择面向用户时无需选问卷。面向部分问卷时须选1～50份草稿，每份单独记录申请及审批结果。</p></div>
+<div class="field"><label for="message">申请说明（选填）</label><textarea name="message" id="message" maxlength="500"></textarea></div><button class="button">提交申请</button></form></section>
 <section><h2>我的申请、收到的申请与授权记录</h2>
 {% set labels={'pending':'待审批','approved':'已授权','rejected':'已拒绝','revoked':'已撤销'} %}
 {% for r in records %}<article class="editor-panel"><h3>{{ labels[r.status] }} · v{{ r.version.number if r.version else '?' }}</h3>
 <p>出题者：{{ r.author.username if r.author else '账号已不存在' }} · 需求者：{{ r.requester.username if r.requester else '账号已不存在' }}</p>
-<p>目标问卷：{{ r.survey.title if r.survey else '问卷已不存在' }}<br>问卷编号：{{ r.survey_id }}<br>题目编号：{{ r.question_id }}</p>
+{% if r.survey_id is none %}<p class="notice">面向用户：该用户当前及未来的全部问卷，可创建自己的修改分支。</p>{% else %}<p>仅限指定问卷：{{ r.survey.title if r.survey else '问卷已不存在' }}<br>问卷编号：{{ r.survey_id }}</p>{% endif %}<p class="field-help">题目编号：{{ r.question_id }}</p>
 <p class="field-help">{{ '需求者申请' if r.origin == 'request' else '出题者主动授权' }} · {{ r.created_at|beijing_time }}{% if r.decided_at %} · 最近处理：{{ r.decided_at|beijing_time }}{% endif %}</p>
 {% if r.message %}<p>申请说明：{{ r.message }}</p>{% endif %}
 {% if r.owner_id == g.user._id %}<div class="form-actions"><a class="text-link" href="{{ url_for('library.item', item_id=r.question_id, version=r.version_id) }}">核对题目版本</a>
-{% if r.status in ('pending','approved') %}<form method="post" action="{{ url_for('library.sharing_decision', share_id=r._id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% if r.status == 'pending' %}<button class="button" name="action" value="approve">批准用于这份问卷</button><button class="nav-button" name="action" value="reject">拒绝</button>{% else %}<button class="nav-button" name="action" value="revoke">撤销此授权</button>{% endif %}</form>{% endif %}</div>
-{% elif r.status == 'approved' %}<a href="{{ url_for('library.select', survey_id=r.survey_id) }}">前往指定问卷选题</a>{% endif %}</article>
+{% if r.status in ('pending','approved') %}<form method="post" action="{{ url_for('library.sharing_decision', share_id=r._id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% if r.status == 'pending' %}<button class="button" name="action" value="approve">批准此申请范围</button><button class="nav-button" name="action" value="reject">拒绝</button>{% else %}<button class="nav-button" name="action" value="revoke">撤销此授权</button>{% endif %}</form>{% endif %}</div>
+{% elif r.status == 'approved' %}<a href="{{ url_for('library.item', item_id=r.question_id, version=r.version_id) }}">查看获准版本及选用范围</a>{% endif %}</article>
 {% else %}<p class="notice">暂无申请或授权记录。</p>{% endfor %}</section>
 {% endblock %}

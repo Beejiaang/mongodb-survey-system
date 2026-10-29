@@ -47,5 +47,8 @@ SHARE_VALIDATOR = {"$jsonSchema": object_schema({
     "created_at": DATE, "updated_at": DATE,
     "decided_at": {"bsonType": ["date", "null"]}, "decided_by": MAYBE_OID,
 })}
+PRE_SCOPE_SHARE_VALIDATOR = deepcopy(SHARE_VALIDATOR)
+# null means an explicit user-wide grant; existing ObjectIds keep their survey scope.
+SHARE_VALIDATOR["$jsonSchema"]["properties"]["survey_id"] = deepcopy(MAYBE_OID)
 LIBRARY_VALIDATORS = {"question_items": ITEM_VALIDATOR, "question_versions": VERSION_VALIDATOR,
                       "question_banks": BANK_VALIDATOR, "question_shares": SHARE_VALIDATOR}

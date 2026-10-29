@@ -12,7 +12,7 @@
 
 ## 全部业务路由
 
-本表覆盖36个业务路径，未列Flask自动生成的HEAD、OPTIONS以及静态资源GET接口。
+本表覆盖37个业务路径，未列Flask自动生成的HEAD、OPTIONS以及静态资源GET接口。
 
 | 方法 | 路径 | 身份与用途 | 正常结果 |
 | --- | --- | --- | --- |
@@ -40,11 +40,12 @@
 | GET | /library/items/<item_id> | 版本详情、选择、差异及历史 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
 | GET, POST | /library/items/<item_id>/versions/new | 作者基于指定版本创建新版本 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
 | POST | /library/versions/<version_id>/restore | 作者用旧内容生成新版本，记录恢复来源 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
-| POST | /library/versions/<version_id>/fork | 接收者派生自己的题目 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| GET, POST | /library/versions/<version_id>/fork | 有面向用户授权的接收者编辑并保存自己的修改分支 | GET表单200；POST成功303；未获相应范围403/404，校验400 |
 | POST | /library/items/<item_id>/share | 作者定向共享或撤销 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
 | GET, POST | /library/sharing | 列出本人申请与收到的申请；POST发起指定问卷申请 | GET 200；POST成功303，输入400，越权404，非草稿409 |
 | POST | /library/sharing/<share_id>/decision | 出题者批准、拒绝或撤销 | 成功303，坏动作400，越权404，过期状态409 |
 | POST | /library/versions/<version_id>/use | 将确切版本加入本人草稿 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
+| POST | /library/versions/<version_id>/replace | 本人草稿显式替换当前题目或其原题引用，并清空全部跳转 | 成功303；未授权403/404，版本不匹配400，非草稿或旧摘要409 |
 | POST | /library/from-survey/<survey_id>/<question_id> | 本人问卷题目保存为常用题，旧卷不变 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
 | GET | /library/items/<item_id>/usage | 使用情况，本人问卷详情及作者可见的其他引用名称、编号、状态 | GET 200；POST成功303，验证失败400，冲突409，越权404 |
 | GET | /library/items/<item_id>/surveys/<survey_id>/preview | 原题作者只读查看实际引用该题且正在开放的问卷全部题目 | 成功200且Cache-Control: no-store；未登录302；非作者、无引用或草稿404；截止或关闭410；POST不支持 |
@@ -127,7 +128,7 @@ version每次保存、返回或首次正式提交递增；旧版本不能覆盖�
 | 303 | 注册、登录、保存、发布、关闭、首次提交等成功后的重定向 |
 | 400 | 字段、格式、题型、页码、操作参数或CSRF不合法 |
 | 401 | 用户名或密码错误；填写业务发现账号已不存在 |
-| 403 | 共享题目仅用于指定问卷，禁止派生为独立题目 |
+| 403 | 无有效面向用户授权不能修改分支；分支禁止另存去除来源或转授 |
 | 404 | 编号无效、不存在、草稿分享入口、无权访问的问卷/回答/结果、越界页 |
 | 405 | 使用未支持的方法，如GET /logout、GET发布或关闭 |
 | 409 | 重复用户名、非草稿修改、重复发布、旧版本、禁止重复填写等冲突 |
@@ -145,14 +146,14 @@ POST布局接口带revision（当前整卷摘要）和action=up/down/delete。�
 
 GET版本详情可用version选择版本、compare选择同题比较版本。新版本编辑通过base查询参数指定来源，题目字段沿用原添加题目表单，另有change_note（最多500字符）。没有原地覆盖版本的接口。restore无业务必填字段，始终新建版本并记录恢复源。
 
-share带username、survey_id、version_id和action=share/revoke，仅原作者可操作，目标问卷须属于指定需求者；批准或主动授权仅限指定版本及该问卷，不可派生。use带survey_id；select的POST带version_id，GET可带bank筛选本人题库。from-survey路径指定本人问卷及本地题目编号，保存来源映射而不重写原卷。
+share带username、version_id、action=share/revoke及scope=user/surveys。user面向该用户当前及未来全部问卷；surveys带survey_ids（多个编号，每行或逗号分隔，1～50份）或兼容单个survey_id。所有部分问卷先验证归属及草稿状态；批次生成各问卷独立记录，分别审批或撤销。收窄范围须先撤销仍有效的用户级授权。use带survey_id；select的POST带version_id，GET可按bank筛选。
 
 题库列表POST带name和description；题库详情POST须带revision及action。put带version_id（同题替换题库条目指定版本），remove带现有version_id，rename带name和description，delete只删除题库容器。过期摘要409，不覆盖他人或新的条目。
 
 跨问卷统计GET可带page（正整数，最多100000），每页20条原文，只统计当前用户自建问卷中的submitted及实际到达题目。相同版本的多次出现按回答次数计数，正式提交总份数不重复；不将按问卷隔离的HMAC计数描述为跨问卷去重人数。授权撤销后本人已导入问卷的统计仍可查看。
 
 
-共享申请POST字段为item_id、version_number（ASCII正整数，至多9位）、survey_id及可选message（至多500字符）。申请者须拥有目标草稿；不能向自己的题目申请。申请页不开放未获准源题正文。decision带action=approve/reject/revoke，仅出题者可处理；审批匹配原状态。所有写入仍需CSRF。GET sharing仅列出本人参与的记录。共享派生请求403；保存共享来源为常用题或转授仍拒绝。旧shared_with不再授权。完整操作见[共享说明](题目共享与审批说明.md)。
+共享申请POST字段为item_id、version_number、scope和可选message；scope=surveys另带多选survey_ids，兼容原survey_id；scope=user无需已有草稿。请求不能批准自己的申请，审批页清楚展示范围。批准的授权仍固定来源版本，新原题版本不自动授权。修改分支使用fork的GET/POST题型表单，POST沿用题目字段及change_note；保存为独立分支身份，首个号码为来源号码+1，后续在分支内递增。replace带survey_id、question_id、version_id由路径提供、revision整卷摘要，保留本地题号，清空该卷全部跳转，禁止修改已发布问卷。
 
 
 第6条访问补充：使用清单仍列出全部引用记录及实时状态，只对published且未截止的引用问卷提供只读预览入口。预览逐请求验证作者身份、真实引用关系和开放状态，不创建responses，不授予管理或统计权限；其他共享接收者不能凭授权访问此作者专用入口。普通填写链接的先登录、介绍页和逐题填写行为保持不变。
