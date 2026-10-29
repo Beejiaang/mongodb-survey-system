@@ -323,6 +323,19 @@
           "quote": "已准备",
           "description": "作者G草稿三题顺序为原v1年龄题、是否继续单选（继续/结束）、补充说明文本。年龄上限120，当前全卷0条跳转。准备保存年龄等于18跳至补充说明的规则，再逐项验证替换/调序/删除清空。",
           "survey_id": "6ae2ddb685ebe82b69f841cb"
+        },
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "规则已保存",
+          "description": "G草稿年龄题已保存一条eq18跳至第3题补充说明的规则，其他题无规则。已记录替换前题号、来源v1上限120和规则目标；替换操作尚未执行。",
+          "rule": {
+            "condition": {
+              "operator": "eq",
+              "value": 18
+            },
+            "target_question_id": "5856918922f045e09b853393c99d0257"
+          }
         }
       ]
     },
@@ -548,7 +561,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "G卷三题及原v1来源已核对；M2-08进行中，下一步保存第1题年龄=18跳至第3题补充说明的规则。尚未执行替换、调序或删除。",
+  "notes": "G卷替换前基线确认：年龄原v1上限120，eq18跳至补充说明，三题题号已记录。下一步在原题v2详情的已有草稿替换区域明确替换G年龄题，核对同一本地题号、上限100且全卷跳转清空。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -1101,6 +1114,26 @@
           "input_type": "text"
         }
       ]
+    },
+    "draft_g_before_replacement": {
+      "survey_id": "6ae2ddb685ebe82b69f841cb",
+      "question_ids": [
+        "a9da41936fee4538afd2ad729223e2f7",
+        "a3bbb1667cba4916b108687eb0e1426f",
+        "5856918922f045e09b853393c99d0257"
+      ],
+      "source_version_id": "6ae2c6b698dabeb179606a74",
+      "max_value": 120,
+      "jump_rules": [
+        {
+          "condition": {
+            "operator": "eq",
+            "value": 18
+          },
+          "target_question_id": "5856918922f045e09b853393c99d0257"
+        }
+      ],
+      "target_title": "补充说明"
     }
   },
   "execution_priority": "用户要求加快跨设备操作，先完成手机/电脑配合项，M2-04本地恢复v1暂后置，未记通过",
