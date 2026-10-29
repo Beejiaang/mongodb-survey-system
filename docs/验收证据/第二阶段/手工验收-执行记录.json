@@ -119,7 +119,16 @@
       "id": "M2-04",
       "name": "原题版本选择、历史恢复与发布固定",
       "status": "进行中",
-      "evidence": []
+      "evidence": [
+        {
+          "kind": "用户文字确认＋数据库只读复核",
+          "date": "2026-10-29",
+          "quote": "已发布",
+          "description": "A卷已发布并固定年龄题v1，B卷仍为草稿。已记录发布后题目BSON哈希，供后续原题v2和恢复操作核对。",
+          "survey_id": "6ae2c8e385ebe82b69f840bf",
+          "questions_sha256": "6e185e9a27f672c5ee46bf50e1d85a505900255b42ae25790b9e85049cd25455"
+        }
+      ]
     },
     {
       "id": "M2-05",
@@ -171,7 +180,7 @@
     }
   ],
   "phone_confirmed": true,
-  "notes": "M2-01/02/03通过。A/B两份作者草稿独立复用v1且题库固定v1已复核；当前进入M2-04，先发布A卷以验证后续改题不影响发布内容。",
+  "notes": "M2-01/02/03通过；A卷已发布且发布题目快照已记录，B卷仍草稿。M2-04继续，下一步将原题上限120改100生成v2，不更新题库或问卷。",
   "network_history": [
     {
       "url": "http://10.131.37.121:5002/",
@@ -357,6 +366,31 @@
         "max_value": 120,
         "integer_only": true
       }
+    },
+    "author_survey_a_published_snapshot": {
+      "survey_id": "6ae2c8e385ebe82b69f840bf",
+      "status": "published",
+      "published_at": "2026-10-29T04:23:26.424000+00:00",
+      "questions_sha256": "6e185e9a27f672c5ee46bf50e1d85a505900255b42ae25790b9e85049cd25455",
+      "questions": [
+        {
+          "id": "b5686c3da3a240c2bfd8ce4bbb8ba5dd",
+          "type": "fill_blank",
+          "title": "年龄（请使用阿拉伯数字回答）",
+          "required": true,
+          "validation": {
+            "min_value": 0,
+            "max_value": 120,
+            "integer_only": true
+          },
+          "jump_rules": [],
+          "input_type": "number",
+          "source": {
+            "question_id": "6ae2c6b698dabeb179606a73",
+            "version_id": "6ae2c6b698dabeb179606a74"
+          }
+        }
+      ]
     }
   }
 }
